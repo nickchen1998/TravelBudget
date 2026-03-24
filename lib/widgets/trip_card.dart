@@ -160,22 +160,22 @@ class TripCard extends StatelessWidget {
                           color: AppTheme.ink,
                         ),
                       ),
-                      if (trip.budget > 0)
-                        Text(
-                          '/ $symbol${trip.budget.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            color: AppTheme.inkFaint,
-                            fontSize: 14,
-                          ),
-                        )
-                      else
-                        const Text(
-                          '/ ∞',
-                          style: TextStyle(
-                            color: AppTheme.inkFaint,
-                            fontSize: 14,
-                          ),
-                        ),
+                      trip.budget > 0
+                          ? Text(
+                              '/ $symbol${trip.budget.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                color: AppTheme.inkFaint,
+                                fontSize: 14,
+                              ),
+                            )
+                          : const Text(
+                              '/ ∞',
+                              style: TextStyle(
+                                color: AppTheme.infinity,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -191,24 +191,31 @@ class TripCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (trip.budget > 0) ...[
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: percentage,
-                        minHeight: 7,
-                        backgroundColor: AppTheme.parchment.withValues(alpha: 0.5),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          spent > trip.budget
-                              ? AppTheme.stampRed
-                              : percentage > 0.8
-                                  ? AppTheme.amber
-                                  : AppTheme.moss,
-                        ),
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: trip.budget > 0
+                        ? LinearProgressIndicator(
+                            value: percentage,
+                            minHeight: 7,
+                            backgroundColor:
+                                AppTheme.parchment.withValues(alpha: 0.5),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              spent > trip.budget
+                                  ? AppTheme.stampRed
+                                  : percentage > 0.8
+                                      ? AppTheme.amber
+                                      : AppTheme.moss,
+                            ),
+                          )
+                        : const LinearProgressIndicator(
+                            value: 1.0,
+                            minHeight: 7,
+                            backgroundColor: AppTheme.infinitySoft,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppTheme.infinity),
+                          ),
+                  ),
                 ],
               ),
             ),

@@ -24,6 +24,10 @@ class AppTheme {
   static const Color amber = Color(0xFFCDA64F);
   static const Color slate = Color(0xFF7E8B92);
 
+  // === No-budget / infinity ===
+  static const Color infinity = Color(0xFF9BB5C4);     // 霧藍
+  static const Color infinitySoft = Color(0xFFDFEBF0);  // 淡霧藍
+
   // === Shadows ===
   static List<BoxShadow> get cardShadow => [
         BoxShadow(

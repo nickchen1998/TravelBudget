@@ -288,30 +288,10 @@ class _OverviewScreenState extends State<OverviewScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(trip.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.ink)),
-                        ),
-                        Text(
-                          '$symbol${spent.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.ink),
-                        ),
-                        if (trip.budget > 0) ...[
-                          const SizedBox(width: 4),
-                          Text(
-                            '/ $symbol${trip.budget.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                                fontSize: 13, color: AppTheme.inkFaint),
-                          ),
-                        ],
-                      ],
-                    ),
+                    Text(trip.name,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.ink)),
                     if (trip.budget > 0) ...[
                       const SizedBox(height: 6),
                       ClipRRect(
@@ -329,6 +309,56 @@ class _OverviewScreenState extends State<OverviewScreen>
                                     : AppTheme.moss,
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$symbol${spent.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.ink),
+                          ),
+                          Text(
+                            '$symbol${trip.budget.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                                fontSize: 13, color: AppTheme.inkFaint),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: const LinearProgressIndicator(
+                          value: 1.0,
+                          minHeight: 5,
+                          backgroundColor: AppTheme.infinitySoft,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppTheme.infinity),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$symbol${spent.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.ink),
+                          ),
+                          const Text(
+                            '∞',
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.infinity),
+                          ),
+                        ],
                       ),
                     ],
                   ],

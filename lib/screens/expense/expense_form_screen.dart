@@ -1,0 +1,276 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../constants/categories.dart';
+import '../../constants/currencies.dart';
+import '../../models/expense.dart';
+import '../../models/trip.dart';
+import '../../providers/expense_provider.dart';
+import '../../services/exchange_rate_service.dart';
+
+class ExpenseFormScreen extends StatefulWidget {
+  final Trip trip;
+  final Expense? expense;
+
+  const ExpenseFormScreen({super.key, required this.trip, this.expense});
+
+  @override
+  State<ExpenseFormScreen> createState() => _ExpenseFormScreenState();
+}
+
+class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  late TextEditingController _amountController;
+  late TextEditingController _noteController;
+  late ExpenseCategory _category;
+  late String _currency;
+  late DateTime _date;
+  bool _isConverting = false;
+
+  final ExchangeRateService _rateService = ExchangeRateService();
+
+  bool get isEditing => widget.expense != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final e = widget.expense;
+    _titleController = TextEditingController(text: e?.title ?? '');
+    _amountController = TextEditingController(
+      text: e != null ? e.amount.toStringAsFixed(e.amount == e.amount.roundToDouble() ? 0 : 2) : '',
+    );
+    _noteController = TextEditingController(text: e?.note ?? '');
+    _category = e?.category ?? ExpenseCategory.food;
+    _currency = e?.currency ?? widget.trip.targetCurrency;
+    _date = e?.date ?? DateTime.now();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isEditing ? '編輯消費' : '新增消費'),
+        actions: [
+          TextButton(
+            onPressed: _isConverting ? null : _save,
+            child: const Text('儲存'),
+          ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Category Selection
+            const Text('分類', style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.5,
+              children: ExpenseCategory.values.map((cat) {
+                final isSelected = _category == cat;
+                return ChoiceChip(
+                  label: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(cat.icon,
+                          size: 18,
+                          color: isSelected ? Colors.white : cat.color),
+                      const SizedBox(width: 4),
+                      Text(cat.displayName),
+                    ],
+                  ),
+                  selected: isSelected,
+                  selectedColor: cat.color,
+                  showCheckmark: false,
+                  onSelected: (_) => setState(() => _category = cat),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+
+            // Title
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: '項目名稱',
+                hintText: '例：一蘭拉麵',
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? '請輸入項目名稱' : null,
+            ),
+            const SizedBox(height: 16),
+
+            // Amount + Currency
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    controller: _amountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                      labelText: '金額',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return '請輸入金額';
+                      if (double.tryParse(v) == null) return '無效金額';
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _currency,
+                    decoration: const InputDecoration(
+                      labelText: '幣別',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: supportedCurrencies.map((c) {
+                      return DropdownMenuItem(
+                        value: c.code,
+                        child: Text(c.code, style: const TextStyle(fontSize: 14)),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      if (v != null) setState(() => _currency = v);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Date
+            InkWell(
+              onTap: _pickDate,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: '日期',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.calendar_today, size: 18),
+                ),
+                child: Text(DateFormat('yyyy/MM/dd').format(_date)),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Note
+            TextFormField(
+              controller: _noteController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: '備註（選填）',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Save Button
+            FilledButton.icon(
+              onPressed: _isConverting ? null : _save,
+              icon: _isConverting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.check),
+              label: Text(isEditing ? '更新' : '新增'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: widget.trip.startDate,
+      lastDate: widget.trip.endDate,
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isConverting = true);
+
+    try {
+      final amount = double.parse(_amountController.text);
+      double? convertedAmount;
+      double? exchangeRate;
+
+      if (_currency == widget.trip.baseCurrency) {
+        convertedAmount = amount;
+        exchangeRate = 1.0;
+      } else {
+        exchangeRate = await _rateService.getRate(
+          _currency,
+          widget.trip.baseCurrency,
+        );
+        convertedAmount = amount * exchangeRate;
+      }
+
+      final expense = Expense(
+        id: widget.expense?.id,
+        tripId: widget.trip.id!,
+        title: _titleController.text.trim(),
+        amount: amount,
+        currency: _currency,
+        convertedAmount: convertedAmount,
+        exchangeRate: exchangeRate,
+        category: _category,
+        note: _noteController.text.trim().isEmpty
+            ? null
+            : _noteController.text.trim(),
+        date: _date,
+        createdAt: widget.expense?.createdAt,
+      );
+
+      if (!mounted) return;
+      final provider = context.read<ExpenseProvider>();
+      if (isEditing) {
+        await provider.updateExpense(expense);
+      } else {
+        await provider.addExpense(expense);
+      }
+
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('儲存失敗: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isConverting = false);
+    }
+  }
+}

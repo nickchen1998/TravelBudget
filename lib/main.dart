@@ -5,14 +5,17 @@ import 'package:provider/provider.dart';
 import 'constants/app_theme.dart';
 import 'db/database_helper.dart';
 import 'l10n/app_localizations.dart';
+import 'providers/ad_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/trip_provider.dart';
 import 'providers/expense_provider.dart';
+import 'services/ad_service.dart';
 import 'screens/home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseHelper.instance.database;
+  await AdService.initialize();
   await initializeDateFormatting('zh_TW', null);
   await initializeDateFormatting('ja', null);
   await initializeDateFormatting('ko', null);
@@ -22,10 +25,14 @@ void main() async {
   final localeProvider = LocaleProvider();
   await localeProvider.loadSavedLocale();
 
+  final adProvider = AdProvider();
+  await adProvider.initialize();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: localeProvider),
+        ChangeNotifierProvider.value(value: adProvider),
         ChangeNotifierProvider(create: (_) => TripProvider()..loadTrips()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
       ],

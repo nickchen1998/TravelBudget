@@ -164,6 +164,15 @@ class AppLocalizations {
   String skippedLines(int count) =>
       _t('skippedLines').replaceAll('{count}', '$count');
 
+  // === Ads / Purchase ===
+  String get removeAds => _t('removeAds');
+  String get removeAdsDesc => _t('removeAdsDesc');
+  String get restorePurchase => _t('restorePurchase');
+  String get purchaseSuccess => _t('purchaseSuccess');
+  String get purchaseRestored => _t('purchaseRestored');
+  String get purchaseFailed => _t('purchaseFailed');
+  String get adsAlreadyRemoved => _t('adsAlreadyRemoved');
+
   String _t(String key) {
     final map = _localizedValues[localeKey] ?? _localizedValues['zh_TW']!;
     return map[key] ?? _localizedValues['zh_TW']![key] ?? key;
@@ -283,6 +292,13 @@ class AppLocalizations {
     'newLabel': '新增',
     'expenseUnit': '{count} 筆',
     'skippedLines': '{count} 筆無法解析，將略過',
+    'removeAds': '移除廣告',
+    'removeAdsDesc': '一次購買，永久移除所有廣告',
+    'restorePurchase': '恢復購買',
+    'purchaseSuccess': '已成功移除廣告！',
+    'purchaseRestored': '已恢復購買',
+    'purchaseFailed': '購買失敗',
+    'adsAlreadyRemoved': '廣告已移除',
   };
 
   static const _en = {
@@ -391,6 +407,13 @@ class AppLocalizations {
     'newLabel': 'New',
     'expenseUnit': '{count}',
     'skippedLines': '{count} lines skipped (unparseable)',
+    'removeAds': 'Remove Ads',
+    'removeAdsDesc': 'One-time purchase to remove all ads',
+    'restorePurchase': 'Restore Purchase',
+    'purchaseSuccess': 'Ads removed successfully!',
+    'purchaseRestored': 'Purchase restored',
+    'purchaseFailed': 'Purchase failed',
+    'adsAlreadyRemoved': 'Ads already removed',
   };
 
   static const _ja = {
@@ -499,6 +522,13 @@ class AppLocalizations {
     'newLabel': '新規',
     'expenseUnit': '{count}件',
     'skippedLines': '{count}件は解析できません',
+    'removeAds': '広告を削除',
+    'removeAdsDesc': '一度の購入ですべての広告を削除',
+    'restorePurchase': '購入を復元',
+    'purchaseSuccess': '広告を削除しました！',
+    'purchaseRestored': '購入を復元しました',
+    'purchaseFailed': '購入に失敗しました',
+    'adsAlreadyRemoved': '広告は削除済みです',
   };
 
   static const _ko = {
@@ -607,6 +637,13 @@ class AppLocalizations {
     'newLabel': '신규',
     'expenseUnit': '{count}건',
     'skippedLines': '{count}건 분석 불가, 건너뜁니다',
+    'removeAds': '광고 제거',
+    'removeAdsDesc': '한 번 구매로 모든 광고 제거',
+    'restorePurchase': '구매 복원',
+    'purchaseSuccess': '광고가 제거되었습니다!',
+    'purchaseRestored': '구매가 복원되었습니다',
+    'purchaseFailed': '구매 실패',
+    'adsAlreadyRemoved': '광고가 이미 제거되었습니다',
   };
 
   static const _zhCN = {
@@ -715,6 +752,13 @@ class AppLocalizations {
     'newLabel': '新增',
     'expenseUnit': '{count} 笔',
     'skippedLines': '{count} 笔无法解析，将略过',
+    'removeAds': '移除广告',
+    'removeAdsDesc': '一次购买，永久移除所有广告',
+    'restorePurchase': '恢复购买',
+    'purchaseSuccess': '已成功移除广告！',
+    'purchaseRestored': '已恢复购买',
+    'purchaseFailed': '购买失败',
+    'adsAlreadyRemoved': '广告已移除',
   };
 }
 

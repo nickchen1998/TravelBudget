@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/ad_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../services/csv_service.dart';
@@ -104,6 +105,8 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        _buildPurchaseSection(context, l),
+        const SizedBox(height: 16),
         _sectionCard(
           title: l.data,
           child: Column(
@@ -140,6 +143,80 @@ class SettingsScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildPurchaseSection(BuildContext context, AppLocalizations l) {
+    final adProvider = context.watch<AdProvider>();
+
+    if (adProvider.adsRemoved) {
+      return _sectionCard(
+        title: l.removeAds,
+        child: _settingsTile(
+          icon: Icons.check_circle_outline,
+          title: l.adsAlreadyRemoved,
+          trailing: const Icon(Icons.check, color: AppTheme.moss, size: 20),
+        ),
+      );
+    }
+
+    return _sectionCard(
+      title: l.removeAds,
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () => _buyRemoveAds(context),
+            child: _settingsTile(
+              icon: Icons.remove_circle_outline,
+              title: l.removeAds,
+              subtitle: l.removeAdsDesc,
+              trailing: const Icon(Icons.chevron_right,
+                  color: AppTheme.inkFaint, size: 20),
+            ),
+          ),
+          const Divider(height: 1, color: AppTheme.parchment),
+          GestureDetector(
+            onTap: () => _restorePurchase(context),
+            child: _settingsTile(
+              icon: Icons.restore,
+              title: l.restorePurchase,
+              trailing: const Icon(Icons.chevron_right,
+                  color: AppTheme.inkFaint, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _buyRemoveAds(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AdProvider>().buyRemoveAds();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.purchaseFailed}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _restorePurchase(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AdProvider>().restorePurchases();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.purchaseRestored)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.purchaseFailed}: $e')),
+        );
+      }
+    }
   }
 
   void _showLanguagePicker(BuildContext context) {

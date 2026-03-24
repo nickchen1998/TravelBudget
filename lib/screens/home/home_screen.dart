@@ -1,8 +1,11 @@
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/ad_provider.dart';
 import '../../providers/trip_provider.dart';
+import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/trip_card.dart';
 import '../trip/trip_form_screen.dart';
 import '../trip/trip_detail_screen.dart';
@@ -18,22 +21,48 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
+  bool _attRequested = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_attRequested) {
+      _attRequested = true;
+      // Delay ATT request so the app UI is visible first
+      Future.delayed(const Duration(seconds: 1), () async {
+        if (!mounted) return;
+        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        if (status == TrackingStatus.notDetermined) {
+          await AppTrackingTransparency.requestTrackingAuthorization();
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final titles = [l.appName, l.statsOverview, l.settings];
 
+    final showAds = context.watch<AdProvider>().showAds;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(titles[_currentTab]),
       ),
-      body: IndexedStack(
-        index: _currentTab,
+      body: Column(
         children: [
-          _buildTripsTab(),
-          const OverviewScreen(),
-          const SettingsScreen(),
+          Expanded(
+            child: IndexedStack(
+              index: _currentTab,
+              children: [
+                _buildTripsTab(),
+                const OverviewScreen(),
+                const SettingsScreen(),
+              ],
+            ),
+          ),
+          if (showAds) const BannerAdWidget(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

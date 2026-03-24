@@ -16,9 +16,11 @@ All data you enter — including trips, expenses, budgets, and settings — is s
 
 The App connects to [ExchangeRate API](https://www.exchangerate-api.com) solely to fetch currency exchange rates. No personal information is sent in these requests.
 
-## Third-Party Services
+## Advertising
 
-The App does not integrate any analytics, advertising, tracking, or social media SDKs.
+The App displays banner ads provided by Google AdMob. AdMob may collect device information (such as device identifiers and IP address) to serve relevant ads. You may opt out of personalized advertising by denying the App Tracking Transparency prompt when first launching the App. You can also purchase the "Remove Ads" in-app purchase to permanently remove all advertisements.
+
+For more information on Google's data practices, see [Google Privacy Policy](https://policies.google.com/privacy).
 
 ## Photos
 
@@ -63,9 +65,11 @@ If you have any questions about this Privacy Policy, please contact us at:
 
 本 App 僅連線至 [ExchangeRate API](https://www.exchangerate-api.com) 以取得即時匯率資訊，過程中不會傳送任何個人資料。
 
-## 第三方服務
+## 廣告
 
-本 App 未整合任何分析、廣告、追蹤或社群媒體 SDK。
+本 App 使用 Google AdMob 顯示橫幅廣告。AdMob 可能會蒐集裝置資訊（如裝置識別碼與 IP 位址）以提供相關廣告。您可以在首次啟動 App 時拒絕「允許追蹤」提示來停用個人化廣告。您也可以透過 App 內購買「移除廣告」來永久移除所有廣告。
+
+如需了解 Google 的資料處理方式，請參閱 [Google 隱私權政策](https://policies.google.com/privacy)。
 
 ## 照片存取
 

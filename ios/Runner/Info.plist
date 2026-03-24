@@ -28,8 +28,19 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3622409368808013~1712167021</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>需要相簿權限以選取旅行封面圖</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>此追蹤權限用於提供個人化廣告體驗。您可以選擇拒絕，App 功能不受影響。</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

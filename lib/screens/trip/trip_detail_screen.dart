@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
+import '../../constants/currencies.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../models/expense.dart';
 import '../../providers/expense_provider.dart';
@@ -21,21 +23,31 @@ class TripDetailScreen extends StatefulWidget {
   State<TripDetailScreen> createState() => _TripDetailScreenState();
 }
 
-class _TripDetailScreenState extends State<TripDetailScreen> {
+class _TripDetailScreenState extends State<TripDetailScreen>
+    with SingleTickerProviderStateMixin {
   late Trip _trip;
-  int _currentTab = 0;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _trip = widget.trip;
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ExpenseProvider>().loadExpenses(_trip.id!);
     });
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(_trip.name),
@@ -58,27 +70,22 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             },
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: l.details),
+            Tab(text: l.stats),
+          ],
+        ),
       ),
-      body: _currentTab == 0
-          ? _buildExpenseList()
-          : AnalyticsScreen(trip: _trip),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentTab,
-        onDestinationSelected: (i) => setState(() => _currentTab = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: '明細',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: '統計',
-          ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildExpenseList(),
+          AnalyticsScreen(trip: _trip),
         ],
       ),
-      floatingActionButton: _currentTab == 0
+      floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
               onPressed: () => _addExpense(context),
               child: const Icon(Icons.add, size: 28),
@@ -143,8 +150,8 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                                 size: 30, color: AppTheme.orange),
                           ),
                           const SizedBox(height: 14),
-                          const Text('尚無消費紀錄',
-                              style: TextStyle(color: AppTheme.inkFaint)),
+                          Text(AppLocalizations.of(context).noRecords,
+                              style: const TextStyle(color: AppTheme.inkFaint)),
                         ],
                       ),
                     )
@@ -157,34 +164,33 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   }
 
   Widget _buildDailyBudgetHint(double totalSpent) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final end = DateTime(
-        _trip.endDate.year, _trip.endDate.month, _trip.endDate.day);
-    final remainingDays = end.difference(today).inDays + 1;
-    if (remainingDays <= 0) return const SizedBox.shrink();
-
+    final l = AppLocalizations.of(context);
     final remaining = _trip.budget - totalSpent;
-    final dailyBudget = remaining > 0 ? remaining / remainingDays : 0.0;
-    final symbol =
-        _trip.baseCurrency == 'TWD' ? 'NT\$' : _trip.baseCurrency;
+    final isOver = remaining < 0;
+    final symbol = getCurrencySymbol(_trip.baseCurrency);
+    final amountStr = '$symbol${remaining.abs().toStringAsFixed(0)}';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.orangeSoft.withValues(alpha: 0.5),
+        color: isOver
+            ? AppTheme.stampRed.withValues(alpha: 0.08)
+            : AppTheme.orangeSoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          const Icon(Icons.lightbulb_outline,
-              size: 16, color: AppTheme.orange),
+          Icon(
+            isOver ? Icons.warning_amber_rounded : Icons.lightbulb_outline,
+            size: 16,
+            color: isOver ? AppTheme.stampRed : AppTheme.orange,
+          ),
           const SizedBox(width: 6),
           Text(
-            '剩餘 $remainingDays 天，每日可花 $symbol${dailyBudget.toStringAsFixed(0)}',
-            style: const TextStyle(
+            isOver ? l.budgetOver(amountStr) : l.budgetRemaining(amountStr),
+            style: TextStyle(
               fontSize: 13,
-              color: AppTheme.inkLight,
+              color: isOver ? AppTheme.stampRed : AppTheme.inkLight,
               fontWeight: FontWeight.w500,
             ),
           ),

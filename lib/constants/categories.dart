@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 enum ExpenseCategory {
   food,
@@ -41,6 +42,24 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return '教育';
       case ExpenseCategory.entertainment:
         return '娛樂';
+    }
+  }
+
+  String localizedName(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    switch (this) {
+      case ExpenseCategory.food:
+        return l.catFood;
+      case ExpenseCategory.clothing:
+        return l.catClothing;
+      case ExpenseCategory.lodging:
+        return l.catLodging;
+      case ExpenseCategory.transport:
+        return l.catTransport;
+      case ExpenseCategory.education:
+        return l.catEducation;
+      case ExpenseCategory.entertainment:
+        return l.catEntertainment;
     }
   }
 

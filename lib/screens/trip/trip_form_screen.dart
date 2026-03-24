@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../constants/currencies.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../providers/trip_provider.dart';
 
@@ -56,9 +57,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? '編輯旅行' : '新增旅行'),
+        title: Text(isEditing ? l.editTrip : l.newTrip),
       ),
       body: Form(
         key: _formKey,
@@ -88,15 +90,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
                       : null,
                 ),
                 child: _coverImagePath == null
-                    ? const Center(
+                    ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add_photo_alternate,
+                            const Icon(Icons.add_photo_alternate,
                                 size: 40, color: Colors.white70),
-                            SizedBox(height: 8),
-                            Text('新增封面圖',
-                                style: TextStyle(color: Colors.white70)),
+                            const SizedBox(height: 8),
+                            Text(l.addCoverImage,
+                                style: const TextStyle(color: Colors.white70)),
                           ],
                         ),
                       )
@@ -108,15 +110,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
             // Trip Name
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '旅行名稱',
-                hintText: '例：2026 東京賞櫻',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.flight),
+              decoration: InputDecoration(
+                labelText: l.tripName,
+                hintText: l.tripNameHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.flight),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return '請輸入旅行名稱';
+                  return l.tripNameRequired;
                 }
                 return null;
               },
@@ -128,7 +130,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               children: [
                 Expanded(
                   child: _DateField(
-                    label: '開始日期',
+                    label: l.startDate,
                     date: _startDate,
                     onChanged: (date) {
                       setState(() {
@@ -143,7 +145,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _DateField(
-                    label: '結束日期',
+                    label: l.endDate,
                     date: _endDate,
                     firstDate: _startDate,
                     onChanged: (date) => setState(() => _endDate = date),
@@ -158,7 +160,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
               children: [
                 Expanded(
                   child: _CurrencyDropdown(
-                    label: '主幣別',
+                    label: l.baseCurrency,
                     value: _baseCurrency,
                     onChanged: (v) => setState(() => _baseCurrency = v),
                   ),
@@ -169,7 +171,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 ),
                 Expanded(
                   child: _CurrencyDropdown(
-                    label: '旅行幣別',
+                    label: l.targetCurrency,
                     value: _targetCurrency,
                     onChanged: (v) => setState(() => _targetCurrency = v),
                   ),
@@ -180,7 +182,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
             // Budget
             SwitchListTile(
-              title: const Text('不設定預算上限'),
+              title: Text(l.noBudgetLimit),
               value: _noBudget,
               onChanged: (v) => setState(() => _noBudget = v),
               contentPadding: EdgeInsets.zero,
@@ -190,7 +192,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 controller: _budgetController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: '預算金額',
+                  labelText: l.budgetAmount,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.account_balance_wallet),
                   suffixText: _baseCurrency,
@@ -198,10 +200,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 validator: (value) {
                   if (_noBudget) return null;
                   if (value == null || value.isEmpty) {
-                    return '請輸入預算金額';
+                    return l.budgetRequired;
                   }
                   if (double.tryParse(value) == null) {
-                    return '請輸入有效數字';
+                    return l.invalidNumber;
                   }
                   return null;
                 },
@@ -213,7 +215,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
             FilledButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.check),
-              label: Text(isEditing ? '儲存變更' : '建立旅行'),
+              label: Text(isEditing ? l.saveChanges : l.createTrip),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
               ),

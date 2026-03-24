@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../constants/categories.dart';
 import '../../constants/currencies.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/trip_provider.dart';
-import '../../providers/expense_provider.dart';
 import '../../db/expense_dao.dart';
-import '../../models/trip.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -16,37 +15,62 @@ class OverviewScreen extends StatefulWidget {
   State<OverviewScreen> createState() => _OverviewScreenState();
 }
 
-class _OverviewScreenState extends State<OverviewScreen> {
+class _OverviewScreenState extends State<OverviewScreen>
+    with WidgetsBindingObserver {
   final ExpenseDao _dao = ExpenseDao();
+  Map<String, double> _spentByCurrency = {};
   Map<ExpenseCategory, double> _allCategoryTotals = {};
-  double _allTimeSpent = 0;
+  int _totalExpenseCount = 0;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadStats();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadStats();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload when trips change (e.g. coming back from trip detail)
     _loadStats();
   }
 
   Future<void> _loadStats() async {
     final trips = context.read<TripProvider>().trips;
-    double total = 0;
+    final currencyTotals = <String, double>{};
     final catTotals = <ExpenseCategory, double>{};
+    int count = 0;
 
     for (final trip in trips) {
       if (trip.id == null) continue;
       final expenses = await _dao.getExpensesByTripId(trip.id!);
+      count += expenses.length;
       for (final e in expenses) {
         final converted = e.convertedAmount ?? 0;
-        total += converted;
+        final currency = trip.baseCurrency;
+        currencyTotals[currency] = (currencyTotals[currency] ?? 0) + converted;
         catTotals[e.category] = (catTotals[e.category] ?? 0) + converted;
       }
     }
 
     if (mounted) {
       setState(() {
-        _allTimeSpent = total;
+        _spentByCurrency = currencyTotals;
         _allCategoryTotals = catTotals;
+        _totalExpenseCount = count;
         _loading = false;
       });
     }
@@ -60,6 +84,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final l = AppLocalizations.of(context);
+
     if (trips.isEmpty) {
       return Center(
         child: Column(
@@ -72,14 +98,18 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 color: AppTheme.orangeSoft,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.bar_chart, size: 36, color: AppTheme.orange),
+              child: const Icon(Icons.bar_chart,
+                  size: 36, color: AppTheme.orange),
             ),
             const SizedBox(height: 20),
-            const Text('尚無統計資料',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.ink)),
+            Text(l.noStatsTitle,
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.ink)),
             const SizedBox(height: 6),
-            const Text('新增旅行並記帳後，統計會顯示在這裡',
-                style: TextStyle(fontSize: 14, color: AppTheme.inkFaint)),
+            Text(l.noStatsSubtitle,
+                style: const TextStyle(fontSize: 14, color: AppTheme.inkFaint)),
           ],
         ),
       );
@@ -88,58 +118,74 @@ class _OverviewScreenState extends State<OverviewScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Total spent across all trips
+        // Summary cards row
+        Row(
+          children: [
+            Expanded(
+              child: _miniCard(
+                icon: Icons.luggage,
+                value: '${trips.length}',
+                label: l.tripsCount,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _miniCard(
+                icon: Icons.receipt_long,
+                value: '$_totalExpenseCount',
+                label: l.expensesCount,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Total spent by currency
         _sectionCard(
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.orangeSoft,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.account_balance_wallet,
-                    color: AppTheme.orange, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('所有旅行總花費',
-                      style: TextStyle(fontSize: 13, color: AppTheme.inkFaint)),
-                  const SizedBox(height: 2),
-                  Text(
-                    'NT\$${_allTimeSpent.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.ink,
+          title: l.totalSpending,
+          child: Column(
+            children: _spentByCurrency.entries.map((entry) {
+              final symbol = getCurrencySymbol(entry.key);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.orangeSoft,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        entry.key,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.orange,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppTheme.parchment.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(8),
+                    const SizedBox(width: 12),
+                    Text(
+                      '$symbol${entry.value.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.ink,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  '${trips.length} 趟旅行',
-                  style: const TextStyle(
-                      fontSize: 13, color: AppTheme.inkLight, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
         const SizedBox(height: 16),
 
-        // Category breakdown across all trips
+        // Category breakdown
         if (_allCategoryTotals.isNotEmpty)
           _sectionCard(
-            title: '總消費結構',
+            title: l.totalBreakdown,
             child: Column(
               children: [
                 SizedBox(
@@ -147,9 +193,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   child: PieChart(
                     PieChartData(
                       sections: _allCategoryTotals.entries.map((entry) {
-                        final pct = _allTimeSpent > 0
-                            ? (entry.value / _allTimeSpent * 100)
-                            : 0;
+                        final total = _allCategoryTotals.values
+                            .fold(0.0, (a, b) => a + b);
+                        final pct =
+                            total > 0 ? (entry.value / total * 100) : 0;
                         return PieChartSectionData(
                           color: entry.key.color,
                           value: entry.value,
@@ -168,61 +215,120 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 10,
-                  children: _allCategoryTotals.entries.map((entry) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
+                ...ExpenseCategory.values
+                    .where((c) => _allCategoryTotals.containsKey(c))
+                    .map((cat) {
+                  final amount = _allCategoryTotals[cat]!;
+                  final total =
+                      _allCategoryTotals.values.fold(0.0, (a, b) => a + b);
+                  final pct = total > 0 ? amount / total : 0.0;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
                       children: [
                         Container(
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: entry.key.color,
+                            color: cat.color,
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 8),
+                        Text(cat.localizedName(context),
+                            style: const TextStyle(
+                                fontSize: 14, color: AppTheme.ink)),
+                        const Spacer(),
                         Text(
-                          '${entry.key.displayName} NT\$${entry.value.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 13, color: AppTheme.inkLight),
+                          'NT\$${amount.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.ink),
+                        ),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 60,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: pct,
+                              minHeight: 6,
+                              backgroundColor:
+                                  AppTheme.parchment.withValues(alpha: 0.4),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(cat.color),
+                            ),
+                          ),
                         ),
                       ],
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
         const SizedBox(height: 16),
 
-        // Per-trip summary
+        // Per-trip summary with progress bars
         _sectionCard(
-          title: '各旅行花費',
+          title: l.perTripSpending,
           child: Column(
             children: trips.map((trip) {
-              final spent = context.read<TripProvider>().getSpentForTrip(trip.id!);
+              final spent = context
+                  .read<TripProvider>()
+                  .getSpentForTrip(trip.id!);
               final symbol = getCurrencySymbol(trip.baseCurrency);
+              final pct = trip.budget > 0
+                  ? (spent / trip.budget).clamp(0.0, 1.0)
+                  : 0.0;
+
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(trip.name,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(trip.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.ink)),
+                        ),
+                        Text(
+                          '$symbol${spent.toStringAsFixed(0)}',
                           style: const TextStyle(
-                              fontWeight: FontWeight.w600, color: AppTheme.ink)),
-                    ),
-                    Text(
-                      '$symbol${spent.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, color: AppTheme.ink),
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.ink),
+                        ),
+                        if (trip.budget > 0) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            '/ $symbol${trip.budget.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                                fontSize: 13, color: AppTheme.inkFaint),
+                          ),
+                        ],
+                      ],
                     ),
                     if (trip.budget > 0) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        '/ $symbol${trip.budget.toStringAsFixed(0)}',
-                        style: const TextStyle(fontSize: 13, color: AppTheme.inkFaint),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: LinearProgressIndicator(
+                          value: pct,
+                          minHeight: 5,
+                          backgroundColor:
+                              AppTheme.parchment.withValues(alpha: 0.4),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            spent > trip.budget
+                                ? AppTheme.stampRed
+                                : pct > 0.8
+                                    ? AppTheme.amber
+                                    : AppTheme.moss,
+                          ),
+                        ),
                       ),
                     ],
                   ],
@@ -232,6 +338,48 @@ class _OverviewScreenState extends State<OverviewScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _miniCard({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.warmWhite,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.parchment.withValues(alpha: 0.5)),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.orangeSoft,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: AppTheme.orange, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.ink)),
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppTheme.inkFaint)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -251,7 +399,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
               children: [
                 Text(title,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.ink)),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.ink)),
                 const SizedBox(height: 14),
                 child,
               ],

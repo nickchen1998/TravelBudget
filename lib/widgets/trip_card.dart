@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../constants/app_theme.dart';
 import '../constants/currencies.dart';
+import '../l10n/app_localizations.dart';
 import '../models/trip.dart';
 
 class TripCard extends StatelessWidget {
@@ -152,7 +153,7 @@ class TripCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '已花費 $symbol${spent.toStringAsFixed(0)}',
+                        '${AppLocalizations.of(context).spent} $symbol${spent.toStringAsFixed(0)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -166,6 +167,14 @@ class TripCard extends StatelessWidget {
                             color: AppTheme.inkFaint,
                             fontSize: 14,
                           ),
+                        )
+                      else
+                        const Text(
+                          '/ ∞',
+                          style: TextStyle(
+                            color: AppTheme.inkFaint,
+                            fontSize: 14,
+                          ),
                         ),
                     ],
                   ),
@@ -176,7 +185,7 @@ class TripCard extends StatelessWidget {
                           size: 13, color: AppTheme.inkFaint),
                       const SizedBox(width: 4),
                       Text(
-                        '建立於 ${DateFormat('yyyy/MM/dd HH:mm').format(trip.createdAt)}',
+                        '${AppLocalizations.of(context).createdAt} ${DateFormat('yyyy/MM/dd HH:mm').format(trip.createdAt)}',
                         style: const TextStyle(
                             fontSize: 12, color: AppTheme.inkFaint),
                       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../constants/currencies.dart';
+import '../l10n/app_localizations.dart';
 
 class BudgetProgressBar extends StatelessWidget {
   final double budget;
@@ -58,9 +59,9 @@ class BudgetProgressBar extends StatelessWidget {
               color: AppTheme.parchment.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text(
-              '無預算上限',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context).noBudget,
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppTheme.inkFaint,
                 fontWeight: FontWeight.w500,
@@ -108,8 +109,8 @@ class BudgetProgressBar extends StatelessWidget {
                       ),
                       Text(
                         isOverBudget
-                            ? '超支 $symbol${(spent - budget).toStringAsFixed(0)}'
-                            : '剩餘 $symbol${(budget - spent).toStringAsFixed(0)}',
+                            ? '${AppLocalizations.of(context).overspent} $symbol${(spent - budget).toStringAsFixed(0)}'
+                            : '${AppLocalizations.of(context).remaining} $symbol${(budget - spent).toStringAsFixed(0)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: isOverBudget

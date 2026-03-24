@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../constants/categories.dart';
 import '../../constants/currencies.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/expense.dart';
 import '../../models/trip.dart';
 import '../../providers/expense_provider.dart';
@@ -56,13 +57,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? '編輯消費' : '新增消費'),
+        title: Text(isEditing ? l.editExpense : l.newExpense),
         actions: [
           TextButton(
             onPressed: _isConverting ? null : _save,
-            child: const Text('儲存'),
+            child: Text(l.save),
           ),
         ],
       ),
@@ -72,7 +74,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             // Category Selection
-            const Text('分類', style: TextStyle(fontWeight: FontWeight.w500)),
+            Text(l.category, style: const TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             GridView.count(
               crossAxisCount: 3,
@@ -91,7 +93,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                           size: 18,
                           color: isSelected ? Colors.white : cat.color),
                       const SizedBox(width: 4),
-                      Text(cat.displayName),
+                      Text(cat.localizedName(context)),
                     ],
                   ),
                   selected: isSelected,
@@ -106,13 +108,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             // Title
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: '項目名稱',
-                hintText: '例：一蘭拉麵',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l.itemName,
+                hintText: l.itemNameHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (v) =>
-                  v == null || v.trim().isEmpty ? '請輸入項目名稱' : null,
+                  v == null || v.trim().isEmpty ? l.itemNameRequired : null,
             ),
             const SizedBox(height: 16),
 
@@ -126,13 +128,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     controller: _amountController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: '金額',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l.amount,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return '請輸入金額';
-                      if (double.tryParse(v) == null) return '無效金額';
+                      if (v == null || v.isEmpty) return l.amountRequired;
+                      if (double.tryParse(v) == null) return l.invalidAmount;
                       return null;
                     },
                   ),
@@ -141,9 +143,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     initialValue: _currency,
-                    decoration: const InputDecoration(
-                      labelText: '幣別',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l.currency,
+                      border: const OutlineInputBorder(),
                     ),
                     items: supportedCurrencies.map((c) {
                       return DropdownMenuItem(
@@ -164,10 +166,10 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             InkWell(
               onTap: _pickDate,
               child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: '日期',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.calendar_today, size: 18),
+                decoration: InputDecoration(
+                  labelText: l.date,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.calendar_today, size: 18),
                 ),
                 child: Text(DateFormat('yyyy/MM/dd').format(_date)),
               ),
@@ -178,9 +180,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             TextFormField(
               controller: _noteController,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: '備註（選填）',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l.noteOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
@@ -196,7 +198,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                           strokeWidth: 2, color: Colors.white),
                     )
                   : const Icon(Icons.check),
-              label: Text(isEditing ? '更新' : '新增'),
+              label: Text(isEditing ? l.update : l.add),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
               ),
@@ -266,7 +268,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('儲存失敗: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context).saveFailed}: $e')),
         );
       }
     } finally {

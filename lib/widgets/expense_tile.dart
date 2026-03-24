@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../constants/categories.dart';
 import '../constants/currencies.dart';
+import '../l10n/app_localizations.dart';
 import '../models/expense.dart';
 
 class ExpenseTile extends StatelessWidget {
@@ -71,7 +72,7 @@ class ExpenseTile extends StatelessWidget {
                 expense.note!,
               if (expense.currency != baseCurrency &&
                   expense.exchangeRate != null)
-                '匯率 1 ${expense.currency} = ${expense.exchangeRate!.toStringAsFixed(4)} $baseCurrency',
+                '${AppLocalizations.of(context).ratePrefix} 1 ${expense.currency} = ${expense.exchangeRate!.toStringAsFixed(4)} $baseCurrency',
             ].join('  '),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

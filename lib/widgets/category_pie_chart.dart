@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
 import '../constants/categories.dart';
 import '../constants/currencies.dart';
+import '../l10n/app_localizations.dart';
 
 class CategoryPieChart extends StatelessWidget {
   final Map<ExpenseCategory, double> data;
@@ -17,11 +18,11 @@ class CategoryPieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Text('尚無消費紀錄',
-              style: TextStyle(color: AppTheme.inkFaint)),
+          padding: const EdgeInsets.all(32),
+          child: Text(AppLocalizations.of(context).noRecords,
+              style: const TextStyle(color: AppTheme.inkFaint)),
         ),
       );
     }
@@ -73,7 +74,7 @@ class CategoryPieChart extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  '${entry.key.displayName} $symbol${entry.value.toStringAsFixed(0)}',
+                  '${entry.key.localizedName(context)} $symbol${entry.value.toStringAsFixed(0)}',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppTheme.inkLight,

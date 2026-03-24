@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/trip_card.dart';
 import '../trip/trip_form_screen.dart';
@@ -18,13 +19,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
 
-  static const _titles = ['旅算 TravelBudget', '統計總覽', '設定'];
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final titles = [l.appName, l.statsOverview, l.settings];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_currentTab]),
+        title: Text(titles[_currentTab]),
       ),
       body: IndexedStack(
         index: _currentTab,
@@ -37,33 +39,34 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentTab,
         onDestinationSelected: (i) => setState(() => _currentTab = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.luggage_outlined),
-            selectedIcon: Icon(Icons.luggage),
-            label: '旅行',
+            icon: const Icon(Icons.luggage_outlined),
+            selectedIcon: const Icon(Icons.luggage),
+            label: l.tabTrips,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: '統計',
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: l.tabStats,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: '設定',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l.tabSettings,
           ),
         ],
       ),
       floatingActionButton: _currentTab == 0
           ? FloatingActionButton(
               onPressed: () async {
+                final tripProvider = context.read<TripProvider>();
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const TripFormScreen()),
                 );
                 if (result == true && mounted) {
-                  context.read<TripProvider>().loadTrips();
+                  tripProvider.loadTrips();
                 }
               },
               child: const Icon(Icons.add, size: 28),
@@ -73,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTripsTab() {
+    final l = AppLocalizations.of(context);
     return Consumer<TripProvider>(
       builder: (context, tripProvider, _) {
         if (tripProvider.trips.isEmpty) {
@@ -91,18 +95,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 36, color: AppTheme.orange),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  '還沒有旅行計畫',
-                  style: TextStyle(
+                Text(
+                  l.noTripsTitle,
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.ink,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  '點擊下方按鈕，開始記錄你的旅程',
-                  style: TextStyle(
+                Text(
+                  l.noTripsSubtitle,
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppTheme.inkFaint,
                   ),
@@ -140,17 +144,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _confirmDelete(
       BuildContext context, TripProvider provider, int tripId) {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('刪除旅行',
-            style: TextStyle(fontWeight: FontWeight.w700)),
-        content: const Text('確定要刪除此旅行嗎？所有相關的消費紀錄都會一併刪除。'),
+        title: Text(l.deleteTrip,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(l.deleteTripConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('取消',
-                style: TextStyle(color: AppTheme.inkLight)),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppTheme.inkLight)),
           ),
           TextButton(
             onPressed: () {
@@ -158,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(ctx);
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
-            child: const Text('刪除'),
+            child: Text(l.delete),
           ),
         ],
       ),

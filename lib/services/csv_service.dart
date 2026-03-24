@@ -41,7 +41,7 @@ class CsvService {
 
     final dir = await getTemporaryDirectory();
     final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-    final file = File('${dir.path}/旅算_匯出_$timestamp.csv');
+    final file = File('${dir.path}/熊好算_匯出_$timestamp.csv');
     // Write with BOM for Excel to recognize UTF-8
     await file.writeAsBytes([0xEF, 0xBB, 0xBF, ...buf.toString().codeUnits]);
     return file;

@@ -187,7 +187,7 @@ class AppLocalizations {
   };
 
   static const _zhTW = {
-    'appName': '旅算 TravelBudget',
+    'appName': '熊好算 TravelBudget',
     'cancel': '取消',
     'delete': '刪除',
     'save': '儲存',
@@ -417,7 +417,7 @@ class AppLocalizations {
   };
 
   static const _ja = {
-    'appName': '旅算 TravelBudget',
+    'appName': '熊好算 TravelBudget',
     'cancel': 'キャンセル',
     'delete': '削除',
     'save': '保存',
@@ -532,7 +532,7 @@ class AppLocalizations {
   };
 
   static const _ko = {
-    'appName': '旅算 TravelBudget',
+    'appName': '熊好算 TravelBudget',
     'cancel': '취소',
     'delete': '삭제',
     'save': '저장',
@@ -647,7 +647,7 @@ class AppLocalizations {
   };
 
   static const _zhCN = {
-    'appName': '旅算 TravelBudget',
+    'appName': '熊好算 TravelBudget',
     'cancel': '取消',
     'delete': '删除',
     'save': '保存',

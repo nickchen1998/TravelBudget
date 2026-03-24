@@ -1,10 +1,10 @@
-# Privacy Policy — 旅算 TravelBudget
+# Privacy Policy — 熊好算 TravelBudget
 
 **Last Updated: 2026-03-24**
 
 ## Overview
 
-旅算 TravelBudget ("the App") is a travel expense tracking application. We respect your privacy and are committed to protecting it.
+熊好算 TravelBudget ("the App") is a travel expense tracking application. We respect your privacy and are committed to protecting it.
 
 ## Data Collection
 
@@ -47,13 +47,13 @@ If you have any questions about this Privacy Policy, please contact us at:
 
 ---
 
-# 隱私權政策 — 旅算 TravelBudget
+# 隱私權政策 — 熊好算 TravelBudget
 
 **最後更新：2026-03-24**
 
 ## 概述
 
-旅算 TravelBudget（以下稱「本 App」）是一款旅遊記帳應用程式。我們尊重並致力於保護您的隱私。
+熊好算 TravelBudget（以下稱「本 App」）是一款旅遊記帳應用程式。我們尊重並致力於保護您的隱私。
 
 ## 資料蒐集
 

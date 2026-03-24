@@ -49,7 +49,7 @@ class TravelBudgetApp extends StatelessWidget {
     final locale = context.watch<LocaleProvider>().locale;
 
     return MaterialApp(
-      title: '旅算 TravelBudget',
+      title: '熊好算 TravelBudget',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       locale: locale,

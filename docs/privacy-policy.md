@@ -41,7 +41,7 @@ We may update this Privacy Policy from time to time. Any changes will be reflect
 If you have any questions about this Privacy Policy, please contact us at:
 
 **Developer:** 扣握貝果 CodeWorldBagel
-**Email:** nickchen1998@gmail.com
+**Email:** codeworldbagel@gmail.com
 
 ---
 
@@ -88,4 +88,4 @@ If you have any questions about this Privacy Policy, please contact us at:
 如對本隱私權政策有任何疑問，請透過以下方式聯繫：
 
 **開發者：** 扣握貝果 CodeWorldBagel
-**Email：** nickchen1998@gmail.com
+**Email：** codeworldbagel@gmail.com

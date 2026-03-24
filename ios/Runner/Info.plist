@@ -25,13 +25,11 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>需要相機權限以拍攝收據進行 OCR 辨識</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>需要相簿權限以選取收據照片或旅行封面圖</string>
+	<string>需要相簿權限以選取旅行封面圖</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

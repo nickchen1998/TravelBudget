@@ -153,7 +153,7 @@ class SettingsScreen extends StatelessWidget {
 
     final name = auth.displayName?.isNotEmpty == true
         ? auth.displayName!
-        : (auth.email ?? '');
+        : (auth.email?.split('@').first ?? '');
     final lastSync = auth.lastSyncedAt;
     final syncLabel = lastSync != null
         ? l.lastSyncedTime(DateFormat('MM/dd HH:mm').format(lastSync))

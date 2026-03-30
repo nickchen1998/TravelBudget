@@ -193,8 +193,9 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 ..._members.map((m) {
                   final profile =
                       m['profiles'] as Map<String, dynamic>? ?? {};
+                  final rawEmail = profile['email'] as String?;
                   final name = profile['display_name'] as String? ??
-                      profile['email'] as String? ??
+                      rawEmail?.split('@').first ??
                       '—';
                   final role = m['role'] as String;
                   final roleLabel = role == 'owner'

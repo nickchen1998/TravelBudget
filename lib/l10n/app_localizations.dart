@@ -196,6 +196,7 @@ class AppLocalizations {
   String get signInFailed => _t('signInFailed');
   String get signedInAs => _t('signedInAs');
   String get offlineReadOnly => _t('offlineReadOnly');
+  String get syncFailed => _t('syncFailed');
   String get deleteAccount => _t('deleteAccount');
   String get deleteAccountConfirm => _t('deleteAccountConfirm');
   String get deleteAccountWarning => _t('deleteAccountWarning');
@@ -367,6 +368,7 @@ class AppLocalizations {
     'signInFailed': '登入失敗',
     'signedInAs': '已登入',
     'offlineReadOnly': '協作旅程離線中，僅可查閱，無法新增或編輯',
+    'syncFailed': '同步失敗，請稍後再試',
     'deleteAccount': '刪除帳號',
     'deleteAccountConfirm': '確定要刪除帳號？',
     'deleteAccountWarning': '• 你在別人旅程中的共編權限將被移除\n• 你擁有的旅程協作成員將被踢出\n• 本機旅程資料仍保留，但不再同步\n\n此操作無法復原。',
@@ -523,6 +525,7 @@ class AppLocalizations {
     'signInFailed': 'Sign in failed',
     'signedInAs': 'Signed in',
     'offlineReadOnly': 'Collaborative trip is offline — read-only',
+    'syncFailed': 'Sync failed, please try again',
     'deleteAccount': 'Delete Account',
     'deleteAccountConfirm': 'Delete your account?',
     'deleteAccountWarning': '• You will lose access to trips you collaborate on\n• Members of your shared trips will lose access\n• Local trip data is kept but will no longer sync\n\nThis action cannot be undone.',
@@ -679,6 +682,7 @@ class AppLocalizations {
     'signInFailed': 'サインインに失敗しました',
     'signedInAs': 'サインイン中',
     'offlineReadOnly': '共同旅程はオフライン中のため閲覧のみ可能です',
+    'syncFailed': '同期に失敗しました。後でもう一度お試しください',
     'deleteAccount': 'アカウント削除',
     'deleteAccountConfirm': 'アカウントを削除しますか？',
     'deleteAccountWarning': '• 参加している共同旅程へのアクセスが失われます\n• あなたが所有する旅程の共同編集者が削除されます\n• ローカルデータは保持されますが同期されなくなります\n\nこの操作は元に戻せません。',
@@ -835,6 +839,7 @@ class AppLocalizations {
     'signInFailed': '로그인 실패',
     'signedInAs': '로그인됨',
     'offlineReadOnly': '공동 여행 오프라인 중 — 읽기 전용',
+    'syncFailed': '동기화 실패, 나중에 다시 시도해주세요',
     'deleteAccount': '계정 삭제',
     'deleteAccountConfirm': '계정을 삭제하시겠습니까？',
     'deleteAccountWarning': '• 참여 중인 공동 여행의 접근 권한이 제거됩니다\n• 소유한 여행의 공동 편집자가 제거됩니다\n• 로컬 데이터는 유지되지만 동기화되지 않습니다\n\n이 작업은 되돌릴 수 없습니다.',
@@ -991,6 +996,7 @@ class AppLocalizations {
     'signInFailed': '登录失败',
     'signedInAs': '已登录',
     'offlineReadOnly': '协作旅程离线中，仅可查阅，无法新增或编辑',
+    'syncFailed': '同步失败，请稍后再试',
     'deleteAccount': '删除账号',
     'deleteAccountConfirm': '确定要删除账号？',
     'deleteAccountWarning': '• 您将失去参与的协作旅程访问权限\n• 您拥有的旅程协作成员将被移除\n• 本地旅程数据保留，但不再同步\n\n此操作无法撤销。',

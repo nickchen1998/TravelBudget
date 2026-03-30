@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -149,23 +150,11 @@ class _JoinTripScreenState extends State<JoinTripScreen> {
                   ),
                 )
               else
-                SizedBox(
-                  width: double.infinity,
+                SignInWithAppleButton(
+                  onPressed: _signInAndJoin,
                   height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: _signInAndJoin,
-                    icon: const Icon(Icons.apple, size: 22),
-                    label: Text(l.signInWithApple),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      textStyle: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                  borderRadius:
+                      const BorderRadius.all(Radius.circular(14)),
                 ),
               if (_error != null) ...[
                 const SizedBox(height: 16),

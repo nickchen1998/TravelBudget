@@ -8,6 +8,7 @@ import '../constants/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../models/trip.dart';
 import '../providers/auth_provider.dart';
+import '../providers/trip_provider.dart';
 
 class ShareTripSheet extends StatefulWidget {
   final Trip trip;
@@ -314,6 +315,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
 /// Shows the share sheet, handling login gate.
 Future<void> showShareTripSheet(BuildContext context, Trip trip) async {
   final auth = context.read<AuthProvider>();
+  final tripProvider = context.read<TripProvider>();
   final l = AppLocalizations.of(context);
 
   if (!auth.isLoggedIn) {
@@ -347,16 +349,30 @@ Future<void> showShareTripSheet(BuildContext context, Trip trip) async {
   }
 
   // Ensure trip is synced before sharing
+  Trip currentTrip = trip;
   if (trip.uuid == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
       SnackBar(
         content: Text(l.syncing),
         behavior: SnackBarBehavior.floating,
       ),
     );
     await auth.syncNow();
-    // Reload trip from provider to get uuid - caller must handle
-    return;
+    await tripProvider.loadTrips();
+    if (!context.mounted) return;
+    messenger.hideCurrentSnackBar();
+
+    final updated = tripProvider.trips.where((t) => t.id == trip.id).toList();
+    if (updated.isEmpty || updated.first.uuid == null) {
+      // Sync failed to assign uuid — show error and bail
+      messenger.showSnackBar(SnackBar(
+        content: Text(l.syncFailed),
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
+    currentTrip = updated.first;
   }
 
   if (!context.mounted) return;
@@ -364,6 +380,6 @@ Future<void> showShareTripSheet(BuildContext context, Trip trip) async {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => ShareTripSheet(trip: trip),
+    builder: (_) => ShareTripSheet(trip: currentTrip),
   );
 }

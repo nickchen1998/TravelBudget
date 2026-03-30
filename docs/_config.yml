@@ -1,5 +1,6 @@
 include:
   - app-ads.txt
+  - .well-known
 
 theme: minima
 title: 熊好算 TravelBudget

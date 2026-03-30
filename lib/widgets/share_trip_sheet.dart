@@ -23,6 +23,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
   final _supabase = Supabase.instance.client;
 
   bool _isLoading = false;
+  String? _copiedRole; // 複製成功後短暫顯示 check icon
   List<Map<String, dynamic>> _members = [];
 
   @override
@@ -97,22 +98,17 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
     }
   }
 
-  Future<void> _copyLink(BuildContext context, String role) async {
+  Future<void> _copyLink(String role) async {
     setState(() => _isLoading = true);
-    final messenger = ScaffoldMessenger.of(context);
-    final copied = AppLocalizations.of(context).shareLinkCopied;
     try {
       final link = await _getOrCreateLink(role);
       if (link.isEmpty) return;
-
       await Clipboard.setData(ClipboardData(text: link));
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(copied),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        setState(() => _copiedRole = role);
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted) setState(() => _copiedRole = null);
+        });
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -166,8 +162,9 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 icon: Icons.edit_outlined,
                 roleLabel: l.shareAsEditor,
                 roleColor: AppTheme.orange,
+                role: 'editor',
                 onShare: () => _shareLink(context, 'editor'),
-                onCopy: () => _copyLink(context, 'editor'),
+                onCopy: () => _copyLink('editor'),
               ),
               const SizedBox(height: 12),
 
@@ -177,8 +174,9 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 icon: Icons.visibility_outlined,
                 roleLabel: l.shareAsViewer,
                 roleColor: AppTheme.moss,
+                role: 'viewer',
                 onShare: () => _shareLink(context, 'viewer'),
-                onCopy: () => _copyLink(context, 'viewer'),
+                onCopy: () => _copyLink('viewer'),
               ),
 
               // Members list
@@ -257,9 +255,11 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
     required IconData icon,
     required String roleLabel,
     required Color roleColor,
+    required String role,
     required VoidCallback onShare,
     required VoidCallback onCopy,
   }) {
+    final isCopied = _copiedRole == role;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -289,20 +289,25 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2)),
           if (!_isLoading) ...[
-            IconButton(
-              icon: const Icon(Icons.copy, size: 20),
-              color: AppTheme.inkFaint,
-              onPressed: onCopy,
-              tooltip: 'Copy',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: IconButton(
+                key: ValueKey(isCopied),
+                icon: Icon(
+                  isCopied ? Icons.check_circle : Icons.copy,
+                  size: 20,
+                ),
+                color: isCopied ? AppTheme.moss : AppTheme.inkFaint,
+                onPressed: isCopied ? null : onCopy,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
             ),
             const SizedBox(width: 8),
             IconButton(
-              icon: const Icon(Icons.share, size: 20),
+              icon: const Icon(Icons.ios_share, size: 20),
               color: AppTheme.orange,
               onPressed: onShare,
-              tooltip: 'Share',
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),

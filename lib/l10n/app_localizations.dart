@@ -179,6 +179,7 @@ class AppLocalizations {
   String get inviteCodeDesc => _t('inviteCodeDesc');
   String get inviteCodeExpiry => _t('inviteCodeExpiry');
   String get copyCode => _t('copyCode');
+  String get codeCopied => _t('codeCopied');
   String get regenerateCode => _t('regenerateCode');
   String get enterInviteCode => _t('enterInviteCode');
   String get loginRequired => _t('loginRequired');
@@ -370,6 +371,7 @@ class AppLocalizations {
     'inviteCodeDesc': '將此邀請碼分享給朋友，對方登入後輸入即可加入',
     'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
     'copyCode': '複製邀請碼',
+    'codeCopied': '已複製',
     'regenerateCode': '重新產生邀請碼',
     'enterInviteCode': '輸入邀請碼',
     'loginRequired': '需要登入',
@@ -544,6 +546,7 @@ class AppLocalizations {
     'inviteCodeDesc': 'Share this code with friends. They can join after signing in.',
     'inviteCodeExpiry': 'Valid for 7 days · up to 50 uses',
     'copyCode': 'Copy Code',
+    'codeCopied': 'Copied',
     'regenerateCode': 'Regenerate Code',
     'enterInviteCode': 'Enter Invite Code',
     'loginRequired': 'Sign In Required',
@@ -718,6 +721,7 @@ class AppLocalizations {
     'inviteCodeDesc': 'このコードを友達に共有してください。サインイン後に参加できます。',
     'inviteCodeExpiry': '有効期間 7 日 · 最大 50 名',
     'copyCode': 'コードをコピー',
+    'codeCopied': 'コピーしました',
     'regenerateCode': 'コードを再生成',
     'enterInviteCode': '招待コードを入力',
     'loginRequired': 'サインインが必要です',
@@ -892,6 +896,7 @@ class AppLocalizations {
     'inviteCodeDesc': '이 코드를 친구에게 공유하세요. 로그인 후 참가할 수 있습니다.',
     'inviteCodeExpiry': '유효 기간 7일 · 최대 50명',
     'copyCode': '코드 복사',
+    'codeCopied': '복사됨',
     'regenerateCode': '코드 재생성',
     'enterInviteCode': '초대 코드 입력',
     'loginRequired': '로그인 필요',
@@ -1066,6 +1071,7 @@ class AppLocalizations {
     'inviteCodeDesc': '将此邀请码分享给朋友，对方登录后输入即可加入',
     'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
     'copyCode': '复制邀请码',
+    'codeCopied': '已复制',
     'regenerateCode': '重新生成邀请码',
     'enterInviteCode': '输入邀请码',
     'loginRequired': '需要登录',

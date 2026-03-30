@@ -125,6 +125,7 @@ class _InviteCodeSheetState extends State<_InviteCodeSheet> {
   String? _code;
   bool _loading = true;
   String? _error;
+  bool _copied = false;
 
   @override
   void initState() {
@@ -142,7 +143,7 @@ class _InviteCodeSheetState extends State<_InviteCodeSheet> {
   }
 
   Future<void> _regenerate() async {
-    setState(() { _loading = true; _code = null; _error = null; });
+    setState(() { _loading = true; _code = null; _error = null; _copied = false; });
     try {
       // Expire existing invitations for this trip first, then create a new one
       await Supabase.instance.client
@@ -217,23 +218,26 @@ class _InviteCodeSheetState extends State<_InviteCodeSheet> {
                     style: const TextStyle(color: AppTheme.stampRed),
                     textAlign: TextAlign.center)
               else ...[
-                // Code display
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.cream,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color: AppTheme.parchment),
-                  ),
-                  child: Text(
-                    _code!.split('').join('  '),
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.orange,
-                      letterSpacing: 4,
+                // Code display — no text scaling to prevent Dynamic Type wrapping
+                MediaQuery.withNoTextScaling(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cream,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.parchment),
+                    ),
+                    child: Text(
+                      _code!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.orange,
+                        letterSpacing: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -243,22 +247,29 @@ class _InviteCodeSheetState extends State<_InviteCodeSheet> {
                         fontSize: 12, color: AppTheme.inkFaint)),
                 const SizedBox(height: 20),
 
-                // Copy button
+                // Copy button — shows "已複製" after tapping
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: _code!));
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(l.linkCopied),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 2),
-                      ));
-                    },
-                    icon: const Icon(Icons.copy, size: 18),
-                    label: Text(l.copyCode),
-                  ),
+                  child: _copied
+                      ? FilledButton.icon(
+                          onPressed: null,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppTheme.moss,
+                            disabledBackgroundColor: AppTheme.moss,
+                            disabledForegroundColor: Colors.white,
+                          ),
+                          icon: const Icon(Icons.check, size: 18),
+                          label: Text(l.codeCopied),
+                        )
+                      : FilledButton.icon(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: _code!));
+                            setState(() => _copied = true);
+                          },
+                          icon: const Icon(Icons.copy, size: 18),
+                          label: Text(l.copyCode),
+                        ),
                 ),
                 const SizedBox(height: 10),
 

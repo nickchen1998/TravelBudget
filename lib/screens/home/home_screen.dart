@@ -50,7 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleDeepLink(Uri uri) {
-    if (uri.scheme == 'travelbudget' && uri.host == 'join') {
+    final bool isCustomScheme =
+        uri.scheme == 'travelbudget' && uri.host == 'join';
+    final bool isUniversalLink = uri.host == 'nickchen1998.github.io' &&
+        uri.path == '/TravelBudget/join';
+
+    if (isCustomScheme || isUniversalLink) {
       final token = uri.queryParameters['token'];
       if (token != null && mounted) {
         Navigator.of(context).push(

@@ -148,7 +148,9 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: tripProvider.trips.length,
           itemBuilder: (context, index) {
             final trip = tripProvider.trips[index];
-            final spent = tripProvider.getSpentForTrip(trip.id!);
+            final spent = trip.id != null
+                ? tripProvider.getSpentForTrip(trip.id!)
+                : 0.0;
             return TripCard(
               trip: trip,
               spent: spent,
@@ -160,8 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ).then((_) => tripProvider.loadTrips());
               },
-              onDelete: () =>
-                  _confirmDelete(context, tripProvider, trip.id!),
+              onDelete: trip.id != null
+                  ? () => _confirmDelete(context, tripProvider, trip.id!)
+                  : null,
             );
           },
         );

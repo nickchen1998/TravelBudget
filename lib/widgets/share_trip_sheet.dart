@@ -79,7 +79,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
         });
       }
 
-      return 'travelbudget://join?token=$token';
+      return 'https://nickchen1998.github.io/TravelBudget/join?token=$token';
     } catch (e) {
       return '';
     }

@@ -173,6 +173,17 @@ class AppLocalizations {
   String get shareInviteDesc => _t('shareInviteDesc');
   String get joinTrip => _t('joinTrip');
   String get joinTripDesc => _t('joinTripDesc');
+  String get joinWithCode => _t('joinWithCode');
+  String get joinWithCodeDesc => _t('joinWithCodeDesc');
+  String get inviteCode => _t('inviteCode');
+  String get inviteCodeDesc => _t('inviteCodeDesc');
+  String get inviteCodeExpiry => _t('inviteCodeExpiry');
+  String get copyCode => _t('copyCode');
+  String get regenerateCode => _t('regenerateCode');
+  String get enterInviteCode => _t('enterInviteCode');
+  String get loginRequired => _t('loginRequired');
+  String get loginRequiredDesc => _t('loginRequiredDesc');
+  String get newTripDesc => _t('newTripDesc');
   String get joinSuccess => _t('joinSuccess');
   String get joinFailed => _t('joinFailed');
   String get sharedBadge => _t('sharedBadge');
@@ -353,6 +364,17 @@ class AppLocalizations {
     'shareInviteDesc': '分享連結給朋友，一起記帳旅程',
     'joinTrip': '加入旅程',
     'joinTripDesc': '你被邀請加入旅程，登入後即可查看',
+    'joinWithCode': '使用邀請碼加入',
+    'joinWithCodeDesc': '輸入邀請碼即可加入他人的旅程',
+    'inviteCode': '邀請碼',
+    'inviteCodeDesc': '將此邀請碼分享給朋友，對方登入後輸入即可加入',
+    'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
+    'copyCode': '複製邀請碼',
+    'regenerateCode': '重新產生邀請碼',
+    'enterInviteCode': '輸入邀請碼',
+    'loginRequired': '需要登入',
+    'loginRequiredDesc': '加入共享旅程前，請先以 Apple 帳號登入',
+    'newTripDesc': '建立一個全新的旅程',
     'joinSuccess': '已成功加入旅程！',
     'joinFailed': '加入失敗',
     'sharedBadge': '共享',
@@ -516,6 +538,17 @@ class AppLocalizations {
     'shareInviteDesc': 'Share a link to collaborate on this trip',
     'joinTrip': 'Join Trip',
     'joinTripDesc': 'You have been invited. Sign in to join.',
+    'joinWithCode': 'Join with Invite Code',
+    'joinWithCodeDesc': 'Enter an invite code to join someone\'s trip',
+    'inviteCode': 'Invite Code',
+    'inviteCodeDesc': 'Share this code with friends. They can join after signing in.',
+    'inviteCodeExpiry': 'Valid for 7 days · up to 50 uses',
+    'copyCode': 'Copy Code',
+    'regenerateCode': 'Regenerate Code',
+    'enterInviteCode': 'Enter Invite Code',
+    'loginRequired': 'Sign In Required',
+    'loginRequiredDesc': 'Please sign in with Apple before joining a shared trip',
+    'newTripDesc': 'Create a brand new trip',
     'joinSuccess': 'Joined successfully!',
     'joinFailed': 'Failed to join',
     'sharedBadge': 'Shared',
@@ -679,6 +712,17 @@ class AppLocalizations {
     'shareInviteDesc': 'リンクを共有して一緒に記録',
     'joinTrip': '旅行に参加',
     'joinTripDesc': '招待されました。サインインして参加してください。',
+    'joinWithCode': '招待コードで参加',
+    'joinWithCodeDesc': '招待コードを入力して旅行に参加できます',
+    'inviteCode': '招待コード',
+    'inviteCodeDesc': 'このコードを友達に共有してください。サインイン後に参加できます。',
+    'inviteCodeExpiry': '有効期間 7 日 · 最大 50 名',
+    'copyCode': 'コードをコピー',
+    'regenerateCode': 'コードを再生成',
+    'enterInviteCode': '招待コードを入力',
+    'loginRequired': 'サインインが必要です',
+    'loginRequiredDesc': '共有旅行に参加する前にAppleアカウントでサインインしてください',
+    'newTripDesc': '新しい旅行を作成する',
     'joinSuccess': '旅行に参加しました！',
     'joinFailed': '参加に失敗しました',
     'sharedBadge': '共有',
@@ -842,6 +886,17 @@ class AppLocalizations {
     'shareInviteDesc': '링크를 공유하여 함께 기록하세요',
     'joinTrip': '여행 참가',
     'joinTripDesc': '초대받으셨습니다. 로그인하여 참가하세요.',
+    'joinWithCode': '초대 코드로 참가',
+    'joinWithCodeDesc': '초대 코드를 입력하여 여행에 참가하세요',
+    'inviteCode': '초대 코드',
+    'inviteCodeDesc': '이 코드를 친구에게 공유하세요. 로그인 후 참가할 수 있습니다.',
+    'inviteCodeExpiry': '유효 기간 7일 · 최대 50명',
+    'copyCode': '코드 복사',
+    'regenerateCode': '코드 재생성',
+    'enterInviteCode': '초대 코드 입력',
+    'loginRequired': '로그인 필요',
+    'loginRequiredDesc': '공유 여행에 참가하기 전에 Apple 계정으로 로그인하세요',
+    'newTripDesc': '새로운 여행 만들기',
     'joinSuccess': '여행에 참가했습니다!',
     'joinFailed': '참가 실패',
     'sharedBadge': '공유',
@@ -1005,6 +1060,17 @@ class AppLocalizations {
     'shareInviteDesc': '分享链接给朋友，一起记账旅程',
     'joinTrip': '加入旅程',
     'joinTripDesc': '你被邀请加入旅程，登录后即可查看',
+    'joinWithCode': '使用邀请码加入',
+    'joinWithCodeDesc': '输入邀请码即可加入他人的旅程',
+    'inviteCode': '邀请码',
+    'inviteCodeDesc': '将此邀请码分享给朋友，对方登录后输入即可加入',
+    'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
+    'copyCode': '复制邀请码',
+    'regenerateCode': '重新生成邀请码',
+    'enterInviteCode': '输入邀请码',
+    'loginRequired': '需要登录',
+    'loginRequiredDesc': '加入共享旅程前，请先以 Apple 账号登录',
+    'newTripDesc': '创建一个全新的旅程',
     'joinSuccess': '已成功加入旅程！',
     'joinFailed': '加入失败',
     'sharedBadge': '共享',

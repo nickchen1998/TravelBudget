@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:app_links/app_links.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,46 +24,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
   bool _attRequested = false;
-  StreamSubscription<Uri>? _linkSub;
-
-  @override
-  void dispose() {
-    _linkSub?.cancel();
-    super.dispose();
-  }
-
   @override
   void initState() {
     super.initState();
-    _initDeepLinks();
-  }
-
-  void _initDeepLinks() {
-    final appLinks = AppLinks();
-    // Handle links when app is already running
-    _linkSub = appLinks.uriLinkStream.listen(_handleDeepLink);
-    // Handle initial link (app opened from cold start via link)
-    appLinks.getInitialLink().then((uri) {
-      if (uri != null) _handleDeepLink(uri);
-    });
-  }
-
-  void _handleDeepLink(Uri uri) {
-    final bool isCustomScheme =
-        uri.scheme == 'travelbudget' && uri.host == 'join';
-    final bool isUniversalLink = uri.host == 'nickchen1998.github.io' &&
-        uri.path == '/TravelBudget/join';
-
-    if (isCustomScheme || isUniversalLink) {
-      final token = uri.queryParameters['token'];
-      if (token != null && mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => JoinTripScreen(token: token),
-          ),
-        );
-      }
-    }
   }
 
   @override
@@ -133,16 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: _currentTab == 0
           ? FloatingActionButton(
-              onPressed: () async {
-                final tripProvider = context.read<TripProvider>();
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TripFormScreen()),
-                );
-                if (result == true && mounted) {
-                  tripProvider.loadTrips();
-                }
-              },
+              onPressed: () => _showAddOptions(context),
               child: const Icon(Icons.add, size: 28),
             )
           : null,
@@ -213,6 +166,121 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         );
       },
+    );
+  }
+
+  void _showAddOptions(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final tripProvider = context.read<TripProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: AppTheme.warmWhite,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: AppTheme.parchment,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _addOptionTile(
+                  icon: Icons.luggage_outlined,
+                  color: AppTheme.orange,
+                  title: l.newTrip,
+                  subtitle: l.newTripDesc,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TripFormScreen()),
+                    );
+                    if (result == true && mounted) tripProvider.loadTrips();
+                  },
+                ),
+                const SizedBox(height: 10),
+                _addOptionTile(
+                  icon: Icons.vpn_key_outlined,
+                  color: AppTheme.moss,
+                  title: l.joinWithCode,
+                  subtitle: l.joinWithCodeDesc,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const JoinTripScreen()),
+                    );
+                  },
+                ),
+                const SizedBox(height: 4),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _addOptionTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: AppTheme.cream,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: AppTheme.ink)),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppTheme.inkFaint)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: AppTheme.parchment, size: 20),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -12,7 +12,7 @@ import '../../providers/expense_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/budget_progress_bar.dart';
 import '../../widgets/expense_tile.dart';
-import '../../widgets/share_trip_sheet.dart';
+import '../../widgets/invite_code_widget.dart';
 import '../expense/expense_form_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'trip_form_screen.dart';
@@ -68,7 +68,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
               tooltip: l.shareTrip,
               onPressed: () async {
                 final tripProvider = context.read<TripProvider>();
-                await showShareTripSheet(context, _trip);
+                await showInviteCodeSheet(context, _trip);
                 // Refresh trip after sharing (uuid may have been assigned)
                 if (mounted) {
                   final trips = tripProvider.trips;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -37,10 +38,32 @@ class SettingsScreen extends StatelessWidget {
                     style: TextStyle(color: AppTheme.inkFaint)),
               ),
               const Divider(height: 1, color: AppTheme.parchment),
-              _settingsTile(
-                icon: Icons.person_outline,
-                title: l.developer,
-                subtitle: '扣握貝果-CodeWorldBagel',
+              GestureDetector(
+                onTap: () {
+                  Clipboard.setData(
+                      const ClipboardData(text: '扣握貝果-CodeWorldBagel'));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('已複製'),
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
+                child: _settingsTile(
+                  icon: Icons.person_outline,
+                  title: l.developer,
+                  trailing: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: const Text(
+                      '扣握貝果-CodeWorldBagel',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          color: AppTheme.inkFaint, fontSize: 13),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -139,11 +162,13 @@ class SettingsScreen extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : SignInWithAppleButton(
-                      onPressed: () => _handleSignIn(context),
-                      height: 48,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(12)),
+                  : MediaQuery.withNoTextScaling(
+                      child: SignInWithAppleButton(
+                        onPressed: () => _handleSignIn(context),
+                        height: 50,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(12)),
+                      ),
                     ),
             ),
           ],

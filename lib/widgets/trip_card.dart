@@ -13,6 +13,7 @@ class TripCard extends StatelessWidget {
   final double spent;
   final VoidCallback onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? onLeave;
 
   const TripCard({
     super.key,
@@ -20,6 +21,7 @@ class TripCard extends StatelessWidget {
     required this.spent,
     required this.onTap,
     this.onDelete,
+    this.onLeave,
   });
 
   @override
@@ -54,7 +56,7 @@ class TripCard extends StatelessWidget {
               height: 130,
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: trip.coverImagePath == null
+                gradient: (trip.coverImagePath == null && trip.coverImageUrl == null)
                     ? const LinearGradient(
                         colors: [Color(0xFFF2A06A), Color(0xFFE8763A)],
                         begin: Alignment.topLeft,
@@ -66,7 +68,12 @@ class TripCard extends StatelessWidget {
                         image: FileImage(File(trip.coverImagePath!)),
                         fit: BoxFit.cover,
                       )
-                    : null,
+                    : trip.coverImageUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(trip.coverImageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
               ),
               child: Stack(
                 children: [
@@ -173,6 +180,23 @@ class TripCard extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.delete_outline,
+                              color: Colors.white70, size: 18),
+                        ),
+                      ),
+                    ),
+                  if (onLeave != null)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: onLeave,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.logout,
                               color: Colors.white70, size: 18),
                         ),
                       ),

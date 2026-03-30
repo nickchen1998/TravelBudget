@@ -39,6 +39,9 @@ class AppLocalizations {
   String get appName => _t('appName');
   String get cancel => _t('cancel');
   String get delete => _t('delete');
+  String get leave => _t('leave');
+  String get leaveTrip => _t('leaveTrip');
+  String get leaveTripConfirm => _t('leaveTripConfirm');
   String get save => _t('save');
   String get confirm => _t('confirm');
   String get next => _t('next');
@@ -255,6 +258,9 @@ class AppLocalizations {
     'appName': '熊好算 TravelBudget',
     'cancel': '取消',
     'delete': '刪除',
+    'leave': '退出',
+    'leaveTrip': '退出旅程',
+    'leaveTripConfirm': '確定要退出此旅程嗎？您過去新增的消費紀錄將會保留。',
     'save': '儲存',
     'confirm': '確認',
     'next': '下一步',
@@ -430,6 +436,9 @@ class AppLocalizations {
     'appName': 'TravelBudget',
     'cancel': 'Cancel',
     'delete': 'Delete',
+    'leave': 'Leave',
+    'leaveTrip': 'Leave Trip',
+    'leaveTripConfirm': 'Are you sure you want to leave? Your expenses will be kept.',
     'save': 'Save',
     'confirm': 'OK',
     'next': 'Next',
@@ -605,6 +614,9 @@ class AppLocalizations {
     'appName': '熊好算 TravelBudget',
     'cancel': 'キャンセル',
     'delete': '削除',
+    'leave': '退出',
+    'leaveTrip': '旅行から退出',
+    'leaveTripConfirm': 'この旅行から退出しますか？追加した支出記録は保持されます。',
     'save': '保存',
     'confirm': '確認',
     'next': '次へ',
@@ -780,6 +792,9 @@ class AppLocalizations {
     'appName': '熊好算 TravelBudget',
     'cancel': '취소',
     'delete': '삭제',
+    'leave': '나가기',
+    'leaveTrip': '여행 나가기',
+    'leaveTripConfirm': '이 여행에서 나가시겠습니까? 추가한 지출 기록은 유지됩니다.',
     'save': '저장',
     'confirm': '확인',
     'next': '다음',
@@ -955,6 +970,9 @@ class AppLocalizations {
     'appName': '熊好算 TravelBudget',
     'cancel': '取消',
     'delete': '删除',
+    'leave': '退出',
+    'leaveTrip': '退出旅程',
+    'leaveTripConfirm': '确定要退出此旅程吗？您添加的消费记录将会保留。',
     'save': '保存',
     'confirm': '确认',
     'next': '下一步',

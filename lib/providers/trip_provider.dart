@@ -52,6 +52,12 @@ class TripProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> leaveTrip(String tripUuid) async {
+    await _repo.leaveTrip(tripUuid);
+    _trips.removeWhere((t) => t.uuid == tripUuid);
+    notifyListeners();
+  }
+
   void updateSpending(int tripId, double total) {
     _tripSpending[tripId] = total;
     notifyListeners();

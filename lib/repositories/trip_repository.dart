@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db/trip_dao.dart';
 import '../db/expense_dao.dart';
 import '../models/trip.dart';
+import '../services/image_storage_service.dart';
 
 class TripRepository {
   final TripDao _local = TripDao();
@@ -114,11 +115,22 @@ class TripRepository {
         'role': 'owner',
       });
 
+      // Upload cover image if exists
+      String? coverImageUrl;
+      if (trip.coverImagePath != null) {
+        coverImageUrl = await ImageStorageService.uploadTripCover(
+            trip.coverImagePath!, cloudId);
+        if (coverImageUrl != null) {
+          await _supabase.from('trips').update({'cover_image_url': coverImageUrl}).eq('id', cloudId);
+        }
+      }
+
       // Update local uuid
       if (trip.id != null) {
         await _local.updateTrip(trip.copyWith(
           uuid: cloudId,
           ownerId: userId,
+          coverImageUrl: coverImageUrl,
           isDirty: false,
           syncedAt: DateTime.now().toIso8601String(),
         ));
@@ -130,11 +142,38 @@ class TripRepository {
 
   Future<void> _updateTripOnCloud(Trip trip) async {
     try {
+      // Upload new cover image if local path changed
+      String? coverImageUrl = trip.coverImageUrl;
+      if (trip.coverImagePath != null && trip.uuid != null) {
+        final uploaded = await ImageStorageService.uploadTripCover(
+            trip.coverImagePath!, trip.uuid!);
+        if (uploaded != null) coverImageUrl = uploaded;
+      }
+
+      final tripWithUrl = coverImageUrl != null
+          ? trip.copyWith(coverImageUrl: coverImageUrl)
+          : trip;
+
       await _supabase
           .from('trips')
-          .update(trip.toSupabaseMap(_userId!))
+          .update(tripWithUrl.toSupabaseMap(_userId!))
           .eq('id', trip.uuid!);
+
+      // Persist coverImageUrl locally if updated
+      if (coverImageUrl != null && coverImageUrl != trip.coverImageUrl) {
+        await _local.updateTrip(trip.copyWith(coverImageUrl: coverImageUrl));
+      }
     } catch (_) {}
+  }
+
+  Future<void> leaveTrip(String tripUuid) async {
+    final userId = _userId;
+    if (userId == null) return;
+    await _supabase
+        .from('trip_members')
+        .delete()
+        .eq('trip_id', tripUuid)
+        .eq('user_id', userId);
   }
 }
 

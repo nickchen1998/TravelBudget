@@ -167,6 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       (trip.memberRole == null || trip.memberRole == 'owner')
                   ? () => _confirmDelete(context, tripProvider, trip)
                   : null,
+              onLeave: trip.memberRole == 'editor' && trip.uuid != null
+                  ? () => _confirmLeave(context, tripProvider, trip)
+                  : null,
             );
           },
         );
@@ -315,6 +318,34 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
             child: Text(l.delete),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLeave(
+      BuildContext context, TripProvider provider, Trip trip) {
+    final l = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.leaveTrip,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(l.leaveTripConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppTheme.inkLight)),
+          ),
+          TextButton(
+            onPressed: () {
+              provider.leaveTrip(trip.uuid!);
+              Navigator.pop(ctx);
+            },
+            style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
+            child: Text(l.leave),
           ),
         ],
       ),

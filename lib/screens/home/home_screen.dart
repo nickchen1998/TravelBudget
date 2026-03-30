@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/ad_provider.dart';
+import '../../models/trip.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/trip_card.dart';
@@ -162,8 +163,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ).then((_) => tripProvider.loadTrips());
               },
-              onDelete: trip.id != null
-                  ? () => _confirmDelete(context, tripProvider, trip.id!)
+              onDelete: (trip.id != null || trip.uuid != null) &&
+                      (trip.memberRole == null || trip.memberRole == 'owner')
+                  ? () => _confirmDelete(context, tripProvider, trip)
                   : null,
             );
           },
@@ -288,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _confirmDelete(
-      BuildContext context, TripProvider provider, int tripId) {
+      BuildContext context, TripProvider provider, Trip trip) {
     final l = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -304,7 +306,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () {
-              provider.deleteTrip(tripId);
+              if (trip.id != null) {
+                provider.deleteTrip(trip.id!);
+              } else if (trip.uuid != null) {
+                provider.deleteTripByUuid(trip.uuid!);
+              }
               Navigator.pop(ctx);
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),

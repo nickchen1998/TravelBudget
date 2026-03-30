@@ -84,6 +84,13 @@ class TripRepository {
     }
   }
 
+  Future<void> deleteTripByUuid(String uuid) async {
+    await _local.deleteTripByUuid(uuid);
+    if (_isLoggedIn) {
+      unawaited(_supabase.from('trips').delete().eq('id', uuid));
+    }
+  }
+
   Future<double> getTotalSpent(int tripId) =>
       _expenseDao.getTotalSpentByTrip(tripId);
 

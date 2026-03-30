@@ -39,6 +39,11 @@ class TripDao {
     return await db.delete('trips', where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<void> deleteTripByUuid(String uuid) async {
+    final db = await _dbHelper.database;
+    await db.delete('trips', where: 'uuid = ?', whereArgs: [uuid]);
+  }
+
   Future<void> clearCloudSyncFields() async {
     final db = await _dbHelper.database;
     await db.update('trips', {

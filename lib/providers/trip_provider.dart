@@ -46,6 +46,12 @@ class TripProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteTripByUuid(String uuid) async {
+    await _repo.deleteTripByUuid(uuid);
+    _trips.removeWhere((t) => t.uuid == uuid);
+    notifyListeners();
+  }
+
   void updateSpending(int tripId, double total) {
     _tripSpending[tripId] = total;
     notifyListeners();

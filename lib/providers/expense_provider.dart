@@ -79,7 +79,8 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   Future<void> deleteExpense(int id) async {
-    final expense = _expenses.firstWhere((e) => e.id == id);
+    final expense = _expenses.where((e) => e.id == id).firstOrNull;
+    if (expense == null) return;
     await _repo.deleteExpense(id, expenseUuid: expense.uuid);
     _expenses.removeWhere((e) => e.id == id);
     notifyListeners();

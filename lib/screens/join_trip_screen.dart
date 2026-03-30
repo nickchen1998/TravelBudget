@@ -27,12 +27,17 @@ class _JoinTripScreenState extends State<JoinTripScreen> {
   }
 
   Future<void> _joinTrip() async {
+    final l = AppLocalizations.of(context);
+    if (!context.read<AuthProvider>().isLoggedIn) {
+      setState(() => _error = l.loginRequired);
+      return;
+    }
+
     final code = _codeController.text.trim().toUpperCase();
     if (code.isEmpty) return;
 
     setState(() { _isLoading = true; _error = null; });
 
-    final l = AppLocalizations.of(context);
     final tripProvider = context.read<TripProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);

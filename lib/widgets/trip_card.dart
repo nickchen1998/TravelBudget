@@ -24,6 +24,25 @@ class TripCard extends StatelessWidget {
     this.onLeave,
   });
 
+  static DecorationImage? _resolveImage(Trip trip) {
+    // Prefer local file if it exists
+    if (trip.coverImagePath != null &&
+        File(trip.coverImagePath!).existsSync()) {
+      return DecorationImage(
+        image: FileImage(File(trip.coverImagePath!)),
+        fit: BoxFit.cover,
+      );
+    }
+    // Fall back to cloud URL
+    if (trip.coverImageUrl != null) {
+      return DecorationImage(
+        image: NetworkImage(trip.coverImageUrl!),
+        fit: BoxFit.cover,
+      );
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -56,24 +75,14 @@ class TripCard extends StatelessWidget {
               height: 130,
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: (trip.coverImagePath == null && trip.coverImageUrl == null)
+                gradient: _resolveImage(trip) == null
                     ? const LinearGradient(
                         colors: [Color(0xFFF2A06A), Color(0xFFE8763A)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
-                image: trip.coverImagePath != null
-                    ? DecorationImage(
-                        image: FileImage(File(trip.coverImagePath!)),
-                        fit: BoxFit.cover,
-                      )
-                    : trip.coverImageUrl != null
-                        ? DecorationImage(
-                            image: NetworkImage(trip.coverImageUrl!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+                image: _resolveImage(trip),
               ),
               child: Stack(
                 children: [

@@ -26,6 +26,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
   late DateTime _startDate;
   late DateTime _endDate;
   String? _coverImagePath;
+  bool _imageChanged = false;
   bool _noBudget = false;
 
   bool get isEditing => widget.trip != null;
@@ -234,7 +235,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
       maxHeight: 800,
     );
     if (image != null) {
-      setState(() => _coverImagePath = image.path);
+      setState(() {
+        _coverImagePath = image.path;
+        _imageChanged = true;
+      });
     }
   }
 
@@ -257,7 +261,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
       startDate: _startDate,
       endDate: _endDate,
       coverImagePath: _coverImagePath,
-      coverImageUrl: widget.trip?.coverImageUrl,
+      // Clear old URL when user picked a new local image so cloud re-uploads
+      coverImageUrl: _imageChanged ? null : widget.trip?.coverImageUrl,
       createdAt: widget.trip?.createdAt,
     );
 

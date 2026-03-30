@@ -42,10 +42,11 @@ class TripRepository {
         return Trip.fromSupabase(t, memberRole: role);
       }).toList();
 
-      // Filter out shared trips already in local (by uuid)
+      // Filter out owner's own trips and trips already stored locally (by uuid)
       final localUuids = localTrips.map((t) => t.uuid).whereType<String>().toSet();
-      final newShared =
-          sharedTrips.where((t) => !localUuids.contains(t.uuid)).toList();
+      final newShared = sharedTrips
+          .where((t) => t.memberRole != 'owner' && !localUuids.contains(t.uuid))
+          .toList();
 
       return [...localTrips, ...newShared];
     } catch (_) {
@@ -142,9 +143,11 @@ class TripRepository {
 
   Future<void> _updateTripOnCloud(Trip trip) async {
     try {
-      // Upload new cover image if local path changed
+      // Upload cover image only when coverImageUrl is null (new image selected)
       String? coverImageUrl = trip.coverImageUrl;
-      if (trip.coverImagePath != null && trip.uuid != null) {
+      if (trip.coverImagePath != null &&
+          trip.coverImageUrl == null &&
+          trip.uuid != null) {
         final uploaded = await ImageStorageService.uploadTripCover(
             trip.coverImagePath!, trip.uuid!);
         if (uploaded != null) coverImageUrl = uploaded;

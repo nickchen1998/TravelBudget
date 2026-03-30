@@ -1,16 +1,19 @@
 import 'package:flutter/foundation.dart';
 import '../constants/categories.dart';
-import '../db/expense_dao.dart';
 import '../models/expense.dart';
+import '../models/trip.dart';
+import '../repositories/expense_repository.dart';
 
 class ExpenseProvider extends ChangeNotifier {
-  final ExpenseDao _dao = ExpenseDao();
+  final ExpenseRepository _repo = ExpenseRepository();
 
   List<Expense> _expenses = [];
   int? _currentTripId;
+  Trip? _currentTrip;
 
   List<Expense> get expenses => _expenses;
   int? get currentTripId => _currentTripId;
+  Trip? get currentTrip => _currentTrip;
 
   double get totalSpent {
     return _expenses.fold(0.0, (sum, e) => sum + (e.convertedAmount ?? 0.0));
@@ -42,20 +45,32 @@ class ExpenseProvider extends ChangeNotifier {
     return map;
   }
 
-  Future<void> loadExpenses(int tripId) async {
-    _currentTripId = tripId;
-    _expenses = await _dao.getExpensesByTripId(tripId);
+  Future<void> loadExpenses(Trip trip) async {
+    _currentTripId = trip.id;
+    _currentTrip = trip;
+
+    if (trip.id != null) {
+      _expenses = await _repo.getExpensesByTripId(trip.id!);
+    }
+
+    // For shared trips with no local expenses, pull from cloud
+    if (_expenses.isEmpty && trip.uuid != null && trip.isShared) {
+      _expenses =
+          await _repo.getCloudExpensesForTrip(trip.uuid!, trip.id ?? 0);
+    }
+
     notifyListeners();
   }
 
   Future<void> addExpense(Expense expense) async {
-    final id = await _dao.insertExpense(expense);
-    _expenses.insert(0, expense.copyWith(id: id));
+    final saved = await _repo.addExpense(expense,
+        tripUuid: _currentTrip?.uuid);
+    _expenses.insert(0, saved);
     notifyListeners();
   }
 
   Future<void> updateExpense(Expense expense) async {
-    await _dao.updateExpense(expense);
+    await _repo.updateExpense(expense, tripUuid: _currentTrip?.uuid);
     final index = _expenses.indexWhere((e) => e.id == expense.id);
     if (index != -1) {
       _expenses[index] = expense;
@@ -64,7 +79,8 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   Future<void> deleteExpense(int id) async {
-    await _dao.deleteExpense(id);
+    final expense = _expenses.firstWhere((e) => e.id == id);
+    await _repo.deleteExpense(id, expenseUuid: expense.uuid);
     _expenses.removeWhere((e) => e.id == id);
     notifyListeners();
   }

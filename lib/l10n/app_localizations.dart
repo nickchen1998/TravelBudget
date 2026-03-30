@@ -164,6 +164,52 @@ class AppLocalizations {
   String skippedLines(int count) =>
       _t('skippedLines').replaceAll('{count}', '$count');
 
+  // === Sharing ===
+  String get shareTrip => _t('shareTrip');
+  String get shareAsEditor => _t('shareAsEditor');
+  String get shareAsViewer => _t('shareAsViewer');
+  String get shareLinkCopied => _t('shareLinkCopied');
+  String get shareInviteTitle => _t('shareInviteTitle');
+  String get shareInviteDesc => _t('shareInviteDesc');
+  String get joinTrip => _t('joinTrip');
+  String get joinTripDesc => _t('joinTripDesc');
+  String get joinSuccess => _t('joinSuccess');
+  String get joinFailed => _t('joinFailed');
+  String get sharedBadge => _t('sharedBadge');
+  String get memberCount => _t('memberCount');
+  String get roleOwner => _t('roleOwner');
+  String get roleEditor => _t('roleEditor');
+  String get roleViewer => _t('roleViewer');
+  String get signInToShare => _t('signInToShare');
+  String get signInToJoin => _t('signInToJoin');
+  String get members => _t('members');
+  String get inviteLink => _t('inviteLink');
+  String get generateLink => _t('generateLink');
+  String get linkExpiry => _t('linkExpiry');
+
+  // === Account / Cloud ===
+  String get account => _t('account');
+  String get signInWithApple => _t('signInWithApple');
+  String get signInDesc => _t('signInDesc');
+  String get signOut => _t('signOut');
+  String get signOutConfirm => _t('signOutConfirm');
+  String get signInFailed => _t('signInFailed');
+  String get signedInAs => _t('signedInAs');
+  String get offlineReadOnly => _t('offlineReadOnly');
+  String get deleteAccount => _t('deleteAccount');
+  String get deleteAccountConfirm => _t('deleteAccountConfirm');
+  String get deleteAccountWarning => _t('deleteAccountWarning');
+  String get deleteAccountFailed => _t('deleteAccountFailed');
+  String get cloudBackup => _t('cloudBackup');
+  String get cloudBackupDesc => _t('cloudBackupDesc');
+  String get cloudBackupSignInCta => _t('cloudBackupSignInCta');
+  String get syncing => _t('syncing');
+  String get syncNow => _t('syncNow');
+  String get lastSynced => _t('lastSynced');
+  String get neverSynced => _t('neverSynced');
+  String lastSyncedTime(String time) =>
+      _t('lastSyncedTime').replaceAll('{time}', time);
+
   // === Ads / Purchase ===
   String get removeAds => _t('removeAds');
   String get removeAdsDesc => _t('removeAdsDesc');
@@ -292,6 +338,47 @@ class AppLocalizations {
     'newLabel': '新增',
     'expenseUnit': '{count} 筆',
     'skippedLines': '{count} 筆無法解析，將略過',
+    'shareTrip': '分享旅程',
+    'shareAsEditor': '可編輯',
+    'shareAsViewer': '僅查看',
+    'shareLinkCopied': '連結已複製',
+    'shareInviteTitle': '邀請夥伴',
+    'shareInviteDesc': '分享連結給朋友，一起記帳旅程',
+    'joinTrip': '加入旅程',
+    'joinTripDesc': '你被邀請加入旅程，登入後即可查看',
+    'joinSuccess': '已成功加入旅程！',
+    'joinFailed': '加入失敗',
+    'sharedBadge': '共享',
+    'memberCount': '人協作',
+    'roleOwner': '擁有者',
+    'roleEditor': '可編輯',
+    'roleViewer': '查看者',
+    'signInToShare': '需要登入才能分享旅程',
+    'signInToJoin': '需要登入才能加入旅程',
+    'members': '成員',
+    'inviteLink': '邀請連結',
+    'generateLink': '產生連結',
+    'linkExpiry': '連結 7 天後到期',
+    'account': '帳號',
+    'signInWithApple': '使用 Apple 登入',
+    'signInDesc': '登入後可分享旅程給朋友一起記帳',
+    'signOut': '登出',
+    'signOutConfirm': '確定要登出嗎？',
+    'signInFailed': '登入失敗',
+    'signedInAs': '已登入',
+    'offlineReadOnly': '協作旅程離線中，僅可查閱，無法新增或編輯',
+    'deleteAccount': '刪除帳號',
+    'deleteAccountConfirm': '確定要刪除帳號？',
+    'deleteAccountWarning': '• 你在別人旅程中的共編權限將被移除\n• 你擁有的旅程協作成員將被踢出\n• 本機旅程資料仍保留，但不再同步\n\n此操作無法復原。',
+    'deleteAccountFailed': '刪除帳號失敗',
+    'cloudBackup': '雲端備份',
+    'cloudBackupDesc': '登入後資料自動備份到雲端，換機也不怕遺失',
+    'cloudBackupSignInCta': '登入以備份資料',
+    'syncing': '同步中...',
+    'syncNow': '立即同步',
+    'lastSynced': '上次同步',
+    'neverSynced': '尚未同步',
+    'lastSyncedTime': '上次同步：{time}',
     'removeAds': '移除廣告',
     'removeAdsDesc': '一次購買，永久移除所有廣告',
     'restorePurchase': '恢復購買',
@@ -407,6 +494,47 @@ class AppLocalizations {
     'newLabel': 'New',
     'expenseUnit': '{count}',
     'skippedLines': '{count} lines skipped (unparseable)',
+    'shareTrip': 'Share Trip',
+    'shareAsEditor': 'Can Edit',
+    'shareAsViewer': 'View Only',
+    'shareLinkCopied': 'Link copied',
+    'shareInviteTitle': 'Invite Others',
+    'shareInviteDesc': 'Share a link to collaborate on this trip',
+    'joinTrip': 'Join Trip',
+    'joinTripDesc': 'You have been invited. Sign in to join.',
+    'joinSuccess': 'Joined successfully!',
+    'joinFailed': 'Failed to join',
+    'sharedBadge': 'Shared',
+    'memberCount': ' members',
+    'roleOwner': 'Owner',
+    'roleEditor': 'Editor',
+    'roleViewer': 'Viewer',
+    'signInToShare': 'Sign in to share this trip',
+    'signInToJoin': 'Sign in to join this trip',
+    'members': 'Members',
+    'inviteLink': 'Invite Link',
+    'generateLink': 'Generate Link',
+    'linkExpiry': 'Link expires in 7 days',
+    'account': 'Account',
+    'signInWithApple': 'Sign in with Apple',
+    'signInDesc': 'Sign in to share trips with friends',
+    'signOut': 'Sign Out',
+    'signOutConfirm': 'Are you sure you want to sign out?',
+    'signInFailed': 'Sign in failed',
+    'signedInAs': 'Signed in',
+    'offlineReadOnly': 'Collaborative trip is offline — read-only',
+    'deleteAccount': 'Delete Account',
+    'deleteAccountConfirm': 'Delete your account?',
+    'deleteAccountWarning': '• You will lose access to trips you collaborate on\n• Members of your shared trips will lose access\n• Local trip data is kept but will no longer sync\n\nThis action cannot be undone.',
+    'deleteAccountFailed': 'Failed to delete account',
+    'cloudBackup': 'Cloud Backup',
+    'cloudBackupDesc': 'Sign in to back up your data automatically',
+    'cloudBackupSignInCta': 'Sign in to back up data',
+    'syncing': 'Syncing...',
+    'syncNow': 'Sync Now',
+    'lastSynced': 'Last synced',
+    'neverSynced': 'Never synced',
+    'lastSyncedTime': 'Last synced: {time}',
     'removeAds': 'Remove Ads',
     'removeAdsDesc': 'One-time purchase to remove all ads',
     'restorePurchase': 'Restore Purchase',
@@ -522,6 +650,47 @@ class AppLocalizations {
     'newLabel': '新規',
     'expenseUnit': '{count}件',
     'skippedLines': '{count}件は解析できません',
+    'shareTrip': '旅行を共有',
+    'shareAsEditor': '編集可能',
+    'shareAsViewer': '閲覧のみ',
+    'shareLinkCopied': 'リンクをコピーしました',
+    'shareInviteTitle': '仲間を招待',
+    'shareInviteDesc': 'リンクを共有して一緒に記録',
+    'joinTrip': '旅行に参加',
+    'joinTripDesc': '招待されました。サインインして参加してください。',
+    'joinSuccess': '旅行に参加しました！',
+    'joinFailed': '参加に失敗しました',
+    'sharedBadge': '共有',
+    'memberCount': '人',
+    'roleOwner': 'オーナー',
+    'roleEditor': '編集者',
+    'roleViewer': '閲覧者',
+    'signInToShare': '共有するにはサインインが必要です',
+    'signInToJoin': '参加するにはサインインが必要です',
+    'members': 'メンバー',
+    'inviteLink': '招待リンク',
+    'generateLink': 'リンクを生成',
+    'linkExpiry': 'リンクは7日後に期限切れ',
+    'account': 'アカウント',
+    'signInWithApple': 'Appleでサインイン',
+    'signInDesc': 'サインインして旅行を友達と共有',
+    'signOut': 'サインアウト',
+    'signOutConfirm': 'サインアウトしますか？',
+    'signInFailed': 'サインインに失敗しました',
+    'signedInAs': 'サインイン中',
+    'offlineReadOnly': '共同旅程はオフライン中のため閲覧のみ可能です',
+    'deleteAccount': 'アカウント削除',
+    'deleteAccountConfirm': 'アカウントを削除しますか？',
+    'deleteAccountWarning': '• 参加している共同旅程へのアクセスが失われます\n• あなたが所有する旅程の共同編集者が削除されます\n• ローカルデータは保持されますが同期されなくなります\n\nこの操作は元に戻せません。',
+    'deleteAccountFailed': 'アカウントの削除に失敗しました',
+    'cloudBackup': 'クラウドバックアップ',
+    'cloudBackupDesc': 'サインインしてデータを自動バックアップ',
+    'cloudBackupSignInCta': 'データをバックアップするにはサインイン',
+    'syncing': '同期中...',
+    'syncNow': '今すぐ同期',
+    'lastSynced': '最終同期',
+    'neverSynced': '未同期',
+    'lastSyncedTime': '最終同期：{time}',
     'removeAds': '広告を削除',
     'removeAdsDesc': '一度の購入ですべての広告を削除',
     'restorePurchase': '購入を復元',
@@ -637,6 +806,47 @@ class AppLocalizations {
     'newLabel': '신규',
     'expenseUnit': '{count}건',
     'skippedLines': '{count}건 분석 불가, 건너뜁니다',
+    'shareTrip': '여행 공유',
+    'shareAsEditor': '편집 가능',
+    'shareAsViewer': '보기만',
+    'shareLinkCopied': '링크 복사됨',
+    'shareInviteTitle': '친구 초대',
+    'shareInviteDesc': '링크를 공유하여 함께 기록하세요',
+    'joinTrip': '여행 참가',
+    'joinTripDesc': '초대받으셨습니다. 로그인하여 참가하세요.',
+    'joinSuccess': '여행에 참가했습니다!',
+    'joinFailed': '참가 실패',
+    'sharedBadge': '공유',
+    'memberCount': '명',
+    'roleOwner': '소유자',
+    'roleEditor': '편집자',
+    'roleViewer': '뷰어',
+    'signInToShare': '여행을 공유하려면 로그인이 필요합니다',
+    'signInToJoin': '여행에 참가하려면 로그인이 필요합니다',
+    'members': '멤버',
+    'inviteLink': '초대 링크',
+    'generateLink': '링크 생성',
+    'linkExpiry': '링크는 7일 후 만료',
+    'account': '계정',
+    'signInWithApple': 'Apple로 로그인',
+    'signInDesc': '로그인하여 친구와 여행을 공유하세요',
+    'signOut': '로그아웃',
+    'signOutConfirm': '로그아웃하시겠습니까?',
+    'signInFailed': '로그인 실패',
+    'signedInAs': '로그인됨',
+    'offlineReadOnly': '공동 여행 오프라인 중 — 읽기 전용',
+    'deleteAccount': '계정 삭제',
+    'deleteAccountConfirm': '계정을 삭제하시겠습니까？',
+    'deleteAccountWarning': '• 참여 중인 공동 여행의 접근 권한이 제거됩니다\n• 소유한 여행의 공동 편집자가 제거됩니다\n• 로컬 데이터는 유지되지만 동기화되지 않습니다\n\n이 작업은 되돌릴 수 없습니다.',
+    'deleteAccountFailed': '계정 삭제 실패',
+    'cloudBackup': '클라우드 백업',
+    'cloudBackupDesc': '로그인하면 데이터가 자동으로 백업됩니다',
+    'cloudBackupSignInCta': '데이터 백업을 위해 로그인',
+    'syncing': '동기화 중...',
+    'syncNow': '지금 동기화',
+    'lastSynced': '마지막 동기화',
+    'neverSynced': '동기화 안 됨',
+    'lastSyncedTime': '마지막 동기화: {time}',
     'removeAds': '광고 제거',
     'removeAdsDesc': '한 번 구매로 모든 광고 제거',
     'restorePurchase': '구매 복원',
@@ -752,6 +962,47 @@ class AppLocalizations {
     'newLabel': '新增',
     'expenseUnit': '{count} 笔',
     'skippedLines': '{count} 笔无法解析，将略过',
+    'shareTrip': '分享旅程',
+    'shareAsEditor': '可编辑',
+    'shareAsViewer': '仅查看',
+    'shareLinkCopied': '链接已复制',
+    'shareInviteTitle': '邀请伙伴',
+    'shareInviteDesc': '分享链接给朋友，一起记账旅程',
+    'joinTrip': '加入旅程',
+    'joinTripDesc': '你被邀请加入旅程，登录后即可查看',
+    'joinSuccess': '已成功加入旅程！',
+    'joinFailed': '加入失败',
+    'sharedBadge': '共享',
+    'memberCount': '人协作',
+    'roleOwner': '拥有者',
+    'roleEditor': '可编辑',
+    'roleViewer': '查看者',
+    'signInToShare': '需要登录才能分享旅程',
+    'signInToJoin': '需要登录才能加入旅程',
+    'members': '成员',
+    'inviteLink': '邀请链接',
+    'generateLink': '生成链接',
+    'linkExpiry': '链接 7 天后到期',
+    'account': '账号',
+    'signInWithApple': '使用 Apple 登录',
+    'signInDesc': '登录后可分享旅程给朋友一起记账',
+    'signOut': '退出登录',
+    'signOutConfirm': '确定要退出登录吗？',
+    'signInFailed': '登录失败',
+    'signedInAs': '已登录',
+    'offlineReadOnly': '协作旅程离线中，仅可查阅，无法新增或编辑',
+    'deleteAccount': '删除账号',
+    'deleteAccountConfirm': '确定要删除账号？',
+    'deleteAccountWarning': '• 您将失去参与的协作旅程访问权限\n• 您拥有的旅程协作成员将被移除\n• 本地旅程数据保留，但不再同步\n\n此操作无法撤销。',
+    'deleteAccountFailed': '删除账号失败',
+    'cloudBackup': '云端备份',
+    'cloudBackupDesc': '登录后数据自动备份到云端，换机也不怕丢失',
+    'cloudBackupSignInCta': '登录以备份数据',
+    'syncing': '同步中...',
+    'syncNow': '立即同步',
+    'lastSynced': '上次同步',
+    'neverSynced': '尚未同步',
+    'lastSyncedTime': '上次同步：{time}',
     'removeAds': '移除广告',
     'removeAdsDesc': '一次购买，永久移除所有广告',
     'restorePurchase': '恢复购买',

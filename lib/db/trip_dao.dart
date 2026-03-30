@@ -38,4 +38,14 @@ class TripDao {
     final db = await _dbHelper.database;
     return await db.delete('trips', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> clearCloudSyncFields() async {
+    final db = await _dbHelper.database;
+    await db.update('trips', {
+      'uuid': null,
+      'owner_id': null,
+      'synced_at': null,
+      'is_dirty': 1,
+    });
+  }
 }

@@ -6,10 +6,13 @@ import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../models/expense.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/connectivity_provider.dart';
 import '../../providers/expense_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/budget_progress_bar.dart';
 import '../../widgets/expense_tile.dart';
+import '../../widgets/share_trip_sheet.dart';
 import '../expense/expense_form_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'trip_form_screen.dart';
@@ -35,7 +38,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ExpenseProvider>().loadExpenses(_trip.id!);
+      context.read<ExpenseProvider>().loadExpenses(_trip);
     });
   }
 
@@ -48,27 +51,50 @@ class _TripDetailScreenState extends State<TripDetailScreen>
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final auth = context.watch<AuthProvider>();
+    final isOnline = context.watch<ConnectivityProvider>().isOnline;
+    final isOwner = _trip.memberRole == null || _trip.memberRole == 'owner';
+    // Shared trips (user is editor/viewer) are read-only when offline
+    final isOfflineReadOnly = !isOnline && _trip.memberRole != null;
+    final canEdit = _trip.canEdit && !isOfflineReadOnly;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_trip.name),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, size: 22),
-            onPressed: () async {
-              final tripProvider = context.read<TripProvider>();
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => TripFormScreen(trip: _trip),
-                ),
-              );
-              if (result == true && mounted) {
-                final trips = tripProvider.trips;
-                final updated = trips.firstWhere((t) => t.id == _trip.id);
-                setState(() => _trip = updated);
-              }
-            },
-          ),
+          if (isOwner && auth.isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.person_add_outlined, size: 22),
+              tooltip: l.shareTrip,
+              onPressed: () async {
+                final tripProvider = context.read<TripProvider>();
+                await showShareTripSheet(context, _trip);
+                // Refresh trip after sharing (uuid may have been assigned)
+                if (mounted) {
+                  final trips = tripProvider.trips;
+                  final updated = trips.where((t) => t.id == _trip.id).toList();
+                  if (updated.isNotEmpty) setState(() => _trip = updated.first);
+                }
+              },
+            ),
+          if (canEdit)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 22),
+              onPressed: () async {
+                final tripProvider = context.read<TripProvider>();
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TripFormScreen(trip: _trip),
+                  ),
+                );
+                if (result == true && mounted) {
+                  final trips = tripProvider.trips;
+                  final updated = trips.firstWhere((t) => t.id == _trip.id);
+                  setState(() => _trip = updated);
+                }
+              },
+            ),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -78,14 +104,41 @@ class _TripDetailScreenState extends State<TripDetailScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildExpenseList(),
-          AnalyticsScreen(trip: _trip),
+          if (isOfflineReadOnly)
+            Container(
+              width: double.infinity,
+              color: AppTheme.inkFaint.withValues(alpha: 0.12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_off_outlined,
+                      size: 16, color: AppTheme.inkLight),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context).offlineReadOnly,
+                      style: const TextStyle(
+                          fontSize: 13, color: AppTheme.inkLight),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildExpenseList(),
+                AnalyticsScreen(trip: _trip),
+              ],
+            ),
+          ),
         ],
       ),
-      floatingActionButton: _tabController.index == 0
+      floatingActionButton: _tabController.index == 0 && _trip.canEdit
           ? FloatingActionButton(
               onPressed: () => _addExpense(context),
               child: const Icon(Icons.add, size: 28),
@@ -255,8 +308,8 @@ class _TripDetailScreenState extends State<TripDetailScreen>
               (e) => ExpenseTile(
                 expense: e,
                 baseCurrency: _trip.baseCurrency,
-                onTap: () => _editExpense(context, e),
-                onDelete: () => provider.deleteExpense(e.id!),
+                onTap: _trip.canEdit ? () => _editExpense(context, e) : null,
+                onDelete: _trip.canEdit ? () => provider.deleteExpense(e.id!) : null,
               ),
             ),
           ],

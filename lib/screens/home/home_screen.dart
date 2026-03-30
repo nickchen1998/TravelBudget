@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import '../../providers/ad_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/trip_card.dart';
+import '../join_trip_screen.dart';
 import '../trip/trip_form_screen.dart';
 import '../trip/trip_detail_screen.dart';
 import '../overview/overview_screen.dart';
@@ -22,6 +25,42 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
   bool _attRequested = false;
+  StreamSubscription<Uri>? _linkSub;
+
+  @override
+  void dispose() {
+    _linkSub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  void _initDeepLinks() {
+    final appLinks = AppLinks();
+    // Handle links when app is already running
+    _linkSub = appLinks.uriLinkStream.listen(_handleDeepLink);
+    // Handle initial link (app opened from cold start via link)
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) _handleDeepLink(uri);
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (uri.scheme == 'travelbudget' && uri.host == 'join') {
+      final token = uri.queryParameters['token'];
+      if (token != null && mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => JoinTripScreen(token: token),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void didChangeDependencies() {

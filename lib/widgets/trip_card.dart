@@ -5,6 +5,8 @@ import '../constants/app_theme.dart';
 import '../constants/currencies.dart';
 import '../l10n/app_localizations.dart';
 import '../models/trip.dart';
+import '../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class TripCard extends StatelessWidget {
   final Trip trip;
@@ -22,12 +24,15 @@ class TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final dateFormat = DateFormat('MM/dd');
     final dateRange =
         '${dateFormat.format(trip.startDate)} - ${dateFormat.format(trip.endDate)}';
     final symbol = getCurrencySymbol(trip.baseCurrency);
     final percentage =
         trip.budget > 0 ? (spent / trip.budget).clamp(0.0, 1.0) : 0.0;
+    final auth = context.watch<AuthProvider>();
+    final isSharedTrip = auth.isLoggedIn && trip.memberRole != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -123,6 +128,38 @@ class TripCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (isSharedTrip)
+                    Positioned(
+                      top: 10,
+                      left: 14,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.group,
+                                size: 12, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text(
+                              trip.memberRole == 'owner'
+                                  ? l.roleOwner
+                                  : trip.memberRole == 'editor'
+                                      ? l.roleEditor
+                                      : l.roleViewer,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   if (onDelete != null)
                     Positioned(
                       top: 8,

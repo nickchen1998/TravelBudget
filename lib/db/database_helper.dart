@@ -19,8 +19,9 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -31,6 +32,10 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE trips (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT,
+        owner_id TEXT,
+        synced_at TEXT,
+        is_dirty INTEGER NOT NULL DEFAULT 1,
         name TEXT NOT NULL,
         budget REAL NOT NULL,
         base_currency TEXT NOT NULL,
@@ -38,6 +43,7 @@ class DatabaseHelper {
         start_date TEXT NOT NULL,
         end_date TEXT NOT NULL,
         cover_image_path TEXT,
+        cover_image_url TEXT,
         created_at TEXT NOT NULL
       )
     ''');
@@ -45,6 +51,10 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE expenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT,
+        created_by TEXT,
+        synced_at TEXT,
+        is_dirty INTEGER NOT NULL DEFAULT 1,
         trip_id INTEGER NOT NULL,
         title TEXT NOT NULL,
         amount REAL NOT NULL,
@@ -69,6 +79,25 @@ class DatabaseHelper {
         PRIMARY KEY (base_currency, target_currency)
       )
     ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add sync columns to trips
+      await db.execute('ALTER TABLE trips ADD COLUMN uuid TEXT');
+      await db.execute('ALTER TABLE trips ADD COLUMN owner_id TEXT');
+      await db.execute('ALTER TABLE trips ADD COLUMN synced_at TEXT');
+      await db.execute(
+          'ALTER TABLE trips ADD COLUMN is_dirty INTEGER NOT NULL DEFAULT 1');
+      await db.execute('ALTER TABLE trips ADD COLUMN cover_image_url TEXT');
+
+      // Add sync columns to expenses
+      await db.execute('ALTER TABLE expenses ADD COLUMN uuid TEXT');
+      await db.execute('ALTER TABLE expenses ADD COLUMN created_by TEXT');
+      await db.execute('ALTER TABLE expenses ADD COLUMN synced_at TEXT');
+      await db.execute(
+          'ALTER TABLE expenses ADD COLUMN is_dirty INTEGER NOT NULL DEFAULT 1');
+    }
   }
 
   Future<void> close() async {

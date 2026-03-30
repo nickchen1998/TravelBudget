@@ -180,6 +180,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             TextFormField(
               controller: _noteController,
               maxLines: 2,
+              maxLength: 200,
               decoration: InputDecoration(
                 labelText: l.noteOptional,
                 border: const OutlineInputBorder(),

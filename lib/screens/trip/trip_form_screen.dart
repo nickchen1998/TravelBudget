@@ -117,6 +117,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.flight),
               ),
+              maxLength: 50,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return l.tripNameRequired;

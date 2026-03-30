@@ -48,6 +48,15 @@ class TripRepository {
           .where((t) => t.memberRole != 'owner' && !localUuids.contains(t.uuid))
           .toList();
 
+      // Background: upload cover images for local trips that haven't been uploaded yet
+      for (final trip in localTrips) {
+        if (trip.coverImagePath != null &&
+            trip.coverImageUrl == null &&
+            trip.uuid != null) {
+          unawaited(_uploadMissingCoverImage(trip));
+        }
+      }
+
       return [...localTrips, ...newShared];
     } catch (_) {
       return localTrips;
@@ -165,6 +174,21 @@ class TripRepository {
       // Persist coverImageUrl locally if updated
       if (coverImageUrl != null && coverImageUrl != trip.coverImageUrl) {
         await _local.updateTrip(trip.copyWith(coverImageUrl: coverImageUrl));
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _uploadMissingCoverImage(Trip trip) async {
+    try {
+      final url = await ImageStorageService.uploadTripCover(
+          trip.coverImagePath!, trip.uuid!);
+      if (url == null) return;
+      await _supabase
+          .from('trips')
+          .update({'cover_image_url': url})
+          .eq('id', trip.uuid!);
+      if (trip.id != null) {
+        await _local.updateTrip(trip.copyWith(coverImageUrl: url));
       }
     } catch (_) {}
   }

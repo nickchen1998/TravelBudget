@@ -423,6 +423,7 @@ class SettingsScreen extends StatelessWidget {
             child: _settingsTile(
               icon: Icons.restore,
               title: l.restorePurchase,
+              subtitle: l.restorePurchaseDesc,
               trailing: const Icon(Icons.chevron_right,
                   color: AppTheme.inkFaint, size: 20),
             ),
@@ -448,10 +449,12 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _restorePurchase(BuildContext context) async {
     final l = AppLocalizations.of(context);
     try {
-      await context.read<AdProvider>().restorePurchases();
+      final restored = await context.read<AdProvider>().restorePurchases();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.purchaseRestored)),
+          SnackBar(
+            content: Text(restored ? l.purchaseRestored : l.noPurchaseFound),
+          ),
         );
       }
     } catch (e) {

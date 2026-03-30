@@ -28,8 +28,19 @@ class AdProvider extends ChangeNotifier {
     await _purchaseService.buyRemoveAds();
   }
 
-  Future<void> restorePurchases() async {
+  /// Returns true if at least one purchase was actually restored.
+  Future<bool> restorePurchases() async {
+    bool restored = false;
+    final original = _purchaseService.onPurchaseUpdated;
+    _purchaseService.onPurchaseUpdated = () {
+      restored = true;
+      _onPurchaseChanged();
+    };
     await _purchaseService.restorePurchases();
+    // Give StoreKit time to deliver restored transactions
+    await Future.delayed(const Duration(seconds: 3));
+    _purchaseService.onPurchaseUpdated = original;
+    return restored;
   }
 
   @override

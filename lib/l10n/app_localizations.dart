@@ -236,6 +236,8 @@ class AppLocalizations {
   String get removeAds => _t('removeAds');
   String get removeAdsDesc => _t('removeAdsDesc');
   String get restorePurchase => _t('restorePurchase');
+  String get restorePurchaseDesc => _t('restorePurchaseDesc');
+  String get noPurchaseFound => _t('noPurchaseFound');
   String get purchaseSuccess => _t('purchaseSuccess');
   String get purchaseRestored => _t('purchaseRestored');
   String get purchaseFailed => _t('purchaseFailed');
@@ -388,7 +390,7 @@ class AppLocalizations {
     'sharedBadge': '共享',
     'memberCount': '人協作',
     'roleOwner': '擁有者',
-    'roleEditor': '可編輯',
+    'roleEditor': '協作者',
     'roleViewer': '查看者',
     'signInToShare': '需要登入才能分享旅程',
     'signInToJoin': '需要登入才能加入旅程',
@@ -426,6 +428,8 @@ class AppLocalizations {
     'removeAds': '移除廣告',
     'removeAdsDesc': '一次購買，永久移除所有廣告',
     'restorePurchase': '恢復購買',
+    'restorePurchaseDesc': '若曾在此 Apple ID 購買過，可在此恢復',
+    'noPurchaseFound': '找不到購買紀錄，請確認使用相同的 Apple ID',
     'purchaseSuccess': '已成功移除廣告！',
     'purchaseRestored': '已恢復購買',
     'purchaseFailed': '購買失敗',
@@ -566,7 +570,7 @@ class AppLocalizations {
     'sharedBadge': 'Shared',
     'memberCount': ' members',
     'roleOwner': 'Owner',
-    'roleEditor': 'Editor',
+    'roleEditor': 'Collaborator',
     'roleViewer': 'Viewer',
     'signInToShare': 'Sign in to share this trip',
     'signInToJoin': 'Sign in to join this trip',
@@ -604,6 +608,8 @@ class AppLocalizations {
     'removeAds': 'Remove Ads',
     'removeAdsDesc': 'One-time purchase to remove all ads',
     'restorePurchase': 'Restore Purchase',
+    'restorePurchaseDesc': 'Restore a previous purchase made with this Apple ID',
+    'noPurchaseFound': 'No purchase found for this Apple ID',
     'purchaseSuccess': 'Ads removed successfully!',
     'purchaseRestored': 'Purchase restored',
     'purchaseFailed': 'Purchase failed',
@@ -744,7 +750,7 @@ class AppLocalizations {
     'sharedBadge': '共有',
     'memberCount': '人',
     'roleOwner': 'オーナー',
-    'roleEditor': '編集者',
+    'roleEditor': '協力者',
     'roleViewer': '閲覧者',
     'signInToShare': '共有するにはサインインが必要です',
     'signInToJoin': '参加するにはサインインが必要です',
@@ -782,6 +788,8 @@ class AppLocalizations {
     'removeAds': '広告を削除',
     'removeAdsDesc': '一度の購入ですべての広告を削除',
     'restorePurchase': '購入を復元',
+    'restorePurchaseDesc': 'この Apple ID で以前購入した場合は復元できます',
+    'noPurchaseFound': 'この Apple ID に購入履歴が見つかりません',
     'purchaseSuccess': '広告を削除しました！',
     'purchaseRestored': '購入を復元しました',
     'purchaseFailed': '購入に失敗しました',
@@ -922,7 +930,7 @@ class AppLocalizations {
     'sharedBadge': '공유',
     'memberCount': '명',
     'roleOwner': '소유자',
-    'roleEditor': '편집자',
+    'roleEditor': '협력자',
     'roleViewer': '뷰어',
     'signInToShare': '여행을 공유하려면 로그인이 필요합니다',
     'signInToJoin': '여행에 참가하려면 로그인이 필요합니다',
@@ -960,6 +968,8 @@ class AppLocalizations {
     'removeAds': '광고 제거',
     'removeAdsDesc': '한 번 구매로 모든 광고 제거',
     'restorePurchase': '구매 복원',
+    'restorePurchaseDesc': '이 Apple ID로 이전에 구매한 경우 복원할 수 있습니다',
+    'noPurchaseFound': '이 Apple ID에서 구매 내역을 찾을 수 없습니다',
     'purchaseSuccess': '광고가 제거되었습니다!',
     'purchaseRestored': '구매가 복원되었습니다',
     'purchaseFailed': '구매 실패',
@@ -1100,7 +1110,7 @@ class AppLocalizations {
     'sharedBadge': '共享',
     'memberCount': '人协作',
     'roleOwner': '拥有者',
-    'roleEditor': '可编辑',
+    'roleEditor': '协作者',
     'roleViewer': '查看者',
     'signInToShare': '需要登录才能分享旅程',
     'signInToJoin': '需要登录才能加入旅程',
@@ -1138,6 +1148,8 @@ class AppLocalizations {
     'removeAds': '移除广告',
     'removeAdsDesc': '一次购买，永久移除所有广告',
     'restorePurchase': '恢复购买',
+    'restorePurchaseDesc': '若曾使用此 Apple ID 购买过，可在此恢复',
+    'noPurchaseFound': '未找到购买记录，请确认使用相同的 Apple ID',
     'purchaseSuccess': '已成功移除广告！',
     'purchaseRestored': '已恢复购买',
     'purchaseFailed': '购买失败',

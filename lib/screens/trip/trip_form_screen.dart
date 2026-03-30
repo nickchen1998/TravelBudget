@@ -245,6 +245,11 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
     final trip = Trip(
       id: widget.trip?.id,
+      uuid: widget.trip?.uuid,
+      ownerId: widget.trip?.ownerId,
+      memberRole: widget.trip?.memberRole,
+      isDirty: widget.trip?.isDirty ?? false,
+      syncedAt: widget.trip?.syncedAt,
       name: _nameController.text.trim(),
       budget: budget,
       baseCurrency: _baseCurrency,
@@ -252,6 +257,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       startDate: _startDate,
       endDate: _endDate,
       coverImagePath: _coverImagePath,
+      coverImageUrl: widget.trip?.coverImageUrl,
       createdAt: widget.trip?.createdAt,
     );
 

@@ -44,8 +44,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       return const SizedBox.shrink();
     }
 
-    return SafeArea(
-      top: false,
+    return Container(
+      width: double.infinity,
+      height: _bannerAd!.size.height.toDouble(),
+      color: const Color(0xFFF6F1EA), // AppTheme.cream
+      alignment: Alignment.center,
       child: SizedBox(
         width: _bannerAd!.size.width.toDouble(),
         height: _bannerAd!.size.height.toDouble(),

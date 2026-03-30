@@ -210,6 +210,7 @@ class AppLocalizations {
   String get cloudBackupSignInCta => _t('cloudBackupSignInCta');
   String get syncing => _t('syncing');
   String get preparingLink => _t('preparingLink');
+  String get linkCopied => _t('linkCopied');
   String get syncNow => _t('syncNow');
   String get lastSynced => _t('lastSynced');
   String get neverSynced => _t('neverSynced');
@@ -387,6 +388,7 @@ class AppLocalizations {
     'cloudBackupSignInCta': '登入以備份資料',
     'syncing': '同步中...',
     'preparingLink': '正在準備連結...',
+    'linkCopied': '連結已複製到剪貼簿',
     'syncNow': '立即同步',
     'lastSynced': '上次同步',
     'neverSynced': '尚未同步',
@@ -549,6 +551,7 @@ class AppLocalizations {
     'cloudBackupSignInCta': 'Sign in to back up data',
     'syncing': 'Syncing...',
     'preparingLink': 'Preparing link...',
+    'linkCopied': 'Link copied to clipboard',
     'syncNow': 'Sync Now',
     'lastSynced': 'Last synced',
     'neverSynced': 'Never synced',
@@ -711,6 +714,7 @@ class AppLocalizations {
     'cloudBackupSignInCta': 'データをバックアップするにはサインイン',
     'syncing': '同期中...',
     'preparingLink': 'リンクを準備中...',
+    'linkCopied': 'リンクをクリップボードにコピーしました',
     'syncNow': '今すぐ同期',
     'lastSynced': '最終同期',
     'neverSynced': '未同期',
@@ -873,6 +877,7 @@ class AppLocalizations {
     'cloudBackupSignInCta': '데이터 백업을 위해 로그인',
     'syncing': '동기화 중...',
     'preparingLink': '링크 준비 중...',
+    'linkCopied': '링크가 클립보드에 복사되었습니다',
     'syncNow': '지금 동기화',
     'lastSynced': '마지막 동기화',
     'neverSynced': '동기화 안 됨',
@@ -1035,6 +1040,7 @@ class AppLocalizations {
     'cloudBackupSignInCta': '登录以备份数据',
     'syncing': '同步中...',
     'preparingLink': '正在准备链接...',
+    'linkCopied': '链接已复制到剪贴板',
     'syncNow': '立即同步',
     'lastSynced': '上次同步',
     'neverSynced': '尚未同步',

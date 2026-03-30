@@ -65,6 +65,14 @@ class AuthService {
     return response;
   }
 
+  Future<void> updateDisplayName(String name) async {
+    final user = currentUser;
+    if (user == null) throw Exception('Not logged in');
+    await _supabase.from('profiles').update({
+      'display_name': name,
+    }).eq('id', user.id);
+  }
+
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }

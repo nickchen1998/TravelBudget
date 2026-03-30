@@ -201,6 +201,10 @@ class AppLocalizations {
   String get deleteAccountConfirm => _t('deleteAccountConfirm');
   String get deleteAccountWarning => _t('deleteAccountWarning');
   String get deleteAccountFailed => _t('deleteAccountFailed');
+  String get editNickname => _t('editNickname');
+  String get nicknameHint => _t('nicknameHint');
+  String get nicknameSaved => _t('nicknameSaved');
+  String get nicknameFailed => _t('nicknameFailed');
   String get cloudBackup => _t('cloudBackup');
   String get cloudBackupDesc => _t('cloudBackupDesc');
   String get cloudBackupSignInCta => _t('cloudBackupSignInCta');
@@ -373,6 +377,10 @@ class AppLocalizations {
     'deleteAccountConfirm': '確定要刪除帳號？',
     'deleteAccountWarning': '• 你在別人旅程中的共編權限將被移除\n• 你擁有的旅程協作成員將被踢出\n• 本機旅程資料仍保留，但不再同步\n\n此操作無法復原。',
     'deleteAccountFailed': '刪除帳號失敗',
+    'editNickname': '編輯暱稱',
+    'nicknameHint': '輸入暱稱（顯示給協作者看）',
+    'nicknameSaved': '暱稱已更新',
+    'nicknameFailed': '更新暱稱失敗',
     'cloudBackup': '雲端備份',
     'cloudBackupDesc': '登入後資料自動備份到雲端，換機也不怕遺失',
     'cloudBackupSignInCta': '登入以備份資料',
@@ -530,6 +538,10 @@ class AppLocalizations {
     'deleteAccountConfirm': 'Delete your account?',
     'deleteAccountWarning': '• You will lose access to trips you collaborate on\n• Members of your shared trips will lose access\n• Local trip data is kept but will no longer sync\n\nThis action cannot be undone.',
     'deleteAccountFailed': 'Failed to delete account',
+    'editNickname': 'Edit Nickname',
+    'nicknameHint': 'Shown to collaborators',
+    'nicknameSaved': 'Nickname saved',
+    'nicknameFailed': 'Failed to update nickname',
     'cloudBackup': 'Cloud Backup',
     'cloudBackupDesc': 'Sign in to back up your data automatically',
     'cloudBackupSignInCta': 'Sign in to back up data',
@@ -687,6 +699,10 @@ class AppLocalizations {
     'deleteAccountConfirm': 'アカウントを削除しますか？',
     'deleteAccountWarning': '• 参加している共同旅程へのアクセスが失われます\n• あなたが所有する旅程の共同編集者が削除されます\n• ローカルデータは保持されますが同期されなくなります\n\nこの操作は元に戻せません。',
     'deleteAccountFailed': 'アカウントの削除に失敗しました',
+    'editNickname': 'ニックネームを編集',
+    'nicknameHint': '共同作業者に表示されます',
+    'nicknameSaved': 'ニックネームを更新しました',
+    'nicknameFailed': 'ニックネームの更新に失敗しました',
     'cloudBackup': 'クラウドバックアップ',
     'cloudBackupDesc': 'サインインしてデータを自動バックアップ',
     'cloudBackupSignInCta': 'データをバックアップするにはサインイン',
@@ -844,6 +860,10 @@ class AppLocalizations {
     'deleteAccountConfirm': '계정을 삭제하시겠습니까？',
     'deleteAccountWarning': '• 참여 중인 공동 여행의 접근 권한이 제거됩니다\n• 소유한 여행의 공동 편집자가 제거됩니다\n• 로컬 데이터는 유지되지만 동기화되지 않습니다\n\n이 작업은 되돌릴 수 없습니다.',
     'deleteAccountFailed': '계정 삭제 실패',
+    'editNickname': '닉네임 편집',
+    'nicknameHint': '공동 작업자에게 표시됩니다',
+    'nicknameSaved': '닉네임이 저장되었습니다',
+    'nicknameFailed': '닉네임 업데이트 실패',
     'cloudBackup': '클라우드 백업',
     'cloudBackupDesc': '로그인하면 데이터가 자동으로 백업됩니다',
     'cloudBackupSignInCta': '데이터 백업을 위해 로그인',
@@ -1001,6 +1021,10 @@ class AppLocalizations {
     'deleteAccountConfirm': '确定要删除账号？',
     'deleteAccountWarning': '• 您将失去参与的协作旅程访问权限\n• 您拥有的旅程协作成员将被移除\n• 本地旅程数据保留，但不再同步\n\n此操作无法撤销。',
     'deleteAccountFailed': '删除账号失败',
+    'editNickname': '编辑昵称',
+    'nicknameHint': '显示给协作者',
+    'nicknameSaved': '昵称已更新',
+    'nicknameFailed': '更新昵称失败',
     'cloudBackup': '云端备份',
     'cloudBackupDesc': '登录后数据自动备份到云端，换机也不怕丢失',
     'cloudBackupSignInCta': '登录以备份数据',

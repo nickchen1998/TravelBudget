@@ -40,8 +40,7 @@ class SettingsScreen extends StatelessWidget {
               _settingsTile(
                 icon: Icons.person_outline,
                 title: l.developer,
-                trailing: const Text('扣握貝果-CodeWorldBagel',
-                    style: TextStyle(color: AppTheme.inkFaint)),
+                subtitle: '扣握貝果-CodeWorldBagel',
               ),
             ],
           ),
@@ -165,12 +164,15 @@ class SettingsScreen extends StatelessWidget {
       child: Column(
         children: [
           // Profile row
-          _settingsTile(
-            icon: Icons.person,
-            title: name,
-            subtitle: l.signedInAs,
-            trailing: const Icon(Icons.check_circle,
-                color: AppTheme.moss, size: 20),
+          GestureDetector(
+            onTap: () => _handleEditDisplayName(context),
+            child: _settingsTile(
+              icon: Icons.person,
+              title: name,
+              subtitle: l.signedInAs,
+              trailing: const Icon(Icons.edit_outlined,
+                  color: AppTheme.inkFaint, size: 18),
+            ),
           ),
           const Divider(height: 1, color: AppTheme.parchment),
           // Sync row
@@ -229,6 +231,56 @@ class SettingsScreen extends StatelessWidget {
   }
 
   // ── Auth handlers ─────────────────────────────────────────────────────────
+
+  Future<void> _handleEditDisplayName(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final auth = context.read<AuthProvider>();
+    final controller = TextEditingController(text: auth.displayName ?? '');
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.editNickname,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 30,
+          decoration: InputDecoration(hintText: l.nicknameHint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppTheme.inkLight)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.save),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final name = controller.text.trim();
+    if (name.isEmpty) return;
+    try {
+      await context.read<AuthProvider>().updateDisplayName(name);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.nicknameSaved),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.nicknameFailed}: $e')),
+        );
+      }
+    }
+  }
 
   Future<void> _handleSignIn(BuildContext context) async {
     final l = AppLocalizations.of(context);
@@ -491,6 +543,8 @@ class SettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -499,13 +553,17 @@ class SettingsScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(subtitle,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             fontSize: 12, color: AppTheme.inkFaint)),
                   ),
               ],
             ),
           ),
-          ?trailing,
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            trailing!,
+          ],
         ],
       ),
     );

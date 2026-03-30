@@ -75,6 +75,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> updateDisplayName(String name) async {
+    await _authService.updateDisplayName(name);
+    _displayName = name;
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     _isLoading = true;
     notifyListeners();

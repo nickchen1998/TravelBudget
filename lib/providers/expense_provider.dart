@@ -3,6 +3,7 @@ import '../constants/categories.dart';
 import '../models/expense.dart';
 import '../models/trip.dart';
 import '../repositories/expense_repository.dart';
+import '../repositories/trip_repository.dart' show NetworkException;
 
 class ExpenseProvider extends ChangeNotifier {
   final ExpenseRepository _repo = ExpenseRepository();
@@ -49,40 +50,56 @@ class ExpenseProvider extends ChangeNotifier {
     _currentTripId = trip.id;
     _currentTrip = trip;
 
-    if (trip.id != null) {
-      _expenses = await _repo.getExpensesByTripId(trip.id!);
-    }
-
-    // For shared trips with no local expenses, pull from cloud
-    if (_expenses.isEmpty && trip.uuid != null && trip.isShared) {
-      _expenses =
-          await _repo.getCloudExpensesForTrip(trip.uuid!, trip.id ?? 0);
-    }
+    _expenses = await _repo.getExpenses(
+      trip.id ?? 0,
+      tripUuid: trip.uuid,
+    );
 
     notifyListeners();
   }
 
-  Future<void> addExpense(Expense expense) async {
-    final saved = await _repo.addExpense(expense,
-        tripUuid: _currentTrip?.uuid);
-    _expenses.insert(0, saved);
-    notifyListeners();
-  }
-
-  Future<void> updateExpense(Expense expense) async {
-    await _repo.updateExpense(expense, tripUuid: _currentTrip?.uuid);
-    final index = _expenses.indexWhere((e) => e.id == expense.id);
-    if (index != -1) {
-      _expenses[index] = expense;
+  /// Returns null on success, an error key string on failure.
+  Future<String?> addExpense(Expense expense) async {
+    try {
+      final saved = await _repo.addExpense(expense, tripUuid: _currentTrip?.uuid);
+      _expenses.insert(0, saved);
       notifyListeners();
+      return null;
+    } on NetworkException {
+      return 'network_required';
+    } catch (_) {
+      return 'save_failed';
     }
   }
 
-  Future<void> deleteExpense(int id) async {
+  Future<String?> updateExpense(Expense expense) async {
+    try {
+      await _repo.updateExpense(expense, tripUuid: _currentTrip?.uuid);
+      final index = _expenses.indexWhere((e) => e.id == expense.id);
+      if (index != -1) {
+        _expenses[index] = expense;
+        notifyListeners();
+      }
+      return null;
+    } on NetworkException {
+      return 'network_required';
+    } catch (_) {
+      return 'save_failed';
+    }
+  }
+
+  Future<String?> deleteExpense(int id) async {
     final expense = _expenses.where((e) => e.id == id).firstOrNull;
-    if (expense == null) return;
-    await _repo.deleteExpense(id, expenseUuid: expense.uuid);
-    _expenses.removeWhere((e) => e.id == id);
-    notifyListeners();
+    if (expense == null) return null;
+    try {
+      await _repo.deleteExpense(id, expenseUuid: expense.uuid);
+      _expenses.removeWhere((e) => e.id == id);
+      notifyListeners();
+      return null;
+    } on NetworkException {
+      return 'network_required';
+    } catch (_) {
+      return 'save_failed';
+    }
   }
 }

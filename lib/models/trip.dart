@@ -149,7 +149,7 @@ class Trip {
       'target_currency': targetCurrency,
       'start_date': startDate.toIso8601String().substring(0, 10),
       'end_date': endDate.toIso8601String().substring(0, 10),
-      'cover_image_url': coverImageUrl,
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
     };
   }
 }

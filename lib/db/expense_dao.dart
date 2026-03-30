@@ -39,6 +39,38 @@ class ExpenseDao {
     return await db.delete('expenses', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Upsert an expense from cloud data (match by uuid). Returns the expense with local id set.
+  Future<Expense> upsertFromCloud(Expense expense) async {
+    final db = await _dbHelper.database;
+    final existing = await db.query('expenses', where: 'uuid = ?', whereArgs: [expense.uuid]);
+    if (existing.isNotEmpty) {
+      final localId = existing.first['id'] as int;
+      final updated = expense.copyWith(id: localId);
+      await db.update('expenses', updated.toMap(), where: 'id = ?', whereArgs: [localId]);
+      return updated;
+    } else {
+      final map = expense.toMap();
+      map.remove('id');
+      final localId = await db.insert('expenses', map);
+      return expense.copyWith(id: localId);
+    }
+  }
+
+  /// Remove locally-cached expenses for [tripId] whose uuids are not in [keepUuids].
+  Future<void> deleteAbsentForTrip(int tripId, List<String> keepUuids) async {
+    final db = await _dbHelper.database;
+    if (keepUuids.isEmpty) {
+      await db.delete('expenses', where: 'trip_id = ?', whereArgs: [tripId]);
+      return;
+    }
+    final placeholders = List.filled(keepUuids.length, '?').join(',');
+    await db.delete(
+      'expenses',
+      where: 'trip_id = ? AND (uuid IS NULL OR uuid NOT IN ($placeholders))',
+      whereArgs: [tripId, ...keepUuids],
+    );
+  }
+
   Future<double> getTotalSpentByTrip(int tripId) async {
     final db = await _dbHelper.database;
     final result = await db.rawQuery(

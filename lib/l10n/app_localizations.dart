@@ -211,6 +211,8 @@ class AppLocalizations {
   String get signInFailed => _t('signInFailed');
   String get signedInAs => _t('signedInAs');
   String get offlineReadOnly => _t('offlineReadOnly');
+  String get offlineBanner => _t('offlineBanner');
+  String get networkRequiredError => _t('networkRequiredError');
   String get syncFailed => _t('syncFailed');
   String get deleteAccount => _t('deleteAccount');
   String get deleteAccountConfirm => _t('deleteAccountConfirm');
@@ -406,6 +408,8 @@ class AppLocalizations {
     'signInFailed': '登入失敗',
     'signedInAs': '已登入',
     'offlineReadOnly': '協作旅程離線中，僅可查閱，無法新增或編輯',
+    'offlineBanner': '目前尚未連上網路，顯示快取資料',
+    'networkRequiredError': '需要網路連線才能執行此操作',
     'syncFailed': '同步失敗，請稍後再試',
     'deleteAccount': '刪除帳號',
     'deleteAccountConfirm': '確定要刪除帳號？',
@@ -586,6 +590,8 @@ class AppLocalizations {
     'signInFailed': 'Sign in failed',
     'signedInAs': 'Signed in',
     'offlineReadOnly': 'Collaborative trip is offline — read-only',
+    'offlineBanner': 'No internet connection — showing cached data',
+    'networkRequiredError': 'Internet connection required',
     'syncFailed': 'Sync failed, please try again',
     'deleteAccount': 'Delete Account',
     'deleteAccountConfirm': 'Delete your account?',
@@ -766,6 +772,8 @@ class AppLocalizations {
     'signInFailed': 'サインインに失敗しました',
     'signedInAs': 'サインイン中',
     'offlineReadOnly': '共同旅程はオフライン中のため閲覧のみ可能です',
+    'offlineBanner': 'インターネット未接続 — キャッシュデータを表示中',
+    'networkRequiredError': 'この操作にはネット接続が必要です',
     'syncFailed': '同期に失敗しました。後でもう一度お試しください',
     'deleteAccount': 'アカウント削除',
     'deleteAccountConfirm': 'アカウントを削除しますか？',
@@ -946,6 +954,8 @@ class AppLocalizations {
     'signInFailed': '로그인 실패',
     'signedInAs': '로그인됨',
     'offlineReadOnly': '공동 여행 오프라인 중 — 읽기 전용',
+    'offlineBanner': '인터넷 미연결 — 캐시 데이터 표시 중',
+    'networkRequiredError': '이 작업을 위해 인터넷 연결이 필요합니다',
     'syncFailed': '동기화 실패, 나중에 다시 시도해주세요',
     'deleteAccount': '계정 삭제',
     'deleteAccountConfirm': '계정을 삭제하시겠습니까？',
@@ -1126,6 +1136,8 @@ class AppLocalizations {
     'signInFailed': '登录失败',
     'signedInAs': '已登录',
     'offlineReadOnly': '协作旅程离线中，仅可查阅，无法新增或编辑',
+    'offlineBanner': '当前未连接网络，显示缓存数据',
+    'networkRequiredError': '执行此操作需要网络连接',
     'syncFailed': '同步失败，请稍后再试',
     'deleteAccount': '删除账号',
     'deleteAccountConfirm': '确定要删除账号？',

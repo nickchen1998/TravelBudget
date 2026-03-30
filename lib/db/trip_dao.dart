@@ -53,4 +53,43 @@ class TripDao {
       'is_dirty': 1,
     });
   }
+
+  /// Upsert a trip from cloud data (match by uuid). Returns the trip with local id set.
+  Future<Trip> upsertFromCloud(Trip trip) async {
+    final db = await _dbHelper.database;
+    final existing = await db.query('trips', where: 'uuid = ?', whereArgs: [trip.uuid]);
+    if (existing.isNotEmpty) {
+      final localId = existing.first['id'] as int;
+      final updated = trip.copyWith(id: localId);
+      await db.update('trips', updated.toMap(), where: 'id = ?', whereArgs: [localId]);
+      return updated;
+    } else {
+      final map = trip.toMap();
+      map.remove('id');
+      final localId = await db.insert('trips', map);
+      return trip.copyWith(id: localId);
+    }
+  }
+
+  /// Remove locally-cached trips whose uuids are not in [keepUuids].
+  Future<void> deleteAbsent(List<String> keepUuids) async {
+    final db = await _dbHelper.database;
+    if (keepUuids.isEmpty) {
+      await db.delete('trips');
+      return;
+    }
+    final placeholders = List.filled(keepUuids.length, '?').join(',');
+    await db.delete(
+      'trips',
+      where: 'uuid IS NULL OR uuid NOT IN ($placeholders)',
+      whereArgs: keepUuids,
+    );
+  }
+
+  Future<Trip?> getTripByUuid(String uuid) async {
+    final db = await _dbHelper.database;
+    final maps = await db.query('trips', where: 'uuid = ?', whereArgs: [uuid]);
+    if (maps.isEmpty) return null;
+    return Trip.fromMap(maps.first);
+  }
 }

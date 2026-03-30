@@ -28,6 +28,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
   String? _coverImagePath;
   bool _imageChanged = false;
   bool _noBudget = false;
+  bool _isSaving = false;
 
   bool get isEditing => widget.trip != null;
 
@@ -128,95 +129,132 @@ class _TripFormScreenState extends State<TripFormScreen> {
             const SizedBox(height: 16),
 
             // Date Range
-            Row(
-              children: [
-                Expanded(
-                  child: _DateField(
-                    label: l.startDate,
-                    date: _startDate,
-                    onChanged: (date) {
-                      setState(() {
-                        _startDate = date;
-                        if (_endDate.isBefore(_startDate)) {
-                          _endDate = _startDate;
-                        }
-                      });
-                    },
+            if (isEditing) ...[
+              Row(
+                children: [
+                  Expanded(child: _ReadOnlyField(label: l.startDate, value: DateFormat('yyyy/MM/dd').format(_startDate))),
+                  const SizedBox(width: 12),
+                  Expanded(child: _ReadOnlyField(label: l.endDate, value: DateFormat('yyyy/MM/dd').format(_endDate))),
+                ],
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _DateField(
+                      label: l.startDate,
+                      date: _startDate,
+                      onChanged: (date) {
+                        setState(() {
+                          _startDate = date;
+                          if (_endDate.isBefore(_startDate)) {
+                            _endDate = _startDate;
+                          }
+                        });
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DateField(
-                    label: l.endDate,
-                    date: _endDate,
-                    firstDate: _startDate,
-                    onChanged: (date) => setState(() => _endDate = date),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _DateField(
+                      label: l.endDate,
+                      date: _endDate,
+                      firstDate: _startDate,
+                      onChanged: (date) => setState(() => _endDate = date),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Currency Selection
-            Row(
-              children: [
-                Expanded(
-                  child: _CurrencyDropdown(
-                    label: l.baseCurrency,
-                    value: _baseCurrency,
-                    onChanged: (v) => setState(() => _baseCurrency = v),
+            if (isEditing) ...[
+              Row(
+                children: [
+                  Expanded(child: _ReadOnlyField(label: l.baseCurrency, value: _baseCurrency)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(Icons.arrow_forward, color: Colors.grey),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(Icons.arrow_forward, color: Colors.grey),
-                ),
-                Expanded(
-                  child: _CurrencyDropdown(
-                    label: l.targetCurrency,
-                    value: _targetCurrency,
-                    onChanged: (v) => setState(() => _targetCurrency = v),
+                  Expanded(child: _ReadOnlyField(label: l.targetCurrency, value: _targetCurrency)),
+                ],
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _CurrencyDropdown(
+                      label: l.baseCurrency,
+                      value: _baseCurrency,
+                      onChanged: (v) => setState(() => _baseCurrency = v),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(Icons.arrow_forward, color: Colors.grey),
+                  ),
+                  Expanded(
+                    child: _CurrencyDropdown(
+                      label: l.targetCurrency,
+                      value: _targetCurrency,
+                      onChanged: (v) => setState(() => _targetCurrency = v),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Budget
-            SwitchListTile(
-              title: Text(l.noBudgetLimit),
-              value: _noBudget,
-              onChanged: (v) => setState(() => _noBudget = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-            if (!_noBudget) ...[
-              TextFormField(
-                controller: _budgetController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l.budgetAmount,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.account_balance_wallet),
-                  suffixText: _baseCurrency,
-                ),
-                validator: (value) {
-                  if (_noBudget) return null;
-                  if (value == null || value.isEmpty) {
-                    return l.budgetRequired;
-                  }
-                  if (double.tryParse(value) == null) {
-                    return l.invalidNumber;
-                  }
-                  return null;
-                },
+            if (isEditing) ...[
+              _ReadOnlyField(
+                label: l.budgetAmount,
+                value: _noBudget ? l.noBudgetLimit : '${_budgetController.text} $_baseCurrency',
               ),
+            ] else ...[
+              SwitchListTile(
+                title: Text(l.noBudgetLimit),
+                value: _noBudget,
+                onChanged: (v) => setState(() => _noBudget = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              if (!_noBudget) ...[
+                TextFormField(
+                  controller: _budgetController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l.budgetAmount,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.account_balance_wallet),
+                    suffixText: _baseCurrency,
+                  ),
+                  validator: (value) {
+                    if (_noBudget) return null;
+                    if (value == null || value.isEmpty) {
+                      return l.budgetRequired;
+                    }
+                    if (double.tryParse(value) == null) {
+                      return l.invalidNumber;
+                    }
+                    return null;
+                  },
+                ),
+              ],
             ],
             const SizedBox(height: 32),
 
             // Save Button
             FilledButton.icon(
-              onPressed: _save,
-              icon: const Icon(Icons.check),
+              onPressed: _isSaving ? null : _save,
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.check),
               label: Text(isEditing ? l.saveChanges : l.createTrip),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
@@ -243,8 +281,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
 
     final budget = _noBudget ? 0.0 : double.parse(_budgetController.text);
 
@@ -262,18 +302,29 @@ class _TripFormScreenState extends State<TripFormScreen> {
       startDate: _startDate,
       endDate: _endDate,
       coverImagePath: _coverImagePath,
-      // Clear old URL when user picked a new local image so cloud re-uploads
       coverImageUrl: _imageChanged ? null : widget.trip?.coverImageUrl,
       createdAt: widget.trip?.createdAt,
     );
 
-    final provider = context.read<TripProvider>();
-    if (isEditing) {
-      provider.updateTrip(trip);
-    } else {
-      provider.addTrip(trip);
+    try {
+      final provider = context.read<TripProvider>();
+      String? error;
+      if (isEditing) {
+        error = await provider.updateTrip(trip);
+      } else {
+        error = await provider.addTrip(trip);
+      }
+      if (!mounted) return;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).networkRequiredError),
+        ));
+      } else {
+        Navigator.pop(context, true);
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-    Navigator.pop(context, true);
   }
 }
 
@@ -342,6 +393,29 @@ class _CurrencyDropdown extends StatelessWidget {
       onChanged: (v) {
         if (v != null) onChanged(v);
       },
+    );
+  }
+}
+
+class _ReadOnlyField extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ReadOnlyField({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        fillColor: Colors.grey.shade100,
+        filled: true,
+      ),
+      child: Text(
+        value,
+        style: const TextStyle(fontSize: 14),
+      ),
     );
   }
 }

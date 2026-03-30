@@ -6,6 +6,7 @@ import '../../constants/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/ad_provider.dart';
 import '../../models/trip.dart';
+import '../../providers/connectivity_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/trip_card.dart';
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
+          _OfflineBanner(),
           Expanded(
             child: IndexedStack(
               index: _currentTab,
@@ -308,13 +310,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(color: AppTheme.inkLight)),
           ),
           TextButton(
-            onPressed: () {
-              if (trip.id != null) {
-                provider.deleteTrip(trip.id!);
-              } else if (trip.uuid != null) {
-                provider.deleteTripByUuid(trip.uuid!);
-              }
+            onPressed: () async {
               Navigator.pop(ctx);
+              String? error;
+              if (trip.id != null) {
+                error = await provider.deleteTrip(trip.id!);
+              } else if (trip.uuid != null) {
+                error = await provider.deleteTripByUuid(trip.uuid!);
+              }
+              if (error != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context).networkRequiredError),
+                ));
+              }
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
             child: Text(l.delete),
@@ -340,12 +348,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(color: AppTheme.inkLight)),
           ),
           TextButton(
-            onPressed: () {
-              provider.leaveTrip(trip.uuid!);
+            onPressed: () async {
               Navigator.pop(ctx);
+              final error = await provider.leaveTrip(trip.uuid!);
+              if (error != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context).networkRequiredError),
+                ));
+              }
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
             child: Text(l.leave),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OfflineBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final isOnline = context.watch<ConnectivityProvider>().isOnline;
+    if (isOnline) return const SizedBox.shrink();
+    final l = AppLocalizations.of(context);
+    return Container(
+      width: double.infinity,
+      color: Colors.orange.shade700,
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      child: Row(
+        children: [
+          const Icon(Icons.wifi_off, color: Colors.white, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l.offlineBanner,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
           ),
         ],
       ),

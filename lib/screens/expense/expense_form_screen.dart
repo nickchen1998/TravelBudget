@@ -259,13 +259,21 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
       if (!mounted) return;
       final provider = context.read<ExpenseProvider>();
+      String? error;
       if (isEditing) {
-        await provider.updateExpense(expense);
+        error = await provider.updateExpense(expense);
       } else {
-        await provider.addExpense(expense);
+        error = await provider.addExpense(expense);
       }
 
-      if (mounted) Navigator.pop(context, true);
+      if (!mounted) return;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).networkRequiredError)),
+        );
+      } else {
+        Navigator.pop(context, true);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

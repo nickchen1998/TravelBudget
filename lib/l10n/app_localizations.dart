@@ -209,6 +209,7 @@ class AppLocalizations {
   String get cloudBackupDesc => _t('cloudBackupDesc');
   String get cloudBackupSignInCta => _t('cloudBackupSignInCta');
   String get syncing => _t('syncing');
+  String get preparingLink => _t('preparingLink');
   String get syncNow => _t('syncNow');
   String get lastSynced => _t('lastSynced');
   String get neverSynced => _t('neverSynced');
@@ -385,6 +386,7 @@ class AppLocalizations {
     'cloudBackupDesc': '登入後資料自動備份到雲端，換機也不怕遺失',
     'cloudBackupSignInCta': '登入以備份資料',
     'syncing': '同步中...',
+    'preparingLink': '正在準備連結...',
     'syncNow': '立即同步',
     'lastSynced': '上次同步',
     'neverSynced': '尚未同步',
@@ -546,6 +548,7 @@ class AppLocalizations {
     'cloudBackupDesc': 'Sign in to back up your data automatically',
     'cloudBackupSignInCta': 'Sign in to back up data',
     'syncing': 'Syncing...',
+    'preparingLink': 'Preparing link...',
     'syncNow': 'Sync Now',
     'lastSynced': 'Last synced',
     'neverSynced': 'Never synced',
@@ -707,6 +710,7 @@ class AppLocalizations {
     'cloudBackupDesc': 'サインインしてデータを自動バックアップ',
     'cloudBackupSignInCta': 'データをバックアップするにはサインイン',
     'syncing': '同期中...',
+    'preparingLink': 'リンクを準備中...',
     'syncNow': '今すぐ同期',
     'lastSynced': '最終同期',
     'neverSynced': '未同期',
@@ -868,6 +872,7 @@ class AppLocalizations {
     'cloudBackupDesc': '로그인하면 데이터가 자동으로 백업됩니다',
     'cloudBackupSignInCta': '데이터 백업을 위해 로그인',
     'syncing': '동기화 중...',
+    'preparingLink': '링크 준비 중...',
     'syncNow': '지금 동기화',
     'lastSynced': '마지막 동기화',
     'neverSynced': '동기화 안 됨',
@@ -1029,6 +1034,7 @@ class AppLocalizations {
     'cloudBackupDesc': '登录后数据自动备份到云端，换机也不怕丢失',
     'cloudBackupSignInCta': '登录以备份数据',
     'syncing': '同步中...',
+    'preparingLink': '正在准备链接...',
     'syncNow': '立即同步',
     'lastSynced': '上次同步',
     'neverSynced': '尚未同步',

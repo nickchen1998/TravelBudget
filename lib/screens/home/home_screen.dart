@@ -91,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final showAds = context.watch<AdProvider>().showAds;
 
     return Scaffold(
+      backgroundColor: AppTheme.cream,
       appBar: AppBar(
         title: Text(titles[_currentTab]),
       ),

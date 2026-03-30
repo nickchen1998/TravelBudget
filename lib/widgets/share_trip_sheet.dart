@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,7 +22,6 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
   final _supabase = Supabase.instance.client;
 
   bool _isLoading = false;
-  String? _copiedRole; // 複製成功後短暫顯示 check icon
   List<Map<String, dynamic>> _members = [];
 
   @override
@@ -98,24 +96,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
     }
   }
 
-  Future<void> _copyLink(String role) async {
-    setState(() => _isLoading = true);
-    try {
-      final link = await _getOrCreateLink(role);
-      if (link.isEmpty) return;
-      await Clipboard.setData(ClipboardData(text: link));
-      if (mounted) {
-        setState(() => _copiedRole = role);
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (mounted) setState(() => _copiedRole = null);
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
+@override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
@@ -163,8 +144,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 roleLabel: l.shareAsEditor,
                 roleColor: AppTheme.orange,
                 role: 'editor',
-                onShare: () => _shareLink(context, 'editor'),
-                onCopy: () => _copyLink('editor'),
+                onTap: () => _shareLink(context, 'editor'),
               ),
               const SizedBox(height: 12),
 
@@ -175,8 +155,7 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
                 roleLabel: l.shareAsViewer,
                 roleColor: AppTheme.moss,
                 role: 'viewer',
-                onShare: () => _shareLink(context, 'viewer'),
-                onCopy: () => _copyLink('viewer'),
+                onTap: () => _shareLink(context, 'viewer'),
               ),
 
               // Members list
@@ -256,63 +235,47 @@ class _ShareTripSheetState extends State<ShareTripSheet> {
     required String roleLabel,
     required Color roleColor,
     required String role,
-    required VoidCallback onShare,
-    required VoidCallback onCopy,
+    required VoidCallback onTap,
   }) {
-    final isCopied = _copiedRole == role;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.cream,
+    return Material(
+      color: AppTheme.cream,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: _isLoading ? null : onTap,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.parchment.withValues(alpha: 0.6)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: roleColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: roleColor, size: 18),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border:
+                Border.all(color: AppTheme.parchment.withValues(alpha: 0.6)),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(roleLabel,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600, color: AppTheme.ink)),
-          ),
-          if (_isLoading)
-            const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2)),
-          if (!_isLoading) ...[
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: IconButton(
-                key: ValueKey(isCopied),
-                icon: Icon(
-                  isCopied ? Icons.check_circle : Icons.copy,
-                  size: 20,
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: roleColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                color: isCopied ? AppTheme.moss : AppTheme.inkFaint,
-                onPressed: isCopied ? null : onCopy,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                child: Icon(icon, color: roleColor, size: 18),
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.ios_share, size: 20),
-              color: AppTheme.orange,
-              onPressed: onShare,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ],
-        ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(roleLabel,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, color: AppTheme.ink)),
+              ),
+              if (_isLoading)
+                const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+              else
+                const Icon(Icons.ios_share, size: 20, color: AppTheme.orange),
+            ],
+          ),
+        ),
       ),
     );
   }

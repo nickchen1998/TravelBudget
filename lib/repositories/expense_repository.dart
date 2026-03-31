@@ -18,9 +18,13 @@ class ExpenseRepository {
 
   // ── Read ──────────────────────────────────────────────────────────────────
 
-  /// Fetch expenses for a trip. When online, fetches from Supabase and caches.
+  /// Fetch expenses for a trip.
+  /// Cloud trips (tripUuid != null, logged in, online): fetch from Supabase + cache.
+  /// Local trips or offline: read from SQLite.
   Future<List<Expense>> getExpenses(int localTripId, {String? tripUuid}) async {
-    if (!_isLoggedIn || tripUuid == null) {
+    final isCloud = tripUuid != null && _isLoggedIn;
+
+    if (!isCloud) {
       return _local.getExpensesByTripId(localTripId);
     }
 
@@ -39,11 +43,9 @@ class ExpenseRepository {
       final cloudExpenses =
           rows.map((r) => Expense.fromSupabase(r, localTripId)).toList();
 
-      // Cache to SQLite
       for (final e in cloudExpenses) {
         await _local.upsertFromCloud(e);
       }
-      // Remove stale local expenses
       final keepUuids =
           cloudExpenses.map((e) => e.uuid).whereType<String>().toList();
       await _local.deleteAbsentForTrip(localTripId, keepUuids);
@@ -59,11 +61,19 @@ class ExpenseRepository {
 
   // ── Write ─────────────────────────────────────────────────────────────────
 
+  /// Add expense. Local trips (tripUuid == null): SQLite only.
+  /// Cloud trips require network.
   Future<Expense> addExpense(Expense expense, {String? tripUuid}) async {
+    if (tripUuid == null) {
+      // Local trip — SQLite only
+      final id = await _local.insertExpense(expense);
+      return expense.copyWith(id: id);
+    }
+
     if (!await _isOnline) throw const NetworkException();
 
     final userId = _userId!;
-    final data = expense.toSupabaseMap(userId, tripUuid ?? '');
+    final data = expense.toSupabaseMap(userId, tripUuid);
     final result =
         await _supabase.from('expenses').insert(data).select().single();
     final cloudId = result['id'] as String;
@@ -79,13 +89,19 @@ class ExpenseRepository {
     return _local.upsertFromCloud(cloudExpense);
   }
 
+  /// Update expense. Local trips: SQLite only. Cloud trips require network.
   Future<void> updateExpense(Expense expense, {String? tripUuid}) async {
+    if (tripUuid == null || expense.uuid == null) {
+      // Local trip or not yet synced — SQLite only
+      if (expense.id != null) await _local.updateExpense(expense);
+      return;
+    }
+
     if (!await _isOnline) throw const NetworkException();
-    if (expense.uuid == null) return;
 
     await _supabase
         .from('expenses')
-        .update(expense.toSupabaseMap(_userId!, tripUuid ?? ''))
+        .update(expense.toSupabaseMap(_userId!, tripUuid))
         .eq('id', expense.uuid!);
 
     if (expense.id != null) {
@@ -95,11 +111,16 @@ class ExpenseRepository {
     }
   }
 
-  Future<void> deleteExpense(int id, {String? expenseUuid}) async {
-    if (!await _isOnline) throw const NetworkException();
-    if (expenseUuid != null) {
-      await _supabase.from('expenses').delete().eq('id', expenseUuid);
+  /// Delete expense. Local trips: SQLite only. Cloud trips require network.
+  Future<void> deleteExpense(int id, {String? expenseUuid, String? tripUuid}) async {
+    if (tripUuid == null || expenseUuid == null) {
+      // Local trip — SQLite only
+      await _local.deleteExpense(id);
+      return;
     }
+
+    if (!await _isOnline) throw const NetworkException();
+    await _supabase.from('expenses').delete().eq('id', expenseUuid);
     await _local.deleteExpense(id);
   }
 }

@@ -92,7 +92,11 @@ class ExpenseProvider extends ChangeNotifier {
     final expense = _expenses.where((e) => e.id == id).firstOrNull;
     if (expense == null) return null;
     try {
-      await _repo.deleteExpense(id, expenseUuid: expense.uuid);
+      await _repo.deleteExpense(
+        id,
+        expenseUuid: expense.uuid,
+        tripUuid: _currentTrip?.uuid,
+      );
       _expenses.removeWhere((e) => e.id == id);
       notifyListeners();
       return null;

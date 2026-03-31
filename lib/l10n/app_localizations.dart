@@ -169,6 +169,10 @@ class AppLocalizations {
 
   // === Sharing ===
   String get shareTrip => _t('shareTrip');
+  String get uploadToCloud => _t('uploadToCloud');
+  String get uploadToCloudDesc => _t('uploadToCloudDesc');
+  String get uploadSuccess => _t('uploadSuccess');
+  String get cloudSynced => _t('cloudSynced');
   String get shareAsEditor => _t('shareAsEditor');
   String get shareAsViewer => _t('shareAsViewer');
   String get shareLinkCopied => _t('shareLinkCopied');
@@ -368,6 +372,10 @@ class AppLocalizations {
     'expenseUnit': '{count} 筆',
     'skippedLines': '{count} 筆無法解析，將略過',
     'shareTrip': '分享旅程',
+    'uploadToCloud': '上傳至雲端',
+    'uploadToCloudDesc': '上傳後旅行改由雲端管理。無網路時僅可查閱，無法新增或編輯記帳。',
+    'uploadSuccess': '已成功上傳至雲端',
+    'cloudSynced': '雲端',
     'shareAsEditor': '可編輯',
     'shareAsViewer': '僅查看',
     'shareLinkCopied': '連結已複製',
@@ -550,6 +558,10 @@ class AppLocalizations {
     'expenseUnit': '{count}',
     'skippedLines': '{count} lines skipped (unparseable)',
     'shareTrip': 'Share Trip',
+    'uploadToCloud': 'Upload to Cloud',
+    'uploadToCloudDesc': 'After uploading, this trip will be managed in the cloud. Without internet, you can only view cached data.',
+    'uploadSuccess': 'Successfully uploaded to cloud',
+    'cloudSynced': 'Cloud',
     'shareAsEditor': 'Can Edit',
     'shareAsViewer': 'View Only',
     'shareLinkCopied': 'Link copied',
@@ -732,6 +744,10 @@ class AppLocalizations {
     'expenseUnit': '{count}件',
     'skippedLines': '{count}件は解析できません',
     'shareTrip': '旅行を共有',
+    'uploadToCloud': 'クラウドにアップロード',
+    'uploadToCloudDesc': 'アップロード後、旅行はクラウドで管理されます。オフライン時は閲覧のみ可能です。',
+    'uploadSuccess': 'クラウドへのアップロード完了',
+    'cloudSynced': 'クラウド',
     'shareAsEditor': '編集可能',
     'shareAsViewer': '閲覧のみ',
     'shareLinkCopied': 'リンクをコピーしました',
@@ -914,6 +930,10 @@ class AppLocalizations {
     'expenseUnit': '{count}건',
     'skippedLines': '{count}건 분석 불가, 건너뜁니다',
     'shareTrip': '여행 공유',
+    'uploadToCloud': '클라우드에 업로드',
+    'uploadToCloudDesc': '업로드 후 여행은 클라우드로 관리됩니다. 오프라인 시 조회만 가능합니다.',
+    'uploadSuccess': '클라우드 업로드 완료',
+    'cloudSynced': '클라우드',
     'shareAsEditor': '편집 가능',
     'shareAsViewer': '보기만',
     'shareLinkCopied': '링크 복사됨',
@@ -1096,6 +1116,10 @@ class AppLocalizations {
     'expenseUnit': '{count} 笔',
     'skippedLines': '{count} 笔无法解析，将略过',
     'shareTrip': '分享旅程',
+    'uploadToCloud': '上传至云端',
+    'uploadToCloudDesc': '上传后旅程改由云端管理。无网络时仅可查阅，无法新增或编辑记账。',
+    'uploadSuccess': '已成功上传至云端',
+    'cloudSynced': '云端',
     'shareAsEditor': '可编辑',
     'shareAsViewer': '仅查看',
     'shareLinkCopied': '链接已复制',

@@ -32,13 +32,28 @@ class TripProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns null on success, an error key string on failure.
+  /// Creates a local trip (always succeeds, no network required).
   Future<String?> addTrip(Trip trip) async {
     try {
       final newTrip = await _repo.addTrip(trip);
       _trips.insert(0, newTrip);
       _tripSpending[newTrip.id!] = 0.0;
       notifyListeners();
+      return null;
+    } catch (_) {
+      return 'save_failed';
+    }
+  }
+
+  /// Upload a local trip to Supabase. Returns null on success, error key on failure.
+  Future<String?> uploadLocalTripToCloud(Trip trip) async {
+    try {
+      final promoted = await _repo.uploadLocalTripToCloud(trip);
+      final index = _trips.indexWhere((t) => t.id == trip.id);
+      if (index != -1) {
+        _trips[index] = promoted;
+        notifyListeners();
+      }
       return null;
     } on NetworkException {
       return 'network_required';

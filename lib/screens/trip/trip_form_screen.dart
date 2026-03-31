@@ -315,7 +315,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
         error = await provider.addTrip(trip);
       }
       if (!mounted) return;
-      if (error != null) {
+      if (error != null && isEditing) {
+        // Edit on cloud trip failed (network)
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(AppLocalizations.of(context).networkRequiredError),
         ));

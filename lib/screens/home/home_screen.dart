@@ -10,6 +10,8 @@ import '../../providers/connectivity_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/trip_card.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/invite_code_widget.dart';
 import '../join_trip_screen.dart';
 import '../trip/trip_form_screen.dart';
 import '../trip/trip_detail_screen.dart';
@@ -172,6 +174,17 @@ class _HomeScreenState extends State<HomeScreen> {
               onLeave: trip.memberRole == 'editor' && trip.uuid != null
                   ? () => _confirmLeave(context, tripProvider, trip)
                   : null,
+              // Local trip: show upload button
+              onUploadToCloud: trip.uuid == null
+                  ? () => _handleUploadToCloud(context, tripProvider, trip)
+                  : null,
+              // Cloud owner trip: show share button → invite code
+              onShare: trip.uuid != null && trip.memberRole == 'owner'
+                  ? () async {
+                      await showInviteCodeSheet(context, trip);
+                      if (context.mounted) tripProvider.loadTrips();
+                    }
+                  : null,
             );
           },
         );
@@ -292,6 +305,92 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleUploadToCloud(
+      BuildContext context, TripProvider provider, Trip trip) async {
+    final l = AppLocalizations.of(context);
+    final auth = context.read<AuthProvider>();
+
+    // If not logged in, inform user and guide to login
+    if (!auth.isLoggedIn) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.uploadToCloud,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          content: Text('${l.signInDesc}\n\n${l.uploadToCloudDesc}'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel,
+                  style: const TextStyle(color: AppTheme.inkLight)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.signInWithApple),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+
+      try {
+        await context.read<AuthProvider>().signInWithApple();
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l.signInFailed)),
+          );
+        }
+        return;
+      }
+      if (!context.mounted) return;
+    } else {
+      // Already logged in: confirm upload
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.uploadToCloud,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          content: Text(l.uploadToCloudDesc),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel,
+                  style: const TextStyle(color: AppTheme.inkLight)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.uploadToCloud),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+    }
+
+    // Perform upload
+    final error = await provider.uploadLocalTripToCloud(trip);
+    if (!context.mounted) return;
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.networkRequiredError)),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.uploadSuccess)),
+      );
+      // After upload, show invite code so user can share immediately
+      final uploaded = provider.trips.firstWhere(
+        (t) => t.id == trip.id,
+        orElse: () => trip,
+      );
+      if (uploaded.uuid != null && context.mounted) {
+        await showInviteCodeSheet(context, uploaded);
+      }
+    }
   }
 
   void _confirmDelete(

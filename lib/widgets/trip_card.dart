@@ -5,8 +5,6 @@ import '../constants/app_theme.dart';
 import '../constants/currencies.dart';
 import '../l10n/app_localizations.dart';
 import '../models/trip.dart';
-import '../providers/auth_provider.dart';
-import 'package:provider/provider.dart';
 
 class TripCard extends StatelessWidget {
   final Trip trip;
@@ -14,6 +12,10 @@ class TripCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onDelete;
   final VoidCallback? onLeave;
+  /// Called when user taps "upload to cloud" on a local trip.
+  final VoidCallback? onUploadToCloud;
+  /// Called when user taps the collaborate / share icon on a cloud trip.
+  final VoidCallback? onShare;
 
   const TripCard({
     super.key,
@@ -22,6 +24,8 @@ class TripCard extends StatelessWidget {
     required this.onTap,
     this.onDelete,
     this.onLeave,
+    this.onUploadToCloud,
+    this.onShare,
   });
 
   static Widget _buildCoverImage(Trip trip) {
@@ -65,9 +69,6 @@ class TripCard extends StatelessWidget {
     final symbol = getCurrencySymbol(trip.baseCurrency);
     final percentage =
         trip.budget > 0 ? (spent / trip.budget).clamp(0.0, 1.0) : 0.0;
-    final auth = context.watch<AuthProvider>();
-    final isSharedTrip = auth.isLoggedIn && trip.memberRole != null;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -159,38 +160,14 @@ class TripCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (isSharedTrip)
-                    Positioned(
-                      top: 10,
-                      left: 14,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.45),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.group,
-                                size: 12, color: Colors.white),
-                            const SizedBox(width: 4),
-                            Text(
-                              trip.memberRole == 'owner'
-                                  ? l.roleOwner
-                                  : trip.memberRole == 'editor'
-                                      ? l.roleEditor
-                                      : l.roleViewer,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  // Top-left: role badge (cloud trip) or upload button (local trip)
+                  Positioned(
+                    top: 10,
+                    left: 14,
+                    child: trip.uuid != null
+                        ? _CloudBadge(trip: trip, l: l, onShare: onShare)
+                        : _UploadButton(l: l, onTap: onUploadToCloud),
+                  ),
                   if (onDelete != null)
                     Positioned(
                       top: 8,
@@ -303,6 +280,91 @@ class TripCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Top-left badge for cloud trips: shows role + cloud icon + optional share button.
+class _CloudBadge extends StatelessWidget {
+  final Trip trip;
+  final AppLocalizations l;
+  final VoidCallback? onShare;
+
+  const _CloudBadge({required this.trip, required this.l, this.onShare});
+
+  @override
+  Widget build(BuildContext context) {
+    final roleLabel = trip.memberRole == 'owner'
+        ? l.roleOwner
+        : trip.memberRole == 'editor'
+            ? l.roleEditor
+            : l.roleViewer;
+
+    return GestureDetector(
+      onTap: onShare,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_done, size: 12, color: Colors.white70),
+            const SizedBox(width: 4),
+            const Icon(Icons.group, size: 12, color: Colors.white),
+            const SizedBox(width: 4),
+            Text(
+              roleLabel,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600),
+            ),
+            if (onShare != null) ...[
+              const SizedBox(width: 6),
+              const Icon(Icons.share, size: 11, color: Colors.white70),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Top-left button for local trips: prompts upload to cloud.
+class _UploadButton extends StatelessWidget {
+  final AppLocalizations l;
+  final VoidCallback? onTap;
+
+  const _UploadButton({required this.l, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_upload_outlined, size: 12, color: Colors.white70),
+            const SizedBox(width: 4),
+            Text(
+              l.uploadToCloud,
+              style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500),
             ),
           ],
         ),

@@ -24,23 +24,36 @@ class TripCard extends StatelessWidget {
     this.onLeave,
   });
 
-  static DecorationImage? _resolveImage(Trip trip) {
-    // Prefer local file if it exists
+  static Widget _buildCoverImage(Trip trip) {
+    // Prefer local file
     if (trip.coverImagePath != null &&
         File(trip.coverImagePath!).existsSync()) {
-      return DecorationImage(
-        image: FileImage(File(trip.coverImagePath!)),
-        fit: BoxFit.cover,
+      return Positioned.fill(
+        child: Image.file(
+          File(trip.coverImagePath!),
+          fit: BoxFit.cover,
+        ),
       );
     }
-    // Fall back to cloud URL
+    // Fade-in from cloud URL
     if (trip.coverImageUrl != null) {
-      return DecorationImage(
-        image: NetworkImage(trip.coverImageUrl!),
-        fit: BoxFit.cover,
+      return Positioned.fill(
+        child: Image.network(
+          trip.coverImageUrl!,
+          fit: BoxFit.cover,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            return AnimatedOpacity(
+              opacity: frame == null ? 0.0 : 1.0,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeIn,
+              child: child,
+            );
+          },
+          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+        ),
       );
     }
-    return null;
+    return const SizedBox.shrink();
   }
 
   @override
@@ -74,27 +87,29 @@ class TripCard extends StatelessWidget {
             Container(
               height: 130,
               width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: _resolveImage(trip) == null
-                    ? const LinearGradient(
-                        colors: [Color(0xFFF2A06A), Color(0xFFE8763A)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                image: _resolveImage(trip),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF2A06A), Color(0xFFE8763A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
               child: Stack(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.black.withValues(alpha: 0.35),
-                          Colors.transparent,
-                        ],
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.center,
+                  // Cover image fades in over gradient
+                  _buildCoverImage(trip),
+                  // Dark overlay for text readability
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withValues(alpha: 0.35),
+                            Colors.transparent,
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.center,
+                        ),
                       ),
                     ),
                   ),

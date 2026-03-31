@@ -74,14 +74,16 @@ class TripDao {
   /// Remove locally-cached trips whose uuids are not in [keepUuids].
   Future<void> deleteAbsent(List<String> keepUuids) async {
     final db = await _dbHelper.database;
+    // Only delete cached cloud trips (uuid IS NOT NULL) that are no longer in the cloud list.
+    // Never delete local-only trips (uuid IS NULL).
     if (keepUuids.isEmpty) {
-      await db.delete('trips');
+      await db.delete('trips', where: 'uuid IS NOT NULL');
       return;
     }
     final placeholders = List.filled(keepUuids.length, '?').join(',');
     await db.delete(
       'trips',
-      where: 'uuid IS NULL OR uuid NOT IN ($placeholders)',
+      where: 'uuid IS NOT NULL AND uuid NOT IN ($placeholders)',
       whereArgs: keepUuids,
     );
   }

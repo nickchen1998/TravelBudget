@@ -171,10 +171,10 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                       labelText: l.currency,
                       border: const OutlineInputBorder(),
                     ),
-                    items: [
+                    items: {
                       widget.trip.baseCurrency,
                       widget.trip.targetCurrency,
-                    ].map((code) {
+                    }.map((code) {
                       return DropdownMenuItem(
                         value: code,
                         child: Text(code, style: const TextStyle(fontSize: 14)),

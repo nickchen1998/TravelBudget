@@ -62,7 +62,8 @@ class _TripDetailScreenState extends State<TripDetailScreen>
     try {
       final response = await Supabase.instance.client
           .from('trip_members')
-          .select('user_id, role, joined_at, profiles(display_name, email)')
+          .select(
+              'user_id, role, joined_at, profiles!trip_members_user_id_fkey(display_name, email)')
           .eq('trip_id', _trip.uuid!);
       if (mounted) {
         setState(() {
@@ -70,8 +71,13 @@ class _TripDetailScreenState extends State<TripDetailScreen>
           _membersLoading = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _membersLoading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _membersLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('載入成員失敗：$e')),
+        );
+      }
     }
   }
 

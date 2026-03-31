@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -179,10 +178,6 @@ class SettingsScreen extends StatelessWidget {
     final name = auth.displayName?.isNotEmpty == true
         ? auth.displayName!
         : (auth.email?.split('@').first ?? '');
-    final lastSync = auth.lastSyncedAt;
-    final syncLabel = lastSync != null
-        ? l.lastSyncedTime(DateFormat('MM/dd HH:mm').format(lastSync))
-        : l.neverSynced;
 
     return _sectionCard(
       title: l.account,
@@ -198,34 +193,6 @@ class SettingsScreen extends StatelessWidget {
               trailing: const Icon(Icons.edit_outlined,
                   color: AppTheme.inkFaint, size: 18),
             ),
-          ),
-          const Divider(height: 1, color: AppTheme.parchment),
-          // Sync row
-          _settingsTile(
-            icon: auth.isSyncing ? Icons.sync : Icons.cloud_done_outlined,
-            title: auth.isSyncing ? l.syncing : syncLabel,
-            trailing: auth.isSyncing
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : GestureDetector(
-                    onTap: () => context.read<AuthProvider>().syncNow(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppTheme.orangeSoft,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(l.syncNow,
-                          style: const TextStyle(
-                              color: AppTheme.orange,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500)),
-                    ),
-                  ),
           ),
           const Divider(height: 1, color: AppTheme.parchment),
           // Sign out

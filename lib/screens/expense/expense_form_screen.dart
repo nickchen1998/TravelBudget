@@ -33,6 +33,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
   bool get isEditing => widget.expense != null;
 
+  late List<DateTime> _tripDates;
+
   @override
   void initState() {
     super.initState();
@@ -44,7 +46,30 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     _noteController = TextEditingController(text: e?.note ?? '');
     _category = e?.category ?? ExpenseCategory.food;
     _currency = e?.currency ?? widget.trip.targetCurrency;
-    _date = e?.date ?? DateTime.now();
+
+    // Build list of all dates in the trip range
+    _tripDates = _buildTripDates();
+
+    // Default date: today if within range, else first day
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (e != null) {
+      _date = DateTime(e.date.year, e.date.month, e.date.day);
+    } else if (!today.isBefore(_tripDates.first) && !today.isAfter(_tripDates.last)) {
+      _date = today;
+    } else {
+      _date = _tripDates.first;
+    }
+  }
+
+  List<DateTime> _buildTripDates() {
+    final start = DateTime(widget.trip.startDate.year, widget.trip.startDate.month, widget.trip.startDate.day);
+    final end = DateTime(widget.trip.endDate.year, widget.trip.endDate.month, widget.trip.endDate.day);
+    final dates = <DateTime>[];
+    for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 1))) {
+      dates.add(d);
+    }
+    return dates;
   }
 
   @override
@@ -163,16 +188,23 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             const SizedBox(height: 16),
 
             // Date
-            InkWell(
-              onTap: _pickDate,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: l.date,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.calendar_today, size: 18),
-                ),
-                child: Text(DateFormat('yyyy/MM/dd').format(_date)),
+            DropdownButtonFormField<DateTime>(
+              initialValue: _date,
+              decoration: InputDecoration(
+                labelText: l.date,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.calendar_today, size: 18),
               ),
+              items: _tripDates.map((d) {
+                final dayNum = d.difference(_tripDates.first).inDays + 1;
+                return DropdownMenuItem(
+                  value: d,
+                  child: Text('Day $dayNum  ${DateFormat('MM/dd (E)', 'zh_TW').format(d)}'),
+                );
+              }).toList(),
+              onChanged: (v) {
+                if (v != null) setState(() => _date = v);
+              },
             ),
             const SizedBox(height: 16),
 
@@ -208,16 +240,6 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: widget.trip.startDate,
-      lastDate: widget.trip.endDate,
-    );
-    if (picked != null) setState(() => _date = picked);
   }
 
   Future<void> _save() async {

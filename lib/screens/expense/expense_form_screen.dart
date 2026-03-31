@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../constants/categories.dart';
-import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/expense.dart';
 import '../../models/trip.dart';
@@ -172,10 +171,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                       labelText: l.currency,
                       border: const OutlineInputBorder(),
                     ),
-                    items: supportedCurrencies.map((c) {
+                    items: [
+                      widget.trip.baseCurrency,
+                      widget.trip.targetCurrency,
+                    ].map((code) {
                       return DropdownMenuItem(
-                        value: c.code,
-                        child: Text(c.code, style: const TextStyle(fontSize: 14)),
+                        value: code,
+                        child: Text(code, style: const TextStyle(fontSize: 14)),
                       );
                     }).toList(),
                     onChanged: (v) {

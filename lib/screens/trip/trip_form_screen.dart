@@ -208,10 +208,30 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
             // Budget
             if (isEditing) ...[
-              _ReadOnlyField(
-                label: l.budgetAmount,
-                value: _noBudget ? l.noBudgetLimit : '${_budgetController.text} $_baseCurrency',
+              SwitchListTile(
+                title: Text(l.noBudgetLimit),
+                value: _noBudget,
+                onChanged: (v) => setState(() => _noBudget = v),
+                contentPadding: EdgeInsets.zero,
               ),
+              if (!_noBudget) ...[
+                TextFormField(
+                  controller: _budgetController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l.budgetAmount,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.account_balance_wallet),
+                    suffixText: _baseCurrency,
+                  ),
+                  validator: (value) {
+                    if (_noBudget) return null;
+                    if (value == null || value.isEmpty) return l.budgetRequired;
+                    if (double.tryParse(value) == null) return l.invalidNumber;
+                    return null;
+                  },
+                ),
+              ],
             ] else ...[
               SwitchListTile(
                 title: Text(l.noBudgetLimit),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../constants/app_theme.dart';
 import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
@@ -31,14 +32,21 @@ class _TripDetailScreenState extends State<TripDetailScreen>
   late Trip _trip;
   late TabController _tabController;
 
+  // Members state (only used for cloud trips)
+  List<Map<String, dynamic>>? _members;
+  bool _membersLoading = false;
+
+  bool get _isCloudTrip => _trip.uuid != null;
+
   @override
   void initState() {
     super.initState();
     _trip = widget.trip;
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: _isCloudTrip ? 3 : 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ExpenseProvider>().loadExpenses(_trip);
+      if (_isCloudTrip) _loadMembers();
     });
   }
 
@@ -46,6 +54,68 @@ class _TripDetailScreenState extends State<TripDetailScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadMembers() async {
+    if (!_isCloudTrip) return;
+    setState(() => _membersLoading = true);
+    try {
+      final response = await Supabase.instance.client
+          .from('trip_members')
+          .select('user_id, role, joined_at, profiles(display_name, email)')
+          .eq('trip_id', _trip.uuid!);
+      if (mounted) {
+        setState(() {
+          _members = List<Map<String, dynamic>>.from(response as List);
+          _membersLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _membersLoading = false);
+    }
+  }
+
+  Future<void> _removeMember(BuildContext context, String userId) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final errorMsg = l.networkRequiredError;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          l.removeMember,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(l.removeMemberConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(color: AppTheme.inkLight),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
+            child: Text(l.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await Supabase.instance.client
+          .from('trip_members')
+          .delete()
+          .eq('trip_id', _trip.uuid!)
+          .eq('user_id', userId);
+      await _loadMembers();
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(errorMsg)));
+      }
+    }
   }
 
   @override
@@ -101,6 +171,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
           tabs: [
             Tab(text: l.details),
             Tab(text: l.stats),
+            if (_isCloudTrip) Tab(text: l.members),
           ],
         ),
       ),
@@ -110,18 +181,22 @@ class _TripDetailScreenState extends State<TripDetailScreen>
             Container(
               width: double.infinity,
               color: AppTheme.inkFaint.withValues(alpha: 0.12),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.cloud_off_outlined,
-                      size: 16, color: AppTheme.inkLight),
+                  const Icon(
+                    Icons.cloud_off_outlined,
+                    size: 16,
+                    color: AppTheme.inkLight,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       AppLocalizations.of(context).offlineReadOnly,
                       style: const TextStyle(
-                          fontSize: 13, color: AppTheme.inkLight),
+                        fontSize: 13,
+                        color: AppTheme.inkLight,
+                      ),
                     ),
                   ),
                 ],
@@ -133,6 +208,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
               children: [
                 _buildExpenseList(),
                 AnalyticsScreen(trip: _trip),
+                if (_isCloudTrip) _buildMembersTab(),
               ],
             ),
           ),
@@ -152,9 +228,9 @@ class _TripDetailScreenState extends State<TripDetailScreen>
       builder: (context, provider, _) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           context.read<TripProvider>().updateSpending(
-                _trip.id!,
-                provider.totalSpent,
-              );
+            _trip.id!,
+            provider.totalSpent,
+          );
         });
 
         return Column(
@@ -167,7 +243,8 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                 color: AppTheme.warmWhite,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                    color: AppTheme.parchment.withValues(alpha: 0.5)),
+                  color: AppTheme.parchment.withValues(alpha: 0.5),
+                ),
                 boxShadow: AppTheme.cardShadow,
               ),
               child: Column(
@@ -187,28 +264,44 @@ class _TripDetailScreenState extends State<TripDetailScreen>
             const SizedBox(height: 12),
             // Expense List
             Expanded(
-              child: provider.expenses.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              child: RefreshIndicator(
+                onRefresh: () =>
+                    context.read<ExpenseProvider>().loadExpenses(_trip),
+                child: provider.expenses.isEmpty
+                    ? ListView(
                         children: [
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: const BoxDecoration(
-                              color: AppTheme.orangeSoft,
-                              shape: BoxShape.circle,
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.4,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.orangeSoft,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.receipt_long,
+                                    size: 30,
+                                    color: AppTheme.orange,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  AppLocalizations.of(context).noRecords,
+                                  style: const TextStyle(
+                                    color: AppTheme.inkFaint,
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: const Icon(Icons.receipt_long,
-                                size: 30, color: AppTheme.orange),
                           ),
-                          const SizedBox(height: 14),
-                          Text(AppLocalizations.of(context).noRecords,
-                              style: const TextStyle(color: AppTheme.inkFaint)),
                         ],
-                      ),
-                    )
-                  : _buildGroupedList(provider),
+                      )
+                    : _buildGroupedList(provider),
+              ),
             ),
           ],
         );
@@ -254,8 +347,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
 
   Widget _buildGroupedList(ExpenseProvider provider) {
     final grouped = provider.expensesByDate;
-    final sortedDates = grouped.keys.toList()
-      ..sort((a, b) => b.compareTo(a));
+    final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
     final dateFormat = DateFormat('MM/dd (E)', 'zh_TW');
 
     return ListView.builder(
@@ -264,9 +356,15 @@ class _TripDetailScreenState extends State<TripDetailScreen>
       itemBuilder: (context, index) {
         final date = sortedDates[index];
         final expenses = grouped[date]!;
-        final dayNum = date
-                .difference(DateTime(_trip.startDate.year,
-                    _trip.startDate.month, _trip.startDate.day))
+        final dayNum =
+            date
+                .difference(
+                  DateTime(
+                    _trip.startDate.year,
+                    _trip.startDate.month,
+                    _trip.startDate.day,
+                  ),
+                )
                 .inDays +
             1;
 
@@ -279,7 +377,9 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.orange,
                       borderRadius: BorderRadius.circular(6),
@@ -309,7 +409,9 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                 expense: e,
                 baseCurrency: _trip.baseCurrency,
                 onTap: _trip.canEdit ? () => _editExpense(context, e) : null,
-                onDelete: _trip.canEdit ? () => provider.deleteExpense(e.id!) : null,
+                onDelete: _trip.canEdit
+                    ? () => provider.deleteExpense(e.id!)
+                    : null,
               ),
             ),
           ],
@@ -318,12 +420,142 @@ class _TripDetailScreenState extends State<TripDetailScreen>
     );
   }
 
+  Widget _buildMembersTab() {
+    final l = AppLocalizations.of(context);
+    final isOwner = _trip.memberRole == null || _trip.memberRole == 'owner';
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (_membersLoading && _members == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final members = _members ?? [];
+
+    return RefreshIndicator(
+      onRefresh: _loadMembers,
+      child: members.isEmpty
+          ? ListView(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  child: Center(
+                    child: Text(
+                      l.noRecords,
+                      style: const TextStyle(color: AppTheme.inkFaint),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: members.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final member = members[index];
+                final profile = member['profiles'] as Map<String, dynamic>?;
+                final displayName = profile?['display_name'] as String?;
+                final email = profile?['email'] as String?;
+                final role = member['role'] as String? ?? 'viewer';
+                final userId = member['user_id'] as String?;
+                final isSelf = userId == currentUserId;
+
+                final roleLabel = role == 'owner'
+                    ? l.roleOwner
+                    : role == 'editor'
+                    ? l.roleEditor
+                    : l.roleViewer;
+
+                final roleColor = role == 'owner'
+                    ? AppTheme.orange
+                    : role == 'editor'
+                    ? AppTheme.moss
+                    : AppTheme.inkFaint;
+
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 4,
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: AppTheme.orangeSoft,
+                    child: Text(
+                      (displayName?.isNotEmpty == true
+                              ? displayName![0]
+                              : email?.isNotEmpty == true
+                              ? email![0]
+                              : '?')
+                          .toUpperCase(),
+                      style: const TextStyle(
+                        color: AppTheme.orange,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    displayName?.isNotEmpty == true
+                        ? displayName!
+                        : email ?? '—',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.ink,
+                    ),
+                  ),
+                  subtitle:
+                      email?.isNotEmpty == true &&
+                          displayName?.isNotEmpty == true
+                      ? Text(
+                          email!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.inkFaint,
+                          ),
+                        )
+                      : null,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: roleColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          roleLabel,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: roleColor,
+                          ),
+                        ),
+                      ),
+                      if (isOwner && !isSelf && userId != null) ...[
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => _removeMember(context, userId),
+                          child: const Icon(
+                            Icons.person_remove_outlined,
+                            size: 20,
+                            color: AppTheme.inkFaint,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
   void _addExpense(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ExpenseFormScreen(trip: _trip),
-      ),
+      MaterialPageRoute(builder: (_) => ExpenseFormScreen(trip: _trip)),
     );
   }
 

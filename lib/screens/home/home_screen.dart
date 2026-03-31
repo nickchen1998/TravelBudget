@@ -28,6 +28,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
   bool _attRequested = false;
+
+  // Auth state listener for auto-refresh on login
+  AuthProvider? _authListenTarget;
+  bool _wasLoggedIn = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,15 +43,38 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     if (!_attRequested) {
       _attRequested = true;
-      // Delay ATT request so the app UI is visible first
       Future.delayed(const Duration(seconds: 1), () async {
         if (!mounted) return;
-        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        final status =
+            await AppTrackingTransparency.trackingAuthorizationStatus;
         if (status == TrackingStatus.notDetermined) {
           await AppTrackingTransparency.requestTrackingAuthorization();
         }
       });
     }
+
+    final auth = context.read<AuthProvider>();
+    if (_authListenTarget != auth) {
+      _authListenTarget?.removeListener(_onAuthChanged);
+      _authListenTarget = auth;
+      _wasLoggedIn = auth.isLoggedIn;
+      auth.addListener(_onAuthChanged);
+    }
+  }
+
+  void _onAuthChanged() {
+    if (!mounted) return;
+    final isLoggedIn = _authListenTarget?.isLoggedIn ?? false;
+    if (isLoggedIn && !_wasLoggedIn) {
+      context.read<TripProvider>().loadTrips();
+    }
+    _wasLoggedIn = isLoggedIn;
+  }
+
+  @override
+  void dispose() {
+    _authListenTarget?.removeListener(_onAuthChanged);
+    super.dispose();
   }
 
   @override
@@ -58,9 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.cream,
-      appBar: AppBar(
-        title: Text(titles[_currentTab]),
-      ),
+      appBar: AppBar(title: Text(titles[_currentTab])),
       body: Column(
         children: [
           _OfflineBanner(),
@@ -112,35 +138,47 @@ class _HomeScreenState extends State<HomeScreen> {
     return Consumer<TripProvider>(
       builder: (context, tripProvider, _) {
         if (tripProvider.trips.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+          return RefreshIndicator(
+            onRefresh: () => tripProvider.loadTrips(),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
               children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.orangeSoft,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.flight_takeoff,
-                      size: 36, color: AppTheme.orange),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  l.noTripsTitle,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.ink,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l.noTripsSubtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.inkFaint,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.orangeSoft,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.flight_takeoff,
+                          size: 36,
+                          color: AppTheme.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        l.noTripsTitle,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.ink,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l.noTripsSubtitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.inkFaint,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -148,45 +186,41 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-          itemCount: tripProvider.trips.length,
-          itemBuilder: (context, index) {
-            final trip = tripProvider.trips[index];
-            final spent = trip.id != null
-                ? tripProvider.getSpentForTrip(trip.id!)
-                : 0.0;
-            return TripCard(
-              trip: trip,
-              spent: spent,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TripDetailScreen(trip: trip),
-                  ),
-                ).then((_) => tripProvider.loadTrips());
-              },
-              onDelete: (trip.id != null || trip.uuid != null) &&
-                      (trip.memberRole == null || trip.memberRole == 'owner')
-                  ? () => _confirmDelete(context, tripProvider, trip)
-                  : null,
-              onLeave: trip.memberRole == 'editor' && trip.uuid != null
-                  ? () => _confirmLeave(context, tripProvider, trip)
-                  : null,
-              // Local trip: show upload button
-              onUploadToCloud: trip.uuid == null
-                  ? () => _handleUploadToCloud(context, tripProvider, trip)
-                  : null,
-              // Cloud owner trip: show share button → invite code
-              onShare: trip.uuid != null && trip.memberRole == 'owner'
-                  ? () async {
-                      await showInviteCodeSheet(context, trip);
-                      if (context.mounted) tripProvider.loadTrips();
-                    }
-                  : null,
-            );
-          },
+        return RefreshIndicator(
+          onRefresh: () => tripProvider.loadTrips(),
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            itemCount: tripProvider.trips.length,
+            itemBuilder: (context, index) {
+              final trip = tripProvider.trips[index];
+              final spent = trip.id != null
+                  ? tripProvider.getSpentForTrip(trip.id!)
+                  : 0.0;
+              return TripCard(
+                trip: trip,
+                spent: spent,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TripDetailScreen(trip: trip),
+                    ),
+                  ).then((_) => tripProvider.loadTrips());
+                },
+                onDelete:
+                    (trip.id != null || trip.uuid != null) &&
+                        (trip.memberRole == null || trip.memberRole == 'owner')
+                    ? () => _confirmDelete(context, tripProvider, trip)
+                    : null,
+                onLeave: trip.memberRole == 'editor' && trip.uuid != null
+                    ? () => _confirmLeave(context, tripProvider, trip)
+                    : null,
+                onUploadToCloud: trip.uuid == null
+                    ? () => _handleUploadToCloud(context, tripProvider, trip)
+                    : null,
+              );
+            },
+          ),
         );
       },
     );
@@ -211,7 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Center(
                   child: Container(
-                    width: 40, height: 4,
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: AppTheme.parchment,
                       borderRadius: BorderRadius.circular(2),
@@ -243,8 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const JoinTripScreen()),
+                      MaterialPageRoute(builder: (_) => const JoinTripScreen()),
                     );
                   },
                 ),
@@ -287,15 +321,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: AppTheme.ink)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: AppTheme.ink,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.inkFaint)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.inkFaint,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -308,7 +349,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleUploadToCloud(
-      BuildContext context, TripProvider provider, Trip trip) async {
+    BuildContext context,
+    TripProvider provider,
+    Trip trip,
+  ) async {
     final l = AppLocalizations.of(context);
     final auth = context.read<AuthProvider>();
 
@@ -317,14 +361,18 @@ class _HomeScreenState extends State<HomeScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(l.uploadToCloud,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+          title: Text(
+            l.uploadToCloud,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: Text('${l.signInDesc}\n\n${l.uploadToCloudDesc}'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel,
-                  style: const TextStyle(color: AppTheme.inkLight)),
+              child: Text(
+                l.cancel,
+                style: const TextStyle(color: AppTheme.inkLight),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
@@ -339,9 +387,9 @@ class _HomeScreenState extends State<HomeScreen> {
         await context.read<AuthProvider>().signInWithApple();
       } catch (_) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l.signInFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l.signInFailed)));
         }
         return;
       }
@@ -351,14 +399,18 @@ class _HomeScreenState extends State<HomeScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(l.uploadToCloud,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+          title: Text(
+            l.uploadToCloud,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: Text(l.uploadToCloudDesc),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel,
-                  style: const TextStyle(color: AppTheme.inkLight)),
+              child: Text(
+                l.cancel,
+                style: const TextStyle(color: AppTheme.inkLight),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
@@ -375,13 +427,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!context.mounted) return;
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.networkRequiredError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.networkRequiredError)));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.uploadSuccess)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.uploadSuccess)));
       // After upload, show invite code so user can share immediately
       final uploaded = provider.trips.firstWhere(
         (t) => t.id == trip.id,
@@ -393,20 +445,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _confirmDelete(
-      BuildContext context, TripProvider provider, Trip trip) {
+  void _confirmDelete(BuildContext context, TripProvider provider, Trip trip) {
     final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.deleteTrip,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(
+          l.deleteTrip,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: Text(l.deleteTripConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(l.cancel,
-                style: const TextStyle(color: AppTheme.inkLight)),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(color: AppTheme.inkLight),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -418,9 +473,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 error = await provider.deleteTripByUuid(trip.uuid!);
               }
               if (error != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(AppLocalizations.of(context).networkRequiredError),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context).networkRequiredError,
+                    ),
+                  ),
+                );
               }
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),
@@ -431,29 +490,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _confirmLeave(
-      BuildContext context, TripProvider provider, Trip trip) {
+  void _confirmLeave(BuildContext context, TripProvider provider, Trip trip) {
     final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.leaveTrip,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(
+          l.leaveTrip,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: Text(l.leaveTripConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(l.cancel,
-                style: const TextStyle(color: AppTheme.inkLight)),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(color: AppTheme.inkLight),
+            ),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
               final error = await provider.leaveTrip(trip.uuid!);
               if (error != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(AppLocalizations.of(context).networkRequiredError),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context).networkRequiredError,
+                    ),
+                  ),
+                );
               }
             },
             style: TextButton.styleFrom(foregroundColor: AppTheme.stampRed),

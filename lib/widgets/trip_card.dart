@@ -12,10 +12,9 @@ class TripCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onDelete;
   final VoidCallback? onLeave;
+
   /// Called when user taps "upload to cloud" on a local trip.
   final VoidCallback? onUploadToCloud;
-  /// Called when user taps the collaborate / share icon on a cloud trip.
-  final VoidCallback? onShare;
 
   const TripCard({
     super.key,
@@ -25,7 +24,6 @@ class TripCard extends StatelessWidget {
     this.onDelete,
     this.onLeave,
     this.onUploadToCloud,
-    this.onShare,
   });
 
   static Widget _buildCoverImage(Trip trip) {
@@ -33,10 +31,7 @@ class TripCard extends StatelessWidget {
     if (trip.coverImagePath != null &&
         File(trip.coverImagePath!).existsSync()) {
       return Positioned.fill(
-        child: Image.file(
-          File(trip.coverImagePath!),
-          fit: BoxFit.cover,
-        ),
+        child: Image.file(File(trip.coverImagePath!), fit: BoxFit.cover),
       );
     }
     // Fade-in from cloud URL
@@ -67,8 +62,9 @@ class TripCard extends StatelessWidget {
     final dateRange =
         '${dateFormat.format(trip.startDate)} - ${dateFormat.format(trip.endDate)}';
     final symbol = getCurrencySymbol(trip.baseCurrency);
-    final percentage =
-        trip.budget > 0 ? (spent / trip.budget).clamp(0.0, 1.0) : 0.0;
+    final percentage = trip.budget > 0
+        ? (spent / trip.budget).clamp(0.0, 1.0)
+        : 0.0;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -133,16 +129,25 @@ class TripCard extends StatelessWidget {
                         const SizedBox(height: 5),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today,
-                                size: 13, color: Colors.white70),
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 13,
+                              color: Colors.white70,
+                            ),
                             const SizedBox(width: 4),
-                            Text(dateRange,
-                                style: const TextStyle(
-                                    color: Colors.white70, fontSize: 13)),
+                            Text(
+                              dateRange,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
                             const SizedBox(width: 14),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 2),
+                                horizontal: 7,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
@@ -150,9 +155,10 @@ class TripCard extends StatelessWidget {
                               child: Text(
                                 '${trip.baseCurrency} → ${trip.targetCurrency}',
                                 style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500),
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
@@ -160,46 +166,69 @@ class TripCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Top-left: role badge (cloud trip) or upload button (local trip)
-                  Positioned(
-                    top: 10,
-                    left: 14,
-                    child: trip.uuid != null
-                        ? _CloudBadge(trip: trip, l: l, onShare: onShare)
-                        : _UploadButton(l: l, onTap: onUploadToCloud),
-                  ),
-                  if (onDelete != null)
+                  // Top-left: upload button for local trips only
+                  if (trip.uuid == null)
                     Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: onDelete,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.delete_outline,
-                              color: Colors.white70, size: 18),
-                        ),
-                      ),
+                      top: 10,
+                      left: 14,
+                      child: _UploadButton(l: l, onTap: onUploadToCloud),
                     ),
-                  if (onLeave != null)
+                  // Top-right: [cloud icon if cloud trip] + [delete or leave]
+                  if (trip.uuid != null || onDelete != null || onLeave != null)
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: GestureDetector(
-                        onTap: onLeave,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.logout,
-                              color: Colors.white70, size: 18),
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (trip.uuid != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.cloud_done,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          if (onDelete != null)
+                            GestureDetector(
+                              onTap: onDelete,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.white70,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          if (onLeave != null)
+                            GestureDetector(
+                              onTap: onLeave,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.logout,
+                                  color: Colors.white70,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                 ],
@@ -243,13 +272,18 @@ class TripCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.access_time,
-                          size: 13, color: AppTheme.inkFaint),
+                      const Icon(
+                        Icons.access_time,
+                        size: 13,
+                        color: AppTheme.inkFaint,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${AppLocalizations.of(context).createdAt} ${DateFormat('yyyy/MM/dd HH:mm').format(trip.createdAt)}',
                         style: const TextStyle(
-                            fontSize: 12, color: AppTheme.inkFaint),
+                          fontSize: 12,
+                          color: AppTheme.inkFaint,
+                        ),
                       ),
                     ],
                   ),
@@ -260,14 +294,15 @@ class TripCard extends StatelessWidget {
                         ? LinearProgressIndicator(
                             value: percentage,
                             minHeight: 7,
-                            backgroundColor:
-                                AppTheme.parchment.withValues(alpha: 0.5),
+                            backgroundColor: AppTheme.parchment.withValues(
+                              alpha: 0.5,
+                            ),
                             valueColor: AlwaysStoppedAnimation<Color>(
                               spent > trip.budget
                                   ? AppTheme.stampRed
                                   : percentage > 0.8
-                                      ? AppTheme.amber
-                                      : AppTheme.moss,
+                                  ? AppTheme.amber
+                                  : AppTheme.moss,
                             ),
                           )
                         : const LinearProgressIndicator(
@@ -275,61 +310,13 @@ class TripCard extends StatelessWidget {
                             minHeight: 7,
                             backgroundColor: AppTheme.infinitySoft,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                AppTheme.infinity),
+                              AppTheme.infinity,
+                            ),
                           ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Top-left badge for cloud trips: shows role + cloud icon + optional share button.
-class _CloudBadge extends StatelessWidget {
-  final Trip trip;
-  final AppLocalizations l;
-  final VoidCallback? onShare;
-
-  const _CloudBadge({required this.trip, required this.l, this.onShare});
-
-  @override
-  Widget build(BuildContext context) {
-    final roleLabel = trip.memberRole == 'owner'
-        ? l.roleOwner
-        : trip.memberRole == 'editor'
-            ? l.roleEditor
-            : l.roleViewer;
-
-    return GestureDetector(
-      onTap: onShare,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.cloud_done, size: 12, color: Colors.white70),
-            const SizedBox(width: 4),
-            const Icon(Icons.group, size: 12, color: Colors.white),
-            const SizedBox(width: 4),
-            Text(
-              roleLabel,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600),
-            ),
-            if (onShare != null) ...[
-              const SizedBox(width: 6),
-              const Icon(Icons.share, size: 11, color: Colors.white70),
-            ],
           ],
         ),
       ),
@@ -357,14 +344,19 @@ class _UploadButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_upload_outlined, size: 12, color: Colors.white70),
+            const Icon(
+              Icons.cloud_upload_outlined,
+              size: 12,
+              color: Colors.white70,
+            ),
             const SizedBox(width: 4),
             Text(
               l.uploadToCloud,
               style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500),
+                color: Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),

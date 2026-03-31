@@ -202,6 +202,8 @@ class AppLocalizations {
   String get signInToShare => _t('signInToShare');
   String get signInToJoin => _t('signInToJoin');
   String get members => _t('members');
+  String get removeMember => _t('removeMember');
+  String get removeMemberConfirm => _t('removeMemberConfirm');
   String get inviteLink => _t('inviteLink');
   String get generateLink => _t('generateLink');
   String get linkExpiry => _t('linkExpiry');
@@ -405,6 +407,8 @@ class AppLocalizations {
     'signInToShare': '需要登入才能分享旅程',
     'signInToJoin': '需要登入才能加入旅程',
     'members': '成員',
+    'removeMember': '移除成員',
+    'removeMemberConfirm': '確定要移除此成員嗎？',
     'inviteLink': '邀請連結',
     'generateLink': '產生連結',
     'linkExpiry': '連結 7 天後到期',
@@ -591,6 +595,8 @@ class AppLocalizations {
     'signInToShare': 'Sign in to share this trip',
     'signInToJoin': 'Sign in to join this trip',
     'members': 'Members',
+    'removeMember': 'Remove Member',
+    'removeMemberConfirm': 'Are you sure you want to remove this member?',
     'inviteLink': 'Invite Link',
     'generateLink': 'Generate Link',
     'linkExpiry': 'Link expires in 7 days',

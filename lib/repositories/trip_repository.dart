@@ -56,18 +56,17 @@ class TripRepository {
         return Trip.fromSupabase(t, memberRole: role);
       }).toList();
 
-      // Cache cloud trips to SQLite
+      // Cache cloud trips to SQLite; collect results which carry local id + memberRole
+      final result = <Trip>[];
       for (final trip in cloudTrips) {
-        await _local.upsertFromCloud(trip);
+        final withLocalId = await _local.upsertFromCloud(trip);
+        result.add(withLocalId);
       }
       // Remove trips that no longer exist on cloud
       await _local.deleteAbsent(tripIds);
 
-      // Return from cache so every trip has a local integer id
-      final cached = await _local.getAllTrips();
-
-      // Compute spending totals
-      return cached;
+      result.sort((a, b) => b.startDate.compareTo(a.startDate));
+      return result;
     } catch (_) {
       return _local.getAllTrips();
     }

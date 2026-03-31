@@ -114,9 +114,12 @@ class TripRepository {
     final tripWithUrl =
         coverImageUrl != null ? trip.copyWith(coverImageUrl: coverImageUrl) : trip;
 
+    final updateMap = tripWithUrl.toSupabaseMap(_userId!);
+    updateMap.remove('id');       // don't overwrite PK
+    updateMap.remove('owner_id'); // collaborators must not change owner
     await _supabase
         .from('trips')
-        .update(tripWithUrl.toSupabaseMap(_userId!))
+        .update(updateMap)
         .eq('id', trip.uuid!);
 
     if (trip.id != null) {

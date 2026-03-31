@@ -6,7 +6,7 @@ enum ExpenseCategory {
   clothing,
   lodging,
   transport,
-  education,
+  shopping,
   entertainment,
 }
 
@@ -21,8 +21,8 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return '住';
       case ExpenseCategory.transport:
         return '行';
-      case ExpenseCategory.education:
-        return '育';
+      case ExpenseCategory.shopping:
+        return '購';
       case ExpenseCategory.entertainment:
         return '樂';
     }
@@ -38,8 +38,8 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return '住宿';
       case ExpenseCategory.transport:
         return '交通';
-      case ExpenseCategory.education:
-        return '教育';
+      case ExpenseCategory.shopping:
+        return '購物';
       case ExpenseCategory.entertainment:
         return '娛樂';
     }
@@ -56,8 +56,8 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return l.catLodging;
       case ExpenseCategory.transport:
         return l.catTransport;
-      case ExpenseCategory.education:
-        return l.catEducation;
+      case ExpenseCategory.shopping:
+        return l.catShopping;
       case ExpenseCategory.entertainment:
         return l.catEntertainment;
     }
@@ -73,8 +73,8 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return Icons.hotel;
       case ExpenseCategory.transport:
         return Icons.directions_car;
-      case ExpenseCategory.education:
-        return Icons.school;
+      case ExpenseCategory.shopping:
+        return Icons.shopping_bag;
       case ExpenseCategory.entertainment:
         return Icons.sports_esports;
     }
@@ -90,7 +90,7 @@ extension ExpenseCategoryExtension on ExpenseCategory {
         return const Color(0xFF4A7B96); // tag blue
       case ExpenseCategory.transport:
         return const Color(0xFF7A9A6D); // moss
-      case ExpenseCategory.education:
+      case ExpenseCategory.shopping:
         return const Color(0xFFCDA64F); // amber
       case ExpenseCategory.entertainment:
         return const Color(0xFFD44B3C); // stamp red

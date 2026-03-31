@@ -96,7 +96,7 @@ class AppLocalizations {
   String get catClothing => _t('catClothing');
   String get catLodging => _t('catLodging');
   String get catTransport => _t('catTransport');
-  String get catEducation => _t('catEducation');
+  String get catShopping => _t('catShopping');
   String get catEntertainment => _t('catEntertainment');
 
   // === Budget / Stats ===
@@ -317,7 +317,7 @@ class AppLocalizations {
     'catClothing': '服飾',
     'catLodging': '住宿',
     'catTransport': '交通',
-    'catEducation': '教育',
+    'catShopping': '購物',
     'catEntertainment': '娛樂',
     'spent': '已花費',
     'budget': '預算',
@@ -505,7 +505,7 @@ class AppLocalizations {
     'catClothing': 'Clothing',
     'catLodging': 'Lodging',
     'catTransport': 'Transport',
-    'catEducation': 'Education',
+    'catShopping': 'Shopping',
     'catEntertainment': 'Fun',
     'spent': 'Spent',
     'budget': 'Budget',
@@ -693,7 +693,7 @@ class AppLocalizations {
     'catClothing': '衣類',
     'catLodging': '宿泊',
     'catTransport': '交通',
-    'catEducation': '教育',
+    'catShopping': '買い物',
     'catEntertainment': '娯楽',
     'spent': '使用済み',
     'budget': '予算',
@@ -879,7 +879,7 @@ class AppLocalizations {
     'catClothing': '의류',
     'catLodging': '숙박',
     'catTransport': '교통',
-    'catEducation': '교육',
+    'catShopping': '쇼핑',
     'catEntertainment': '오락',
     'spent': '사용',
     'budget': '예산',
@@ -1065,7 +1065,7 @@ class AppLocalizations {
     'catClothing': '服饰',
     'catLodging': '住宿',
     'catTransport': '交通',
-    'catEducation': '教育',
+    'catShopping': '购物',
     'catEntertainment': '娱乐',
     'spent': '已花费',
     'budget': '预算',

@@ -13,7 +13,6 @@ import 'providers/locale_provider.dart';
 import 'providers/trip_provider.dart';
 import 'providers/expense_provider.dart';
 import 'services/ad_service.dart';
-import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 
 void main() async {
@@ -76,18 +75,7 @@ class TravelBudgetApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const _AuthGate(),
+      home: const HomeScreen(),
     );
-  }
-}
-
-class _AuthGate extends StatelessWidget {
-  const _AuthGate();
-
-  @override
-  Widget build(BuildContext context) {
-    final isLoggedIn = context.select<AuthProvider, bool>((a) => a.isLoggedIn);
-    if (!isLoggedIn) return const LoginScreen();
-    return const HomeScreen();
   }
 }

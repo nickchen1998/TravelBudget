@@ -11,7 +11,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../providers/expense_provider.dart';
 import '../../providers/trip_provider.dart';
-import '../../widgets/budget_progress_bar.dart';
 import '../../widgets/expense_tile.dart';
 import '../../widgets/invite_code_widget.dart';
 import '../expense/expense_form_screen.dart';
@@ -241,32 +240,92 @@ class _TripDetailScreenState extends State<TripDetailScreen>
 
         return Column(
           children: [
-            // Budget Summary Card
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.warmWhite,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: AppTheme.parchment.withValues(alpha: 0.5),
-                ),
-                boxShadow: AppTheme.cardShadow,
-              ),
-              child: Column(
-                children: [
-                  BudgetProgressBar(
-                    budget: _trip.budget,
-                    spent: provider.totalSpent,
-                    currencyCode: _trip.baseCurrency,
+            // Budget Summary Card — 效仿首頁 trip_card 簡潔樣式
+            Builder(builder: (context) {
+              final symbol = getCurrencySymbol(_trip.baseCurrency);
+              final spent = provider.totalSpent;
+              final percentage = _trip.budget > 0
+                  ? (spent / _trip.budget).clamp(0.0, 1.0)
+                  : 0.0;
+              final isOverBudget = spent > _trip.budget && _trip.budget > 0;
+
+              return Container(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.warmWhite,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppTheme.parchment.withValues(alpha: 0.5),
                   ),
-                  if (_trip.budget > 0 && _trip.totalDays > 0) ...[
-                    const SizedBox(height: 8),
-                    _buildDailyBudgetHint(provider.totalSpent),
+                  boxShadow: AppTheme.cardShadow,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${AppLocalizations.of(context).spent} $symbol${spent.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: isOverBudget ? AppTheme.stampRed : AppTheme.ink,
+                          ),
+                        ),
+                        _trip.budget > 0
+                            ? Text(
+                                '/ $symbol${_trip.budget.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  color: AppTheme.inkFaint,
+                                  fontSize: 14,
+                                ),
+                              )
+                            : const Text(
+                                '/ ∞',
+                                style: TextStyle(
+                                  color: AppTheme.infinity,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: _trip.budget > 0
+                          ? LinearProgressIndicator(
+                              value: percentage,
+                              minHeight: 7,
+                              backgroundColor:
+                                  AppTheme.parchment.withValues(alpha: 0.5),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                isOverBudget
+                                    ? AppTheme.stampRed
+                                    : percentage > 0.8
+                                        ? AppTheme.amber
+                                        : AppTheme.moss,
+                              ),
+                            )
+                          : const LinearProgressIndicator(
+                              value: 1.0,
+                              minHeight: 7,
+                              backgroundColor: AppTheme.infinitySoft,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppTheme.infinity,
+                              ),
+                            ),
+                    ),
+                    if (_trip.budget > 0 && _trip.totalDays > 0) ...[
+                      const SizedBox(height: 8),
+                      _buildDailyBudgetHint(spent),
+                    ],
                   ],
-                ],
-              ),
-            ),
+                ),
+              );
+            }),
             const SizedBox(height: 12),
             // Expense List
             Expanded(

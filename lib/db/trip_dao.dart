@@ -60,7 +60,12 @@ class TripDao {
     final existing = await db.query('trips', where: 'uuid = ?', whereArgs: [trip.uuid]);
     if (existing.isNotEmpty) {
       final localId = existing.first['id'] as int;
-      final updated = trip.copyWith(id: localId);
+      // 保留本地的 coverImagePath（雲端不帶此欄位）
+      final localPath = existing.first['cover_image_path'] as String?;
+      final updated = trip.copyWith(
+        id: localId,
+        coverImagePath: trip.coverImagePath ?? localPath,
+      );
       await db.update('trips', updated.toMap(), where: 'id = ?', whereArgs: [localId]);
       return updated;
     } else {

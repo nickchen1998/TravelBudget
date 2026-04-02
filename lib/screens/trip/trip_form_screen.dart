@@ -7,6 +7,7 @@ import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../providers/trip_provider.dart';
+import '../../services/image_storage_service.dart';
 
 class TripFormScreen extends StatefulWidget {
   final Trip? trip;
@@ -307,6 +308,14 @@ class _TripFormScreenState extends State<TripFormScreen> {
     setState(() => _isSaving = true);
 
     final budget = _noBudget ? 0.0 : double.parse(_budgetController.text);
+
+    // 若有選新圖片，先壓縮為 WebP 並持久化到 App 文件目錄
+    String? persistedImagePath = _coverImagePath;
+    if (_imageChanged && _coverImagePath != null) {
+      persistedImagePath =
+          await ImageStorageService.persistLocalCover(_coverImagePath!);
+      _coverImagePath = persistedImagePath;
+    }
 
     final trip = Trip(
       id: widget.trip?.id,

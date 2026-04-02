@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onConfigure: (db) async {
@@ -62,6 +62,7 @@ class DatabaseHelper {
         converted_amount REAL,
         exchange_rate REAL,
         category TEXT NOT NULL,
+        payment_method TEXT,
         note TEXT,
         receipt_image_path TEXT,
         date TEXT NOT NULL,
@@ -97,6 +98,10 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE expenses ADD COLUMN synced_at TEXT');
       await db.execute(
           'ALTER TABLE expenses ADD COLUMN is_dirty INTEGER NOT NULL DEFAULT 1');
+    }
+    if (oldVersion < 3) {
+      await db.execute(
+          'ALTER TABLE expenses ADD COLUMN payment_method TEXT');
     }
   }
 

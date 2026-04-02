@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../constants/categories.dart';
+import '../constants/payment_methods.dart';
 import '../models/expense.dart';
 import '../models/trip.dart';
 import '../repositories/expense_repository.dart';
@@ -44,6 +45,21 @@ class ExpenseProvider extends ChangeNotifier {
       map[dateKey] = (map[dateKey] ?? 0.0) + (e.convertedAmount ?? 0.0);
     }
     return map;
+  }
+
+  /// 最近一筆消費的支付方式（供新增消費時預設用）
+  PaymentMethod? get lastPaymentMethod {
+    if (_expenses.isEmpty) return null;
+    // 按建立時間排序取最新
+    final sorted = [..._expenses]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.first.paymentMethod;
+  }
+
+  /// 最近一筆消費的日期（供新增消費時預設用）
+  DateTime? get lastExpenseDate {
+    if (_expenses.isEmpty) return null;
+    final sorted = [..._expenses]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.first.date;
   }
 
   Future<void> loadExpenses(Trip trip) async {

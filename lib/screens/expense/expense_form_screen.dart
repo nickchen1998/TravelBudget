@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../constants/categories.dart';
+import '../../constants/payment_methods.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/expense.dart';
 import '../../models/trip.dart';
@@ -24,6 +25,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   late TextEditingController _amountController;
   late TextEditingController _noteController;
   late ExpenseCategory _category;
+  PaymentMethod? _paymentMethod;
   late String _currency;
   late DateTime _date;
   bool _isConverting = false;
@@ -49,15 +51,37 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     // Build list of all dates in the trip range
     _tripDates = _buildTripDates();
 
-    // Default date: today if within range, else first day
+    // Default date: editing → use expense date; new → last expense date → today → first day
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     if (e != null) {
       _date = DateTime(e.date.year, e.date.month, e.date.day);
-    } else if (!today.isBefore(_tripDates.first) && !today.isAfter(_tripDates.last)) {
-      _date = today;
     } else {
-      _date = _tripDates.first;
+      // 嘗試使用最近一筆消費的日期
+      final provider = context.read<ExpenseProvider>();
+      final lastDate = provider.lastExpenseDate;
+      if (lastDate != null) {
+        final ld = DateTime(lastDate.year, lastDate.month, lastDate.day);
+        if (!ld.isBefore(_tripDates.first) && !ld.isAfter(_tripDates.last)) {
+          _date = ld;
+        } else if (!today.isBefore(_tripDates.first) && !today.isAfter(_tripDates.last)) {
+          _date = today;
+        } else {
+          _date = _tripDates.first;
+        }
+      } else if (!today.isBefore(_tripDates.first) && !today.isAfter(_tripDates.last)) {
+        _date = today;
+      } else {
+        _date = _tripDates.first;
+      }
+
+      // 支付方式預設：記住上次選擇
+      _paymentMethod = provider.lastPaymentMethod ?? PaymentMethod.cash;
+    }
+
+    // 編輯模式：使用既有的支付方式
+    if (e != null) {
+      _paymentMethod = e.paymentMethod;
     }
   }
 
@@ -190,6 +214,38 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             ),
             const SizedBox(height: 16),
 
+            // Payment Method
+            Text(l.paymentMethod, style: const TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: PaymentMethod.values.map((pm) {
+                  final isSelected = _paymentMethod == pm;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(pm.icon,
+                              size: 16,
+                              color: isSelected ? Colors.white : pm.color),
+                          const SizedBox(width: 4),
+                          Text(pm.localizedName(context)),
+                        ],
+                      ),
+                      selected: isSelected,
+                      selectedColor: pm.color,
+                      showCheckmark: false,
+                      onSelected: (_) => setState(() => _paymentMethod = pm),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // Date
             DropdownButtonFormField<DateTime>(
               initialValue: _date,
@@ -275,6 +331,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         convertedAmount: convertedAmount,
         exchangeRate: exchangeRate,
         category: _category,
+        paymentMethod: _paymentMethod,
         note: _noteController.text.trim().isEmpty
             ? null
             : _noteController.text.trim(),

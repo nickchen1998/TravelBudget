@@ -1,4 +1,5 @@
 import '../constants/categories.dart';
+import '../constants/payment_methods.dart';
 
 class Expense {
   final int? id;
@@ -14,6 +15,7 @@ class Expense {
   final double? convertedAmount;
   final double? exchangeRate;
   final ExpenseCategory category;
+  final PaymentMethod? paymentMethod;
   final String? note;
   final String? receiptImagePath;
   final DateTime date;
@@ -33,6 +35,7 @@ class Expense {
     this.convertedAmount,
     this.exchangeRate,
     required this.category,
+    this.paymentMethod,
     this.note,
     this.receiptImagePath,
     required this.date,
@@ -53,6 +56,7 @@ class Expense {
     double? convertedAmount,
     double? exchangeRate,
     ExpenseCategory? category,
+    PaymentMethod? paymentMethod,
     String? note,
     String? receiptImagePath,
     DateTime? date,
@@ -72,6 +76,7 @@ class Expense {
       convertedAmount: convertedAmount ?? this.convertedAmount,
       exchangeRate: exchangeRate ?? this.exchangeRate,
       category: category ?? this.category,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       note: note ?? this.note,
       receiptImagePath: receiptImagePath ?? this.receiptImagePath,
       date: date ?? this.date,
@@ -93,6 +98,7 @@ class Expense {
       'converted_amount': convertedAmount,
       'exchange_rate': exchangeRate,
       'category': category.name,
+      'payment_method': paymentMethod?.name,
       'note': note,
       'receipt_image_path': receiptImagePath,
       'date': date.toIso8601String(),
@@ -121,6 +127,12 @@ class Expense {
         (e) => e.name == map['category'],
         orElse: () => ExpenseCategory.food,
       ),
+      paymentMethod: map['payment_method'] != null
+          ? PaymentMethod.values.cast<PaymentMethod?>().firstWhere(
+              (e) => e?.name == map['payment_method'],
+              orElse: () => null,
+            )
+          : null,
       note: map['note'] as String?,
       receiptImagePath: map['receipt_image_path'] as String?,
       date: DateTime.parse(map['date'] as String),
@@ -148,6 +160,12 @@ class Expense {
         (e) => e.name == map['category'],
         orElse: () => ExpenseCategory.food,
       ),
+      paymentMethod: map['payment_method'] != null
+          ? PaymentMethod.values.cast<PaymentMethod?>().firstWhere(
+              (e) => e?.name == map['payment_method'],
+              orElse: () => null,
+            )
+          : null,
       note: map['note'] as String?,
       date: DateTime.parse(map['date'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -165,6 +183,7 @@ class Expense {
       'converted_amount': convertedAmount,
       'exchange_rate': exchangeRate,
       'category': category.name,
+      if (paymentMethod != null) 'payment_method': paymentMethod!.name,
       'note': note,
       'date': date.toIso8601String().substring(0, 10),
     };

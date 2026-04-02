@@ -240,6 +240,14 @@ class AppLocalizations {
   String lastSyncedTime(String time) =>
       _t('lastSyncedTime').replaceAll('{time}', time);
 
+  // === Payment Methods ===
+  String get paymentMethod => _t('paymentMethod');
+  String get payCash => _t('payCash');
+  String get payCreditCard => _t('payCreditCard');
+  String get payDebitCard => _t('payDebitCard');
+  String get payMobile => _t('payMobile');
+  String get payTransit => _t('payTransit');
+
   // === Usage Limits ===
   String get tripLimitTitle => _t('tripLimitTitle');
   String get tripLimitDesc => _t('tripLimitDesc');
@@ -466,6 +474,13 @@ class AppLocalizations {
     'purchaseRestored': '已恢復購買',
     'purchaseFailed': '購買失敗',
     'adsAlreadyRemoved': '廣告已移除',
+    // Payment Methods
+    'paymentMethod': '支付方式',
+    'payCash': '現金',
+    'payCreditCard': '信用卡',
+    'payDebitCard': '簽帳卡',
+    'payMobile': '行動支付',
+    'payTransit': '交通卡',
     // Usage Limits
     'tripLimitTitle': '無法上傳到雲端',
     'tripLimitDesc': '您的雲端旅行已達上限（10 個）。請刪除不需要的雲端旅行，或繼續使用本地儲存。',
@@ -668,6 +683,13 @@ class AppLocalizations {
     'purchaseRestored': 'Purchase restored',
     'purchaseFailed': 'Purchase failed',
     'adsAlreadyRemoved': 'Ads already removed',
+    // Payment Methods
+    'paymentMethod': 'Payment',
+    'payCash': 'Cash',
+    'payCreditCard': 'Credit',
+    'payDebitCard': 'Debit',
+    'payMobile': 'Mobile',
+    'payTransit': 'Transit',
     // Usage Limits
     'tripLimitTitle': 'Cannot upload to cloud',
     'tripLimitDesc': 'You have reached the cloud trip limit (10). Please delete unused cloud trips or continue using local storage.',
@@ -868,6 +890,13 @@ class AppLocalizations {
     'purchaseRestored': '購入を復元しました',
     'purchaseFailed': '購入に失敗しました',
     'adsAlreadyRemoved': '広告は削除済みです',
+    // Payment Methods
+    'paymentMethod': '支払方法',
+    'payCash': '現金',
+    'payCreditCard': 'クレジット',
+    'payDebitCard': 'デビット',
+    'payMobile': 'モバイル',
+    'payTransit': '交通系IC',
     // Usage Limits
     'tripLimitTitle': 'クラウドにアップロードできません',
     'tripLimitDesc': 'クラウド旅行の上限（10件）に達しました。不要なクラウド旅行を削除するか、ローカル保存をご利用ください。',
@@ -1068,6 +1097,13 @@ class AppLocalizations {
     'purchaseRestored': '구매가 복원되었습니다',
     'purchaseFailed': '구매 실패',
     'adsAlreadyRemoved': '광고가 이미 제거되었습니다',
+    // Payment Methods
+    'paymentMethod': '결제 수단',
+    'payCash': '현금',
+    'payCreditCard': '신용카드',
+    'payDebitCard': '체크카드',
+    'payMobile': '모바일',
+    'payTransit': '교통카드',
     // Usage Limits
     'tripLimitTitle': '클라우드에 업로드할 수 없습니다',
     'tripLimitDesc': '클라우드 여행 한도(10개)에 도달했습니다. 불필요한 클라우드 여행을 삭제하거나 로컬 저장소를 사용하세요.',
@@ -1268,6 +1304,13 @@ class AppLocalizations {
     'purchaseRestored': '已恢复购买',
     'purchaseFailed': '购买失败',
     'adsAlreadyRemoved': '广告已移除',
+    // Payment Methods
+    'paymentMethod': '支付方式',
+    'payCash': '现金',
+    'payCreditCard': '信用卡',
+    'payDebitCard': '借记卡',
+    'payMobile': '移动支付',
+    'payTransit': '交通卡',
     // Usage Limits
     'tripLimitTitle': '无法上传到云端',
     'tripLimitDesc': '您的云端旅行已达上限（10 个）。请删除不需要的云端旅行，或继续使用本地存储。',

@@ -68,6 +68,7 @@ class AuthService {
   Future<void> updateDisplayName(String name) async {
     final user = currentUser;
     if (user == null) throw Exception('Not logged in');
+    if (name.length > 50) throw Exception('Display name too long');
     await _supabase.from('profiles').update({
       'display_name': name,
     }).eq('id', user.id);

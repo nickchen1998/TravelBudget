@@ -9,6 +9,10 @@ class NetworkException implements Exception {
   const NetworkException();
 }
 
+class TripLimitException implements Exception {
+  const TripLimitException();
+}
+
 class TripRepository {
   final TripDao _local = TripDao();
   final ExpenseDao _expenseDao = ExpenseDao();
@@ -117,6 +121,12 @@ class TripRepository {
     final updateMap = tripWithUrl.toSupabaseMap(_userId!);
     updateMap.remove('id');       // don't overwrite PK
     updateMap.remove('owner_id'); // collaborators must not change owner
+
+    // 3.1 修復：若上傳失敗導致 coverImageUrl 為 null，不覆寫雲端已有的封面 URL
+    if (updateMap['cover_image_url'] == null && trip.coverImagePath != null) {
+      updateMap.remove('cover_image_url');
+    }
+
     await _supabase
         .from('trips')
         .update(updateMap)
@@ -176,8 +186,15 @@ class TripRepository {
 
     // Insert trip to Supabase
     final data = trip.toSupabaseMap(userId);
-    final result =
-        await _supabase.from('trips').insert(data).select().single();
+    final Map<String, dynamic> result;
+    try {
+      result = await _supabase.from('trips').insert(data).select().single();
+    } on PostgrestException catch (e) {
+      if (e.details?.toString().contains('TRIP_LIMIT_EXCEEDED') == true) {
+        throw const TripLimitException();
+      }
+      rethrow;
+    }
     final cloudId = result['id'] as String;
 
     await _supabase.from('trip_members').upsert({

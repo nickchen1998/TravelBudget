@@ -129,6 +129,20 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        _sectionCard(
+          title: l.usageLimits,
+          child: GestureDetector(
+            onTap: () => _showUsageLimitsModal(context),
+            child: _settingsTile(
+              icon: Icons.data_usage,
+              title: l.usageLimits,
+              subtitle: l.usageLimitsDesc,
+              trailing: const Icon(Icons.chevron_right,
+                  color: AppTheme.inkFaint, size: 20),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
         _buildPurchaseSection(context, l),
         const SizedBox(height: 16),
       ],
@@ -236,7 +250,7 @@ class SettingsScreen extends StatelessWidget {
         content: TextField(
           controller: controller,
           autofocus: true,
-          maxLength: 30,
+          maxLength: 50,
           decoration: InputDecoration(hintText: l.nicknameHint),
         ),
         actions: [
@@ -431,6 +445,156 @@ class SettingsScreen extends StatelessWidget {
         );
       }
     }
+  }
+
+  // ── Usage Limits Modal ───────────────────────────────────────────────────
+
+  void _showUsageLimitsModal(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.warmWhite,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppTheme.parchment,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(l.usageLimits,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.ink)),
+                ),
+                const SizedBox(height: 20),
+                _limitItem(
+                  icon: Icons.cloud_outlined,
+                  color: AppTheme.tagBlue,
+                  title: l.cloudTripLimit,
+                  detail: l.cloudTripLimitDetail,
+                  badge: '10',
+                ),
+                const SizedBox(height: 14),
+                _limitItem(
+                  icon: Icons.group_outlined,
+                  color: AppTheme.plum,
+                  title: l.invitationLimit,
+                  detail: l.invitationLimitDetail,
+                  badge: '20',
+                ),
+                const SizedBox(height: 14),
+                _limitItem(
+                  icon: Icons.text_fields,
+                  color: AppTheme.moss,
+                  title: l.fieldLengthLimit,
+                  detail: l.fieldLengthLimitDetail,
+                  badge: '50',
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cream,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline,
+                          size: 16, color: AppTheme.inkFaint),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l.localTripNoLimit,
+                          style: const TextStyle(
+                              fontSize: 12, color: AppTheme.inkLight),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _limitItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String detail,
+    required String badge,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.ink)),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(badge,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: color)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(detail,
+                  style: const TextStyle(
+                      fontSize: 13, color: AppTheme.inkLight)),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   // ── Language picker ───────────────────────────────────────────────────────

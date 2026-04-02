@@ -132,6 +132,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             // Title
             TextFormField(
               controller: _titleController,
+              maxLength: 50,
               decoration: InputDecoration(
                 labelText: l.itemName,
                 hintText: l.itemNameHint,

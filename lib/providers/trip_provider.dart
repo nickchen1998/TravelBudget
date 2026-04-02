@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/trip.dart';
-import '../repositories/trip_repository.dart';
+import '../repositories/trip_repository.dart' show TripRepository, NetworkException, TripLimitException;
 
 class TripProvider extends ChangeNotifier {
   final TripRepository _repo = TripRepository();
@@ -57,10 +57,16 @@ class TripProvider extends ChangeNotifier {
       return null;
     } on NetworkException {
       return 'network_required';
+    } on TripLimitException {
+      return 'trip_limit_exceeded';
     } catch (_) {
       return 'save_failed';
     }
   }
+
+  /// 計算目前雲端旅行數量（owner 身份）
+  int get cloudTripCount =>
+      _trips.where((t) => t.uuid != null && (t.memberRole == null || t.memberRole == 'owner')).length;
 
   /// Returns null on success, an error key string on failure.
   Future<String?> updateTrip(Trip trip) async {

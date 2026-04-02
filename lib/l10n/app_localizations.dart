@@ -240,6 +240,22 @@ class AppLocalizations {
   String lastSyncedTime(String time) =>
       _t('lastSyncedTime').replaceAll('{time}', time);
 
+  // === Usage Limits ===
+  String get tripLimitTitle => _t('tripLimitTitle');
+  String get tripLimitDesc => _t('tripLimitDesc');
+  String cloudTripLimitWarning(int count) =>
+      _t('cloudTripLimitWarning').replaceAll('{count}', '$count');
+  String get coverUploadFailed => _t('coverUploadFailed');
+  String get usageLimits => _t('usageLimits');
+  String get usageLimitsDesc => _t('usageLimitsDesc');
+  String get cloudTripLimit => _t('cloudTripLimit');
+  String get cloudTripLimitDetail => _t('cloudTripLimitDetail');
+  String get invitationLimit => _t('invitationLimit');
+  String get invitationLimitDetail => _t('invitationLimitDetail');
+  String get fieldLengthLimit => _t('fieldLengthLimit');
+  String get fieldLengthLimitDetail => _t('fieldLengthLimitDetail');
+  String get localTripNoLimit => _t('localTripNoLimit');
+
   // === Ads / Purchase ===
   String get removeAds => _t('removeAds');
   String get removeAdsDesc => _t('removeAdsDesc');
@@ -450,6 +466,20 @@ class AppLocalizations {
     'purchaseRestored': '已恢復購買',
     'purchaseFailed': '購買失敗',
     'adsAlreadyRemoved': '廣告已移除',
+    // Usage Limits
+    'tripLimitTitle': '無法上傳到雲端',
+    'tripLimitDesc': '您的雲端旅行已達上限（10 個）。請刪除不需要的雲端旅行，或繼續使用本地儲存。',
+    'cloudTripLimitWarning': '您已有 {count}/10 個雲端旅行，即將達到上限。',
+    'coverUploadFailed': '封面圖片上傳失敗，其他變更已儲存',
+    'usageLimits': '額度限制',
+    'usageLimitsDesc': '了解目前的使用額度',
+    'cloudTripLimit': '雲端旅行',
+    'cloudTripLimitDetail': '每位用戶最多可同步 10 個旅行至雲端。本地旅行不受此限制。',
+    'invitationLimit': '邀請人數',
+    'invitationLimitDetail': '每組邀請碼最多可供 20 人使用。',
+    'fieldLengthLimit': '文字長度',
+    'fieldLengthLimitDetail': '旅行名稱最多 50 字，備註最多 200 字。',
+    'localTripNoLimit': '本地旅行不受任何雲端額度限制。',
   };
 
   static const _en = {
@@ -638,6 +668,20 @@ class AppLocalizations {
     'purchaseRestored': 'Purchase restored',
     'purchaseFailed': 'Purchase failed',
     'adsAlreadyRemoved': 'Ads already removed',
+    // Usage Limits
+    'tripLimitTitle': 'Cannot upload to cloud',
+    'tripLimitDesc': 'You have reached the cloud trip limit (10). Please delete unused cloud trips or continue using local storage.',
+    'cloudTripLimitWarning': 'You have {count}/10 cloud trips, approaching the limit.',
+    'coverUploadFailed': 'Cover image upload failed, other changes saved',
+    'usageLimits': 'Usage Limits',
+    'usageLimitsDesc': 'View current usage limits',
+    'cloudTripLimit': 'Cloud Trips',
+    'cloudTripLimitDetail': 'Each user can sync up to 10 trips to the cloud. Local trips are not limited.',
+    'invitationLimit': 'Invitations',
+    'invitationLimitDetail': 'Each invite code can be used by up to 20 people.',
+    'fieldLengthLimit': 'Text Length',
+    'fieldLengthLimitDetail': 'Trip name max 50 characters, notes max 200 characters.',
+    'localTripNoLimit': 'Local trips are not subject to any cloud limits.',
   };
 
   static const _ja = {
@@ -824,6 +868,20 @@ class AppLocalizations {
     'purchaseRestored': '購入を復元しました',
     'purchaseFailed': '購入に失敗しました',
     'adsAlreadyRemoved': '広告は削除済みです',
+    // Usage Limits
+    'tripLimitTitle': 'クラウドにアップロードできません',
+    'tripLimitDesc': 'クラウド旅行の上限（10件）に達しました。不要なクラウド旅行を削除するか、ローカル保存をご利用ください。',
+    'cloudTripLimitWarning': 'クラウド旅行が {count}/10 件です。上限に近づいています。',
+    'coverUploadFailed': 'カバー画像のアップロードに失敗しました。その他の変更は保存済みです',
+    'usageLimits': '利用制限',
+    'usageLimitsDesc': '現在の利用制限を確認',
+    'cloudTripLimit': 'クラウド旅行',
+    'cloudTripLimitDetail': 'ユーザーごとに最大10件の旅行をクラウドに同期できます。ローカル旅行は制限なしです。',
+    'invitationLimit': '招待人数',
+    'invitationLimitDetail': '各招待コードは最大20人まで使用できます。',
+    'fieldLengthLimit': 'テキスト長',
+    'fieldLengthLimitDetail': '旅行名は最大50文字、メモは最大200文字です。',
+    'localTripNoLimit': 'ローカル旅行にはクラウド制限は適用されません。',
   };
 
   static const _ko = {
@@ -1010,6 +1068,20 @@ class AppLocalizations {
     'purchaseRestored': '구매가 복원되었습니다',
     'purchaseFailed': '구매 실패',
     'adsAlreadyRemoved': '광고가 이미 제거되었습니다',
+    // Usage Limits
+    'tripLimitTitle': '클라우드에 업로드할 수 없습니다',
+    'tripLimitDesc': '클라우드 여행 한도(10개)에 도달했습니다. 불필요한 클라우드 여행을 삭제하거나 로컬 저장소를 사용하세요.',
+    'cloudTripLimitWarning': '클라우드 여행이 {count}/10개입니다. 한도에 가까워지고 있습니다.',
+    'coverUploadFailed': '커버 이미지 업로드 실패, 기타 변경사항은 저장됨',
+    'usageLimits': '사용 한도',
+    'usageLimitsDesc': '현재 사용 한도 확인',
+    'cloudTripLimit': '클라우드 여행',
+    'cloudTripLimitDetail': '사용자당 최대 10개의 여행을 클라우드에 동기화할 수 있습니다. 로컬 여행은 제한 없습니다.',
+    'invitationLimit': '초대 인원',
+    'invitationLimitDetail': '각 초대 코드는 최대 20명이 사용할 수 있습니다.',
+    'fieldLengthLimit': '텍스트 길이',
+    'fieldLengthLimitDetail': '여행 이름 최대 50자, 메모 최대 200자입니다.',
+    'localTripNoLimit': '로컬 여행에는 클라우드 한도가 적용되지 않습니다.',
   };
 
   static const _zhCN = {
@@ -1196,6 +1268,20 @@ class AppLocalizations {
     'purchaseRestored': '已恢复购买',
     'purchaseFailed': '购买失败',
     'adsAlreadyRemoved': '广告已移除',
+    // Usage Limits
+    'tripLimitTitle': '无法上传到云端',
+    'tripLimitDesc': '您的云端旅行已达上限（10 个）。请删除不需要的云端旅行，或继续使用本地存储。',
+    'cloudTripLimitWarning': '您已有 {count}/10 个云端旅行，即将达到上限。',
+    'coverUploadFailed': '封面图片上传失败，其他更改已保存',
+    'usageLimits': '额度限制',
+    'usageLimitsDesc': '了解目前的使用额度',
+    'cloudTripLimit': '云端旅行',
+    'cloudTripLimitDetail': '每位用户最多可同步 10 个旅行至云端。本地旅行不受此限制。',
+    'invitationLimit': '邀请人数',
+    'invitationLimitDetail': '每组邀请码最多可供 20 人使用。',
+    'fieldLengthLimit': '文字长度',
+    'fieldLengthLimitDetail': '旅行名称最多 50 字，备注最多 200 字。',
+    'localTripNoLimit': '本地旅行不受任何云端额度限制。',
   };
 }
 

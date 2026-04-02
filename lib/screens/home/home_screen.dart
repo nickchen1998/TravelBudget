@@ -190,9 +190,36 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: () => tripProvider.loadTrips(),
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            itemCount: tripProvider.trips.length,
+            itemCount: tripProvider.trips.length + (tripProvider.cloudTripCount >= 8 ? 1 : 0),
             itemBuilder: (context, index) {
-              final trip = tripProvider.trips[index];
+              // 雲端旅行接近上限警告橫幅
+              if (tripProvider.cloudTripCount >= 8 && index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.amber.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.amber.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l.cloudTripLimitWarning(tripProvider.cloudTripCount),
+                            style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              final tripIndex = tripProvider.cloudTripCount >= 8 ? index - 1 : index;
+              final trip = tripProvider.trips[tripIndex];
               final spent = trip.id != null
                   ? tripProvider.getSpentForTrip(trip.id!)
                   : 0.0;
@@ -426,7 +453,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final error = await provider.uploadLocalTripToCloud(trip);
     if (!context.mounted) return;
 
-    if (error != null) {
+    if (error == 'trip_limit_exceeded') {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.tripLimitTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          content: Text(l.tripLimitDesc),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.confirm),
+            ),
+          ],
+        ),
+      );
+    } else if (error != null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l.networkRequiredError)));

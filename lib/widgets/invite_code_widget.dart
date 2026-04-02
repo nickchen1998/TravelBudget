@@ -37,7 +37,7 @@ Future<String> _getOrCreateInviteCode(String tripUuid) async {
     'invited_by': supabase.auth.currentUser!.id,
     'invite_token': code,
     'role': 'editor',
-    'max_uses': 50,
+    'max_uses': 20,
     'expires_at':
         DateTime.now().add(const Duration(days: 7)).toIso8601String(),
   });

@@ -2,8 +2,8 @@
 -- 防止邀請碼被公開散布，大量用戶加入
 
 -- 先將超過上限的現有記錄修正
-UPDATE invitations SET max_uses = 20 WHERE max_uses > 20;
+UPDATE trip_invitations SET max_uses = 20 WHERE max_uses > 20;
 
-ALTER TABLE invitations
+ALTER TABLE trip_invitations
   ADD CONSTRAINT invitations_max_uses_range
     CHECK (max_uses >= 1 AND max_uses <= 20);

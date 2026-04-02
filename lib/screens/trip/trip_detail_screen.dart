@@ -63,7 +63,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
       final response = await Supabase.instance.client
           .from('trip_members')
           .select(
-              'user_id, role, joined_at, profiles!trip_members_user_id_fkey(display_name, email)')
+              'user_id, role, joined_at, profiles!trip_members_user_id_fkey(display_name)')
           .eq('trip_id', _trip.uuid!);
       if (mounted) {
         setState(() {
@@ -461,7 +461,6 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                 final member = members[index];
                 final profile = member['profiles'] as Map<String, dynamic>?;
                 final displayName = profile?['display_name'] as String?;
-                final email = profile?['email'] as String?;
                 final role = member['role'] as String? ?? 'viewer';
                 final userId = member['user_id'] as String?;
                 final isSelf = userId == currentUserId;
@@ -488,8 +487,6 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                     child: Text(
                       (displayName?.isNotEmpty == true
                               ? displayName![0]
-                              : email?.isNotEmpty == true
-                              ? email![0]
                               : '?')
                           .toUpperCase(),
                       style: const TextStyle(
@@ -501,23 +498,13 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                   title: Text(
                     displayName?.isNotEmpty == true
                         ? displayName!
-                        : email ?? '—',
+                        : '—',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       color: AppTheme.ink,
                     ),
                   ),
-                  subtitle:
-                      email?.isNotEmpty == true &&
-                          displayName?.isNotEmpty == true
-                      ? Text(
-                          email!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.inkFaint,
-                          ),
-                        )
-                      : null,
+                  subtitle: null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

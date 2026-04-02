@@ -1,18 +1,14 @@
 -- 2.5 expenses RLS 明確指定 authenticated 角色
--- 防止 anon 用戶在邊緣情況下意外存取
+-- 現有 policy 名稱：expenses_select, expenses_insert, expenses_update, expenses_delete
+-- 透過 trips 表 JOIN 判斷權限，但未指定 TO authenticated
+-- 重建所有 policy 加上 TO authenticated，並改為直接用 trip_members 判斷
 
--- 重建所有 expenses policies，確保都有 TO authenticated
+DROP POLICY IF EXISTS "expenses_select" ON expenses;
+DROP POLICY IF EXISTS "expenses_insert" ON expenses;
+DROP POLICY IF EXISTS "expenses_update" ON expenses;
+DROP POLICY IF EXISTS "expenses_delete" ON expenses;
 
-DROP POLICY IF EXISTS "expenses_select_policy" ON expenses;
-DROP POLICY IF EXISTS "expenses_insert_policy" ON expenses;
-DROP POLICY IF EXISTS "expenses_update_policy" ON expenses;
-DROP POLICY IF EXISTS "expenses_delete_policy" ON expenses;
-DROP POLICY IF EXISTS "Users can view expenses of their trips" ON expenses;
-DROP POLICY IF EXISTS "Users can insert expenses to their trips" ON expenses;
-DROP POLICY IF EXISTS "Users can update expenses of their trips" ON expenses;
-DROP POLICY IF EXISTS "Users can delete expenses of their trips" ON expenses;
-
-CREATE POLICY "expenses_select_policy"
+CREATE POLICY "expenses_select"
   ON expenses
   FOR SELECT
   TO authenticated
@@ -22,7 +18,7 @@ CREATE POLICY "expenses_select_policy"
     )
   );
 
-CREATE POLICY "expenses_insert_policy"
+CREATE POLICY "expenses_insert"
   ON expenses
   FOR INSERT
   TO authenticated
@@ -33,7 +29,7 @@ CREATE POLICY "expenses_insert_policy"
     )
   );
 
-CREATE POLICY "expenses_update_policy"
+CREATE POLICY "expenses_update"
   ON expenses
   FOR UPDATE
   TO authenticated
@@ -44,7 +40,7 @@ CREATE POLICY "expenses_update_policy"
     )
   );
 
-CREATE POLICY "expenses_delete_policy"
+CREATE POLICY "expenses_delete"
   ON expenses
   FOR DELETE
   TO authenticated

@@ -29,6 +29,33 @@ const List<CurrencyInfo> supportedCurrencies = [
   CurrencyInfo(code: 'PHP', name: '菲律賓披索', symbol: '₱'),
 ];
 
+/// 格式化數字為千分位字串（例如 12345 → "12,345"）
+String formatAmount(num value, {int decimals = 0}) {
+  final fixed = value.toStringAsFixed(decimals);
+  if (decimals == 0) {
+    // 整數：加千分位
+    final isNeg = value < 0;
+    final digits = isNeg ? fixed.substring(1) : fixed;
+    final buf = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buf.write(',');
+      buf.write(digits[i]);
+    }
+    return isNeg ? '-${buf.toString()}' : buf.toString();
+  }
+  // 有小數：整數部分加千分位
+  final parts = fixed.split('.');
+  final isNeg = value < 0;
+  final digits = isNeg ? parts[0].substring(1) : parts[0];
+  final buf = StringBuffer();
+  for (int i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) buf.write(',');
+    buf.write(digits[i]);
+  }
+  final intPart = isNeg ? '-${buf.toString()}' : buf.toString();
+  return '$intPart.${parts[1]}';
+}
+
 String getCurrencySymbol(String code) {
   return supportedCurrencies
       .firstWhere(

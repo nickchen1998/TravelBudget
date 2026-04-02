@@ -68,7 +68,7 @@ class AnalyticsScreen extends StatelessWidget {
                 Expanded(
                   child: _miniStat(
                     label: l.avgDaily,
-                    value: '$symbol${avgDaily.toStringAsFixed(0)}',
+                    value: '$symbol${formatAmount(avgDaily)}',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -91,7 +91,7 @@ class AnalyticsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${l.spent} $symbol${provider.totalSpent.toStringAsFixed(0)}',
+                        '${l.spent} $symbol${formatAmount(provider.totalSpent)}',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -100,7 +100,7 @@ class AnalyticsScreen extends StatelessWidget {
                       ),
                       trip.budget > 0
                           ? Text(
-                              '/ $symbol${trip.budget.toStringAsFixed(0)}',
+                              '/ $symbol${formatAmount(trip.budget)}',
                               style: const TextStyle(
                                 color: AppTheme.inkFaint,
                                 fontSize: 14,
@@ -262,7 +262,7 @@ class AnalyticsScreen extends StatelessWidget {
               tooltipMargin: 6,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
-                  '$symbol${rod.toY.toStringAsFixed(0)}',
+                  '$symbol${formatAmount(rod.toY)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,

@@ -193,7 +193,7 @@ class _OverviewScreenState extends State<OverviewScreen>
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '$symbol${entry.value.toStringAsFixed(0)}',
+                        '$symbol${formatAmount(entry.value)}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
@@ -275,7 +275,7 @@ class _OverviewScreenState extends State<OverviewScreen>
                               ),
                               const Spacer(),
                               Text(
-                                'NT\$${amount.toStringAsFixed(0)}',
+                                'NT\$${formatAmount(amount)}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -356,7 +356,7 @@ class _OverviewScreenState extends State<OverviewScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '$symbol${spent.toStringAsFixed(0)}',
+                              '$symbol${formatAmount(spent)}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -364,7 +364,7 @@ class _OverviewScreenState extends State<OverviewScreen>
                               ),
                             ),
                             Text(
-                              '$symbol${trip.budget.toStringAsFixed(0)}',
+                              '$symbol${formatAmount(trip.budget)}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: AppTheme.inkFaint,
@@ -390,7 +390,7 @@ class _OverviewScreenState extends State<OverviewScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '$symbol${spent.toStringAsFixed(0)}',
+                              '$symbol${formatAmount(spent)}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

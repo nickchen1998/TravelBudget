@@ -267,7 +267,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${AppLocalizations.of(context).spent} $symbol${spent.toStringAsFixed(0)}',
+                          '${AppLocalizations.of(context).spent} $symbol${formatAmount(spent)}',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -276,7 +276,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                         ),
                         _trip.budget > 0
                             ? Text(
-                                '/ $symbol${_trip.budget.toStringAsFixed(0)}',
+                                '/ $symbol${formatAmount(_trip.budget)}',
                                 style: const TextStyle(
                                   color: AppTheme.inkFaint,
                                   fontSize: 14,
@@ -379,7 +379,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
     final remaining = _trip.budget - totalSpent;
     final isOver = remaining < 0;
     final symbol = getCurrencySymbol(_trip.baseCurrency);
-    final amountStr = '$symbol${remaining.abs().toStringAsFixed(0)}';
+    final amountStr = '$symbol${formatAmount(remaining.abs())}';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

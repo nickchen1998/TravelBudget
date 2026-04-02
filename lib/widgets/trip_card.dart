@@ -244,7 +244,7 @@ class TripCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${AppLocalizations.of(context).spent} $symbol${spent.toStringAsFixed(0)}',
+                        '${AppLocalizations.of(context).spent} $symbol${formatAmount(spent)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -253,7 +253,7 @@ class TripCard extends StatelessWidget {
                       ),
                       trip.budget > 0
                           ? Text(
-                              '/ $symbol${trip.budget.toStringAsFixed(0)}',
+                              '/ $symbol${formatAmount(trip.budget)}',
                               style: const TextStyle(
                                 color: AppTheme.inkFaint,
                                 fontSize: 14,

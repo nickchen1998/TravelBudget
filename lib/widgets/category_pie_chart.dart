@@ -74,7 +74,7 @@ class CategoryPieChart extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  '${entry.key.localizedName(context)} $symbol${entry.value.toStringAsFixed(0)}',
+                  '${entry.key.localizedName(context)} $symbol${formatAmount(entry.value)}',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppTheme.inkLight,

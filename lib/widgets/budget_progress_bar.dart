@@ -45,7 +45,7 @@ class BudgetProgressBar extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Text(
-            '$symbol${spent.toStringAsFixed(0)}',
+            '$symbol${formatAmount(spent)}',
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
@@ -100,7 +100,7 @@ class BudgetProgressBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '$symbol${spent.toStringAsFixed(0)}',
+                        '$symbol${formatAmount(spent)}',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
@@ -109,8 +109,8 @@ class BudgetProgressBar extends StatelessWidget {
                       ),
                       Text(
                         isOverBudget
-                            ? '${AppLocalizations.of(context).overspent} $symbol${(spent - budget).toStringAsFixed(0)}'
-                            : '${AppLocalizations.of(context).remaining} $symbol${(budget - spent).toStringAsFixed(0)}',
+                            ? '${AppLocalizations.of(context).overspent} $symbol${formatAmount(spent - budget)}'
+                            : '${AppLocalizations.of(context).remaining} $symbol${formatAmount(budget - spent)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: isOverBudget
@@ -128,7 +128,7 @@ class BudgetProgressBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '/ $symbol${budget.toStringAsFixed(0)}',
+                  '/ $symbol${formatAmount(budget)}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

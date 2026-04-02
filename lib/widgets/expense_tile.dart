@@ -82,7 +82,7 @@ class ExpenseTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '$baseSymbol${(expense.convertedAmount ?? 0).toStringAsFixed(0)}',
+                '$baseSymbol${formatAmount(expense.convertedAmount ?? 0)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -91,7 +91,7 @@ class ExpenseTile extends StatelessWidget {
               ),
               if (expense.currency != baseCurrency)
                 Text(
-                  '$originalSymbol${expense.amount.toStringAsFixed(0)}',
+                  '$originalSymbol${formatAmount(expense.amount)}',
                   style:
                       const TextStyle(fontSize: 12, color: AppTheme.inkFaint),
                 ),

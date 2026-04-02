@@ -33,7 +33,7 @@ class SettingsScreen extends StatelessWidget {
               _settingsTile(
                 icon: Icons.info_outline,
                 title: l.version,
-                trailing: const Text('1.1.0',
+                trailing: const Text('1.2.0',
                     style: TextStyle(color: AppTheme.inkFaint)),
               ),
               const Divider(height: 1, color: AppTheme.parchment),

@@ -51,7 +51,7 @@ Future<void> showInviteCodeSheet(BuildContext context, Trip trip) async {
 
   // --- Login gate ---
   if (!auth.isLoggedIn) {
-    final shouldLogin = await showDialog<bool>(
+    final provider = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l.shareTrip,
@@ -59,20 +59,28 @@ Future<void> showInviteCodeSheet(BuildContext context, Trip trip) async {
         content: Text(l.signInToShare),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () => Navigator.pop(ctx),
             child:
                 Text(l.cancel, style: const TextStyle(color: AppTheme.inkLight)),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () => Navigator.pop(ctx, 'google'),
+            child: Text(l.signInWithGoogle),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'apple'),
             child: Text(l.signInWithApple),
           ),
         ],
       ),
     );
-    if (shouldLogin != true || !context.mounted) return;
+    if (provider == null || !context.mounted) return;
     try {
-      await auth.signInWithApple();
+      if (provider == 'google') {
+        await auth.signInWithGoogle();
+      } else {
+        await auth.signInWithApple();
+      }
     } catch (_) {
       return;
     }

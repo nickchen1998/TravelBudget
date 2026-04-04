@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -66,12 +67,25 @@ class _JoinTripScreenState extends State<JoinTripScreen> {
     }
   }
 
-  Future<void> _signIn() async {
+  Future<void> _signInWithApple() async {
     final auth = context.read<AuthProvider>();
     final l = AppLocalizations.of(context);
     setState(() { _isLoading = true; _error = null; });
     try {
       await auth.signInWithApple();
+    } catch (e) {
+      if (mounted) setState(() => _error = '${l.signInFailed}: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final auth = context.read<AuthProvider>();
+    final l = AppLocalizations.of(context);
+    setState(() { _isLoading = true; _error = null; });
+    try {
+      await auth.signInWithGoogle();
     } catch (e) {
       if (mounted) setState(() => _error = '${l.signInFailed}: $e');
     } finally {
@@ -152,15 +166,45 @@ class _JoinTripScreenState extends State<JoinTripScreen> {
               const SizedBox(height: 20),
               if (_isLoading || auth.isLoading)
                 const Center(child: CircularProgressIndicator())
-              else
-                MediaQuery.withNoTextScaling(
-                  child: SignInWithAppleButton(
-                    onPressed: _signIn,
-                    height: 50,
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(14)),
+              else ...[
+                if (Platform.isIOS)
+                  MediaQuery.withNoTextScaling(
+                    child: SignInWithAppleButton(
+                      onPressed: _signInWithApple,
+                      height: 50,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(14)),
+                    ),
+                  ),
+                if (Platform.isIOS) const SizedBox(height: 10),
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _signInWithGoogle,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFDDDDDD)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.g_mobiledata,
+                            size: 24, color: Color(0xFF4285F4)),
+                        const SizedBox(width: 8),
+                        Text(l.signInWithGoogle,
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF1F1F1F))),
+                      ],
+                    ),
                   ),
                 ),
+              ],
             ] else ...[
               // Code input
               Text(l.enterInviteCode,

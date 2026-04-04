@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -165,25 +166,39 @@ class SettingsScreen extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 13, color: AppTheme.inkFaint)),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
-              child: auth.isLoading
-                  ? const Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : MediaQuery.withNoTextScaling(
-                      child: SignInWithAppleButton(
-                        onPressed: () => _handleSignIn(context),
-                        height: 50,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(12)),
-                      ),
+            if (auth.isLoading)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(18, 4, 18, 12),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else ...[
+              // Apple Sign-In (iOS only)
+              if (Platform.isIOS)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 4, 18, 6),
+                  child: MediaQuery.withNoTextScaling(
+                    child: SignInWithAppleButton(
+                      onPressed: () => _handleSignIn(context),
+                      height: 50,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(12)),
                     ),
-            ),
+                  ),
+                ),
+              // Google Sign-In
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
+                child: _GoogleSignInButton(
+                  onPressed: () => _handleGoogleSignIn(context),
+                ),
+              ),
+            ],
           ],
         ),
       );
@@ -209,6 +224,9 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, color: AppTheme.parchment),
+          // Linked accounts
+          _buildLinkedAccountsSection(context, l, auth),
+          const Divider(height: 1, color: AppTheme.parchment),
           // Sign out
           GestureDetector(
             onTap: () => _handleSignOut(context),
@@ -231,6 +249,113 @@ class SettingsScreen extends StatelessWidget {
               titleColor: AppTheme.stampRed,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ── Linked Accounts Section ───────────────────────────────────────────────
+
+  Widget _buildLinkedAccountsSection(
+      BuildContext context, AppLocalizations l, AuthProvider auth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 4),
+          child: Text(l.linkedAccounts,
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.inkLight)),
+        ),
+        // Apple identity
+        if (Platform.isIOS)
+          _linkedProviderTile(
+            context: context,
+            icon: Icons.apple,
+            providerName: 'Apple',
+            isLinked: auth.hasAppleLinked,
+            isLinking: auth.isLinking,
+            onLink: () => _handleLinkApple(context),
+          ),
+        // Google identity
+        _linkedProviderTile(
+          context: context,
+          icon: Icons.g_mobiledata,
+          providerName: 'Google',
+          isLinked: auth.hasGoogleLinked,
+          isLinking: auth.isLinking,
+          onLink: () => _handleLinkGoogle(context),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+          child: Text(l.linkedAccountsDesc,
+              style: const TextStyle(
+                  fontSize: 11, color: AppTheme.inkFaint)),
+        ),
+      ],
+    );
+  }
+
+  Widget _linkedProviderTile({
+    required BuildContext context,
+    required IconData icon,
+    required String providerName,
+    required bool isLinked,
+    required bool isLinking,
+    required VoidCallback onLink,
+  }) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: AppTheme.ink),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(providerName,
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.ink)),
+          ),
+          if (isLinked)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.moss.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(l.linked,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.moss)),
+            )
+          else
+            GestureDetector(
+              onTap: isLinking ? null : onLink,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.orange.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: isLinking
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l.link,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.orange)),
+              ),
+            ),
         ],
       ),
     );
@@ -296,6 +421,61 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${l.signInFailed}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AuthProvider>().signInWithGoogle();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.signInFailed}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleLinkGoogle(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AuthProvider>().linkWithGoogle();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.linkSuccess),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.linkFailed}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleLinkApple(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AuthProvider>().linkWithApple();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.linkSuccess),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l.linkFailed}: $e')),
         );
       }
     }
@@ -409,6 +589,17 @@ class SettingsScreen extends StatelessWidget {
                   color: AppTheme.inkFaint, size: 20),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            child: Text(
+              l.purchasePlatformNote,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.inkFaint,
+                height: 1.4,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -416,6 +607,37 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _buyRemoveAds(BuildContext context) async {
     final l = AppLocalizations.of(context);
+    final platform = Platform.isIOS ? 'iOS' : 'Android';
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.cream,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l.purchaseConfirmTitle,
+            style: const TextStyle(color: AppTheme.ink)),
+        content: Text(
+          l.purchaseConfirmMessage.replaceAll('{platform}', platform),
+          style: const TextStyle(color: AppTheme.inkLight, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppTheme.inkFaint)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.purchaseConfirmButton,
+                style: const TextStyle(color: AppTheme.orange)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
     try {
       await context.read<AdProvider>().buyRemoveAds();
     } catch (e) {
@@ -724,6 +946,57 @@ class SettingsScreen extends StatelessWidget {
             trailing,
           ],
         ],
+      ),
+    );
+  }
+}
+
+// ── Google Sign-In Button (Material style matching Apple button) ──────────
+
+class _GoogleSignInButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _GoogleSignInButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          side: const BorderSide(color: Color(0xFFDDDDDD)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.network(
+              'https://developers.google.com/identity/images/g-logo.png',
+              height: 20,
+              width: 20,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.g_mobiledata,
+                size: 24,
+                color: Color(0xFF4285F4),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context).signInWithGoogle,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1F1F1F),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -53,14 +53,19 @@ Fastlane 設定位於 `ios/fastlane/`，使用 Bundler 管理 gem。
 
 ```bash
 cd ios
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export PATH="/opt/homebrew/lib/ruby/gems/4.0.0/bin:/opt/homebrew/opt/ruby/bin:$PATH"
 ASC_KEY_ID=ZX525S46LM \
 ASC_ISSUER_ID=d610c472-a7f5-40ff-9382-f9e58b7b5ebc \
 ASC_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_ZX525S46LM.p8 \
 /opt/homebrew/opt/ruby/bin/bundle exec fastlane beta
 ```
 
+> **⚠️ 重要**：執行 Fastlane 前**必須**設定 `LANG=en_US.UTF-8` 和 `LC_ALL=en_US.UTF-8`，否則 xcodebuild 輸出含非 ASCII 字元時會觸發 `Encoding::InvalidByteSequenceError` 導致 build 失敗。同時需將 CocoaPods 路徑加入 `PATH`。
 > ASC API Key 與 TravelLanguage、TravelDiary 共用同一組（Team ID: `53GU4PUP6R`）。
 > 系統 Ruby 2.6 太舊，必須用 Homebrew Ruby (`/opt/homebrew/opt/ruby/bin/bundle`)。
+> Fastfile 中 flutter 指令需使用完整路徑 `/opt/homebrew/bin/flutter`（Bundler unbundled env 不含 PATH）。
 
 ## 出口合規 (Export Compliance)
 

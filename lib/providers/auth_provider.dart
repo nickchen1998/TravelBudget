@@ -19,6 +19,12 @@ class AuthProvider extends ChangeNotifier {
   String? get displayName => _displayName;
   String? get email => _email;
 
+  /// List of linked identity providers (e.g. ['apple', 'google'])
+  List<String> get linkedProviders => _authService.getLinkedProviders();
+
+  bool get hasAppleLinked => linkedProviders.contains('apple');
+  bool get hasGoogleLinked => linkedProviders.contains('google');
+
   void initialize() {
     _authSubscription = _authService.onAuthStateChange.listen((state) {
       if (state.event == AuthChangeEvent.signedIn) {
@@ -74,6 +80,47 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> signInWithGoogle() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.signInWithGoogle();
+      await _loadProfile();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ── Identity Linking ────────────────────────────────────────────────────
+
+  bool _isLinking = false;
+  bool get isLinking => _isLinking;
+
+  Future<void> linkWithGoogle() async {
+    _isLinking = true;
+    notifyListeners();
+    try {
+      await _authService.linkWithGoogle();
+    } finally {
+      _isLinking = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> linkWithApple() async {
+    _isLinking = true;
+    notifyListeners();
+    try {
+      await _authService.linkWithApple();
+    } finally {
+      _isLinking = false;
+      notifyListeners();
+    }
+  }
+
+  // ── Profile & Account ────────────────────────────────────────────────────
 
   Future<void> updateDisplayName(String name) async {
     await _authService.updateDisplayName(name);

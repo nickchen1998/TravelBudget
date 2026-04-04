@@ -25,7 +25,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>30</string>
+	<string>31</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>GADApplicationIdentifier</key>
@@ -70,6 +70,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>travelbudget</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.153883035579-qgp0to8u4o1a7vf67tito0pbjoh57r95</string>
 			</array>
 		</dict>
 	</array>

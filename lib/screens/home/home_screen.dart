@@ -385,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // If not logged in, inform user and guide to login
     if (!auth.isLoggedIn) {
-      final confirm = await showDialog<bool>(
+      final provider = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(
@@ -395,23 +395,31 @@ class _HomeScreenState extends State<HomeScreen> {
           content: Text('${l.signInDesc}\n\n${l.uploadToCloudDesc}'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
+              onPressed: () => Navigator.pop(ctx),
               child: Text(
                 l.cancel,
                 style: const TextStyle(color: AppTheme.inkLight),
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
+              onPressed: () => Navigator.pop(ctx, 'google'),
+              child: Text(l.signInWithGoogle),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, 'apple'),
               child: Text(l.signInWithApple),
             ),
           ],
         ),
       );
-      if (confirm != true || !context.mounted) return;
+      if (provider == null || !context.mounted) return;
 
       try {
-        await context.read<AuthProvider>().signInWithApple();
+        if (provider == 'google') {
+          await context.read<AuthProvider>().signInWithGoogle();
+        } else {
+          await context.read<AuthProvider>().signInWithApple();
+        }
       } catch (_) {
         if (context.mounted) {
           ScaffoldMessenger.of(

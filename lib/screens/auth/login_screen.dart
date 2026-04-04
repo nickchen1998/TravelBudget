@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -55,14 +56,20 @@ class LoginScreen extends StatelessWidget {
               const Spacer(),
               if (auth.isLoading)
                 const CircularProgressIndicator()
-              else
-                MediaQuery.withNoTextScaling(
-                  child: SignInWithAppleButton(
-                    onPressed: () => _handleSignIn(context),
-                    height: 50,
-                    borderRadius: BorderRadius.circular(12),
+              else ...[
+                if (Platform.isIOS)
+                  MediaQuery.withNoTextScaling(
+                    child: SignInWithAppleButton(
+                      onPressed: () => _handleAppleSignIn(context),
+                      height: 50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
+                if (Platform.isIOS) const SizedBox(height: 12),
+                _GoogleSignInButton(
+                  onPressed: () => _handleGoogleSignIn(context),
                 ),
+              ],
               const SizedBox(height: 48),
             ],
           ),
@@ -71,7 +78,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _handleSignIn(BuildContext context) async {
+  Future<void> _handleAppleSignIn(BuildContext context) async {
     final l = AppLocalizations.of(context);
     try {
       await context.read<AuthProvider>().signInWithApple();
@@ -82,5 +89,69 @@ class LoginScreen extends StatelessWidget {
         );
       }
     }
+  }
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    try {
+      await context.read<AuthProvider>().signInWithGoogle();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.signInFailed)),
+        );
+      }
+    }
+  }
+}
+
+// ── Google Sign-In Button ─────────────────────────────────────────────────
+
+class _GoogleSignInButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _GoogleSignInButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          side: const BorderSide(color: Color(0xFFDDDDDD)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.network(
+              'https://developers.google.com/identity/images/g-logo.png',
+              height: 20,
+              width: 20,
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.g_mobiledata,
+                size: 24,
+                color: Color(0xFF4285F4),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context).signInWithGoogle,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1F1F1F),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

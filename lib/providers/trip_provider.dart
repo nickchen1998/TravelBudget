@@ -59,7 +59,8 @@ class TripProvider extends ChangeNotifier {
       return 'network_required';
     } on TripLimitException {
       return 'trip_limit_exceeded';
-    } catch (_) {
+    } catch (e, stack) {
+      debugPrint('[uploadLocalTripToCloud] 上傳失敗: $e\n$stack');
       return 'save_failed';
     }
   }

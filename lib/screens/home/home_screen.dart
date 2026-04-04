@@ -476,10 +476,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       );
-    } else if (error != null) {
+    } else if (error == 'network_required') {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l.networkRequiredError)));
+    } else if (error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.saveFailed)));
     } else {
       ScaffoldMessenger.of(
         context,

@@ -74,6 +74,9 @@ class TripRepository {
       combined.sort((a, b) => b.startDate.compareTo(a.startDate));
       return combined;
     } catch (_) {
+      // Cloud fetch failed — return ALL local trips (including cached cloud
+      // trips) so that previously-synced trips remain visible while offline.
+      allLocal.sort((a, b) => b.startDate.compareTo(a.startDate));
       return allLocal;
     }
   }
@@ -207,21 +210,36 @@ class TripRepository {
     }
     final cloudId = result['id'] as String;
 
-    await _supabase.from('trip_members').upsert({
-      'trip_id': cloudId,
-      'user_id': userId,
-      'role': 'owner',
-    });
+    // Insert trip_members — if this fails, delete the orphaned trip to avoid
+    // accumulating ghost records that count toward the trip limit.
+    try {
+      await _supabase.from('trip_members').upsert({
+        'trip_id': cloudId,
+        'user_id': userId,
+        'role': 'owner',
+      });
+    } catch (e) {
+      // Rollback: remove the trip we just inserted
+      try {
+        await _supabase.from('trips').delete().eq('id', cloudId);
+      } catch (_) {}
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
 
-    // Upload cover image if exists
+    // Upload cover image if exists (non-critical — don't rollback on failure)
     String? coverImageUrl;
     if (trip.coverImagePath != null) {
-      coverImageUrl = await ImageStorageService.uploadTripCover(
-          trip.coverImagePath!, cloudId);
-      if (coverImageUrl != null) {
-        await _supabase
-            .from('trips')
-            .update({'cover_image_url': coverImageUrl}).eq('id', cloudId);
+      try {
+        coverImageUrl = await ImageStorageService.uploadTripCover(
+            trip.coverImagePath!, cloudId);
+        if (coverImageUrl != null) {
+          await _supabase
+              .from('trips')
+              .update({'cover_image_url': coverImageUrl}).eq('id', cloudId);
+        }
+      } catch (_) {
+        // Cover image upload is non-critical; continue with the upload
       }
     }
 

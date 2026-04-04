@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onConfigure: (db) async {
@@ -44,6 +44,7 @@ class DatabaseHelper {
         end_date TEXT NOT NULL,
         cover_image_path TEXT,
         cover_image_url TEXT,
+        split_enabled INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       )
     ''');
@@ -63,6 +64,8 @@ class DatabaseHelper {
         exchange_rate REAL,
         category TEXT NOT NULL,
         payment_method TEXT,
+        paid_by TEXT,
+        split_type TEXT,
         note TEXT,
         receipt_image_path TEXT,
         date TEXT NOT NULL,
@@ -102,6 +105,14 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       await db.execute(
           'ALTER TABLE expenses ADD COLUMN payment_method TEXT');
+    }
+    if (oldVersion < 4) {
+      await db.execute(
+          'ALTER TABLE trips ADD COLUMN split_enabled INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE expenses ADD COLUMN paid_by TEXT');
+      await db.execute(
+          'ALTER TABLE expenses ADD COLUMN split_type TEXT');
     }
   }
 

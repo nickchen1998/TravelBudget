@@ -15,6 +15,7 @@ import '../../widgets/expense_tile.dart';
 import '../../widgets/invite_code_widget.dart';
 import '../expense/expense_form_screen.dart';
 import '../analytics/analytics_screen.dart';
+import 'settlement_screen.dart';
 import 'trip_form_screen.dart';
 
 class TripDetailScreen extends StatefulWidget {
@@ -36,12 +37,18 @@ class _TripDetailScreenState extends State<TripDetailScreen>
   bool _membersLoading = false;
 
   bool get _isCloudTrip => _trip.uuid != null;
+  bool get _isSplitEnabled => _isCloudTrip && _trip.splitEnabled;
+
+  int get _tabCount {
+    if (!_isCloudTrip) return 2; // Details, Stats
+    return _isSplitEnabled ? 4 : 3; // +Settlement if split enabled, +Members
+  }
 
   @override
   void initState() {
     super.initState();
     _trip = widget.trip;
-    _tabController = TabController(length: _isCloudTrip ? 3 : 2, vsync: this);
+    _tabController = TabController(length: _tabCount, vsync: this);
     _tabController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ExpenseProvider>().loadExpenses(_trip);
@@ -166,7 +173,15 @@ class _TripDetailScreenState extends State<TripDetailScreen>
                 if (result == true && mounted) {
                   final trips = tripProvider.trips;
                   final updated = trips.firstWhere((t) => t.id == _trip.id);
-                  setState(() => _trip = updated);
+                  final oldTabCount = _tabCount;
+                  _trip = updated;
+                  if (_tabCount != oldTabCount) {
+                    _tabController.dispose();
+                    _tabController = TabController(
+                        length: _tabCount, vsync: this);
+                    _tabController.addListener(() => setState(() {}));
+                  }
+                  setState(() {});
                 }
               },
             ),
@@ -176,6 +191,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
           tabs: [
             Tab(text: l.details),
             Tab(text: l.stats),
+            if (_isSplitEnabled) Tab(text: l.settlement),
             if (_isCloudTrip) Tab(text: l.members),
           ],
         ),
@@ -213,6 +229,7 @@ class _TripDetailScreenState extends State<TripDetailScreen>
               children: [
                 _buildExpenseList(),
                 AnalyticsScreen(trip: _trip),
+                if (_isSplitEnabled) SettlementScreen(trip: _trip),
                 if (_isCloudTrip) _buildMembersTab(),
               ],
             ),

@@ -286,6 +286,24 @@ class AppLocalizations {
   String get purchaseConfirmMessage => _t('purchaseConfirmMessage');
   String get purchaseConfirmButton => _t('purchaseConfirmButton');
 
+  // === Split Bill ===
+  String get splitBill => _t('splitBill');
+  String get splitEnabled => _t('splitEnabled');
+  String get splitEnabledDesc => _t('splitEnabledDesc');
+  String get splitRequiresCloud => _t('splitRequiresCloud');
+  String get paidBy => _t('paidBy');
+  String get splitMethod => _t('splitMethod');
+  String get splitEqual => _t('splitEqual');
+  String get splitCustom => _t('splitCustom');
+  String get participants => _t('participants');
+  String get perPerson => _t('perPerson');
+  String get settlement => _t('settlement');
+  String get settlementEmpty => _t('settlementEmpty');
+  String get markSettled => _t('markSettled');
+  String get settled => _t('settled');
+  String get undoSettle => _t('undoSettle');
+  String get owes => _t('owes');
+
   String _t(String key) {
     final map = _localizedValues[localeKey] ?? _localizedValues['zh_TW']!;
     return map[key] ?? _localizedValues['zh_TW']![key] ?? key;
@@ -496,6 +514,23 @@ class AppLocalizations {
     'purchaseConfirmTitle': '確認購買',
     'purchaseConfirmMessage': '購買後僅限在目前平台（{platform}）恢復，無法跨平台轉移。確定要繼續嗎？',
     'purchaseConfirmButton': '確認購買',
+    // Split Bill
+    'splitBill': '分帳',
+    'splitEnabled': '啟用分帳',
+    'splitEnabledDesc': '記錄每筆消費的付款人與分攤，旅行結束後可查看結算',
+    'splitRequiresCloud': '分帳功能需要將旅行推送至雲端',
+    'paidBy': '付款人',
+    'splitMethod': '分帳方式',
+    'splitEqual': '均分',
+    'splitCustom': '自訂金額',
+    'participants': '參與者',
+    'perPerson': '每人',
+    'settlement': '分帳結算',
+    'settlementEmpty': '尚無需要結算的項目',
+    'markSettled': '標記已結清',
+    'settled': '已結清',
+    'undoSettle': '取消結清',
+    'owes': '→',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '現金',
@@ -716,6 +751,23 @@ class AppLocalizations {
     'purchaseConfirmTitle': 'Confirm Purchase',
     'purchaseConfirmMessage': 'This purchase can only be restored on {platform}. It cannot be transferred cross-platform. Continue?',
     'purchaseConfirmButton': 'Confirm Purchase',
+    // Split Bill
+    'splitBill': 'Split Bill',
+    'splitEnabled': 'Enable Split',
+    'splitEnabledDesc': 'Track who paid and split amounts, view settlements after the trip',
+    'splitRequiresCloud': 'Split bill requires the trip to be uploaded to cloud',
+    'paidBy': 'Paid by',
+    'splitMethod': 'Split method',
+    'splitEqual': 'Equal',
+    'splitCustom': 'Custom',
+    'participants': 'Participants',
+    'perPerson': 'Per person',
+    'settlement': 'Settlement',
+    'settlementEmpty': 'No settlements needed',
+    'markSettled': 'Mark settled',
+    'settled': 'Settled',
+    'undoSettle': 'Undo settle',
+    'owes': '→',
     // Payment Methods
     'paymentMethod': 'Payment',
     'payCash': 'Cash',
@@ -934,6 +986,23 @@ class AppLocalizations {
     'purchaseConfirmTitle': '購入の確認',
     'purchaseConfirmMessage': 'この購入は{platform}でのみ復元可能です。クロスプラットフォームでの移行はできません。続行しますか？',
     'purchaseConfirmButton': '購入を確認',
+    // Split Bill
+    'splitBill': '割り勘',
+    'splitEnabled': '割り勘を有効にする',
+    'splitEnabledDesc': '各支出の支払者と分担額を記録し、旅行後に精算を確認',
+    'splitRequiresCloud': '割り勘機能にはクラウドへのアップロードが必要です',
+    'paidBy': '支払者',
+    'splitMethod': '割り方',
+    'splitEqual': '均等',
+    'splitCustom': 'カスタム',
+    'participants': '参加者',
+    'perPerson': '一人当たり',
+    'settlement': '精算',
+    'settlementEmpty': '精算する項目はありません',
+    'markSettled': '精算済みにする',
+    'settled': '精算済み',
+    'undoSettle': '精算を取消',
+    'owes': '→',
     // Payment Methods
     'paymentMethod': '支払方法',
     'payCash': '現金',
@@ -1152,6 +1221,23 @@ class AppLocalizations {
     'purchaseConfirmTitle': '구매 확인',
     'purchaseConfirmMessage': '이 구매는 {platform}에서만 복원 가능합니다. 크로스 플랫폼 이전은 불가합니다. 계속하시겠습니까?',
     'purchaseConfirmButton': '구매 확인',
+    // Split Bill
+    'splitBill': '더치페이',
+    'splitEnabled': '더치페이 활성화',
+    'splitEnabledDesc': '각 지출의 결제자와 분담액을 기록하고 여행 후 정산 확인',
+    'splitRequiresCloud': '더치페이 기능은 클라우드 업로드가 필요합니다',
+    'paidBy': '결제자',
+    'splitMethod': '분담 방식',
+    'splitEqual': '균등',
+    'splitCustom': '직접 입력',
+    'participants': '참가자',
+    'perPerson': '1인당',
+    'settlement': '정산',
+    'settlementEmpty': '정산할 항목이 없습니다',
+    'markSettled': '정산 완료',
+    'settled': '정산됨',
+    'undoSettle': '정산 취소',
+    'owes': '→',
     // Payment Methods
     'paymentMethod': '결제 수단',
     'payCash': '현금',
@@ -1370,6 +1456,23 @@ class AppLocalizations {
     'purchaseConfirmTitle': '确认购买',
     'purchaseConfirmMessage': '购买后仅限在当前平台（{platform}）恢复，无法跨平台转移。确定要继续吗？',
     'purchaseConfirmButton': '确认购买',
+    // Split Bill
+    'splitBill': '分账',
+    'splitEnabled': '启用分账',
+    'splitEnabledDesc': '记录每笔消费的付款人与分摊，旅行结束后可查看结算',
+    'splitRequiresCloud': '分账功能需要将旅行推送至云端',
+    'paidBy': '付款人',
+    'splitMethod': '分账方式',
+    'splitEqual': '均分',
+    'splitCustom': '自定金额',
+    'participants': '参与者',
+    'perPerson': '每人',
+    'settlement': '分账结算',
+    'settlementEmpty': '暂无需要结算的项目',
+    'markSettled': '标记已结清',
+    'settled': '已结清',
+    'undoSettle': '取消结清',
+    'owes': '→',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '现金',

@@ -14,6 +14,8 @@ class Trip {
   final String? coverImageUrl;
   final DateTime createdAt;
 
+  final bool splitEnabled;
+
   // Collaboration: set when loaded from Supabase/sync
   final String? memberRole; // 'owner' | 'editor' | 'viewer' | null (local)
   final int? memberCount;
@@ -32,6 +34,7 @@ class Trip {
     required this.endDate,
     this.coverImagePath,
     this.coverImageUrl,
+    this.splitEnabled = false,
     DateTime? createdAt,
     this.memberRole,
     this.memberCount,
@@ -57,6 +60,7 @@ class Trip {
     DateTime? endDate,
     String? coverImagePath,
     String? coverImageUrl,
+    bool? splitEnabled,
     DateTime? createdAt,
     String? memberRole,
     int? memberCount,
@@ -75,6 +79,7 @@ class Trip {
       endDate: endDate ?? this.endDate,
       coverImagePath: coverImagePath ?? this.coverImagePath,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      splitEnabled: splitEnabled ?? this.splitEnabled,
       createdAt: createdAt ?? this.createdAt,
       memberRole: memberRole ?? this.memberRole,
       memberCount: memberCount ?? this.memberCount,
@@ -96,6 +101,7 @@ class Trip {
       'end_date': endDate.toIso8601String(),
       'cover_image_path': coverImagePath,
       'cover_image_url': coverImageUrl,
+      'split_enabled': splitEnabled ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -115,6 +121,7 @@ class Trip {
       endDate: DateTime.parse(map['end_date'] as String),
       coverImagePath: map['cover_image_path'] as String?,
       coverImageUrl: map['cover_image_url'] as String?,
+      splitEnabled: (map['split_enabled'] as int? ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -133,6 +140,7 @@ class Trip {
       startDate: DateTime.parse(map['start_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),
       coverImageUrl: map['cover_image_url'] as String?,
+      splitEnabled: map['split_enabled'] == true,
       createdAt: DateTime.parse(map['created_at'] as String),
       memberRole: memberRole,
       memberCount: memberCount,
@@ -150,6 +158,7 @@ class Trip {
       'start_date': startDate.toIso8601String().substring(0, 10),
       'end_date': endDate.toIso8601String().substring(0, 10),
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      'split_enabled': splitEnabled,
     };
   }
 }

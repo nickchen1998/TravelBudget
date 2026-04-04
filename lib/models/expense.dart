@@ -16,6 +16,8 @@ class Expense {
   final double? exchangeRate;
   final ExpenseCategory category;
   final PaymentMethod? paymentMethod;
+  final String? paidBy; // user UUID of who paid (for split bill)
+  final String? splitType; // 'equal' | 'custom' | null
   final String? note;
   final String? receiptImagePath;
   final DateTime date;
@@ -36,6 +38,8 @@ class Expense {
     this.exchangeRate,
     required this.category,
     this.paymentMethod,
+    this.paidBy,
+    this.splitType,
     this.note,
     this.receiptImagePath,
     required this.date,
@@ -57,6 +61,8 @@ class Expense {
     double? exchangeRate,
     ExpenseCategory? category,
     PaymentMethod? paymentMethod,
+    String? paidBy,
+    String? splitType,
     String? note,
     String? receiptImagePath,
     DateTime? date,
@@ -77,6 +83,8 @@ class Expense {
       exchangeRate: exchangeRate ?? this.exchangeRate,
       category: category ?? this.category,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      paidBy: paidBy ?? this.paidBy,
+      splitType: splitType ?? this.splitType,
       note: note ?? this.note,
       receiptImagePath: receiptImagePath ?? this.receiptImagePath,
       date: date ?? this.date,
@@ -99,6 +107,8 @@ class Expense {
       'exchange_rate': exchangeRate,
       'category': category.name,
       'payment_method': paymentMethod?.name,
+      'paid_by': paidBy,
+      'split_type': splitType,
       'note': note,
       'receipt_image_path': receiptImagePath,
       'date': date.toIso8601String(),
@@ -133,6 +143,8 @@ class Expense {
               orElse: () => null,
             )
           : null,
+      paidBy: map['paid_by'] as String?,
+      splitType: map['split_type'] as String?,
       note: map['note'] as String?,
       receiptImagePath: map['receipt_image_path'] as String?,
       date: DateTime.parse(map['date'] as String),
@@ -166,6 +178,8 @@ class Expense {
               orElse: () => null,
             )
           : null,
+      paidBy: map['paid_by'] as String?,
+      splitType: map['split_type'] as String?,
       note: map['note'] as String?,
       date: DateTime.parse(map['date'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -184,6 +198,8 @@ class Expense {
       'exchange_rate': exchangeRate,
       'category': category.name,
       if (paymentMethod != null) 'payment_method': paymentMethod!.name,
+      if (paidBy != null) 'paid_by': paidBy,
+      'split_type': splitType,
       'note': note,
       'date': date.toIso8601String().substring(0, 10),
     };

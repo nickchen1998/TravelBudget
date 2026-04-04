@@ -29,6 +29,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
   String? _coverImagePath;
   bool _imageChanged = false;
   bool _noBudget = false;
+  bool _splitEnabled = false;
   bool _isSaving = false;
 
   bool get isEditing => widget.trip != null;
@@ -49,6 +50,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     _endDate = trip?.endDate ?? DateTime.now().add(const Duration(days: 4));
     _coverImagePath = trip?.coverImagePath;
     _noBudget = trip != null && trip.budget == 0;
+    _splitEnabled = trip?.splitEnabled ?? false;
   }
 
   @override
@@ -263,7 +265,20 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 ),
               ],
             ],
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+
+            // Split Bill Toggle
+            if (isEditing && widget.trip?.uuid != null) ...[
+              SwitchListTile(
+                title: Text(l.splitEnabled),
+                subtitle: Text(l.splitEnabledDesc,
+                    style: const TextStyle(fontSize: 12)),
+                value: _splitEnabled,
+                onChanged: (v) => setState(() => _splitEnabled = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
+            const SizedBox(height: 24),
 
             // Save Button
             FilledButton.icon(
@@ -332,6 +347,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       endDate: _endDate,
       coverImagePath: _coverImagePath,
       coverImageUrl: _imageChanged ? null : widget.trip?.coverImageUrl,
+      splitEnabled: _splitEnabled,
       createdAt: widget.trip?.createdAt,
     );
 

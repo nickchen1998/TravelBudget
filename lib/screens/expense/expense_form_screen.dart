@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../constants/app_theme.dart';
 import '../../constants/categories.dart';
 import '../../constants/payment_methods.dart';
 import '../../l10n/app_localizations.dart';
@@ -8,6 +10,7 @@ import '../../models/expense.dart';
 import '../../models/trip.dart';
 import '../../providers/expense_provider.dart';
 import '../../services/exchange_rate_service.dart';
+import '../../services/split_service.dart';
 
 class ExpenseFormScreen extends StatefulWidget {
   final Trip trip;
@@ -30,9 +33,19 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   late DateTime _date;
   bool _isConverting = false;
 
+  // Split bill fields
+  String? _paidBy;
+  String _splitType = 'equal';
+  List<Map<String, dynamic>> _members = [];
+  Set<String> _selectedParticipants = {};
+  final Map<String, TextEditingController> _customAmountControllers = {};
+  bool _membersLoaded = false;
+
   final ExchangeRateService _rateService = ExchangeRateService();
+  final SplitService _splitService = SplitService();
 
   bool get isEditing => widget.expense != null;
+  bool get _isSplitEnabled => widget.trip.splitEnabled && widget.trip.uuid != null;
 
   late List<DateTime> _tripDates;
 
@@ -83,6 +96,15 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     if (e != null) {
       _paymentMethod = e.paymentMethod;
     }
+
+    // Split bill: load members
+    if (_isSplitEnabled) {
+      _loadMembers();
+      if (e != null) {
+        _paidBy = e.paidBy;
+        _splitType = e.splitType ?? 'equal';
+      }
+    }
   }
 
   List<DateTime> _buildTripDates() {
@@ -95,11 +117,54 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     return dates;
   }
 
+  Future<void> _loadMembers() async {
+    try {
+      final members =
+          await _splitService.getTripMembers(widget.trip.uuid!);
+      if (!mounted) return;
+
+      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+
+      setState(() {
+        _members = members;
+        _membersLoaded = true;
+        // Default paid by = current user
+        _paidBy ??= currentUserId;
+        // Default: all members selected
+        _selectedParticipants =
+            members.map((m) => m['user_id'] as String).toSet();
+      });
+
+      // If editing, load existing splits
+      if (isEditing && widget.expense?.uuid != null) {
+        final splits =
+            await _splitService.getSplitsForExpense(widget.expense!.uuid!);
+        if (splits.isNotEmpty && mounted) {
+          setState(() {
+            _selectedParticipants =
+                splits.map((s) => s.userId).toSet();
+            if (widget.expense?.splitType == 'custom') {
+              for (final s in splits) {
+                _customAmountControllers[s.userId] =
+                    TextEditingController(text: s.amount.toStringAsFixed(0));
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load members: $e');
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
     _amountController.dispose();
     _noteController.dispose();
+    for (final c in _customAmountControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -242,6 +307,12 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             ),
             const SizedBox(height: 16),
 
+            // Split Bill Section
+            if (_isSplitEnabled && _membersLoaded) ...[
+              _buildSplitSection(l),
+              const SizedBox(height: 16),
+            ],
+
             // Date
             DropdownButtonFormField<DateTime>(
               initialValue: _date,
@@ -297,6 +368,173 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     );
   }
 
+  String _getMemberName(String userId) {
+    final member = _members.firstWhere(
+      (m) => m['user_id'] == userId,
+      orElse: () => {'profiles': null},
+    );
+    final profiles = member['profiles'];
+    if (profiles is Map) return profiles['display_name'] as String? ?? '?';
+    return '?';
+  }
+
+  Widget _buildSplitSection(AppLocalizations l) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.warmWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.parchment),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section title
+          Row(
+            children: [
+              const Icon(Icons.group_outlined, size: 18, color: AppTheme.orange),
+              const SizedBox(width: 6),
+              Text(l.splitBill,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, color: AppTheme.ink)),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Paid by
+          Text(l.paidBy,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _members.map((m) {
+              final uid = m['user_id'] as String;
+              final name = _getMemberName(uid);
+              final isSelected = _paidBy == uid;
+              return ChoiceChip(
+                label: Text(name),
+                selected: isSelected,
+                selectedColor: AppTheme.orange,
+                showCheckmark: false,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : AppTheme.ink,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                onSelected: (_) => setState(() => _paidBy = uid),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 14),
+
+          // Split type
+          Text(l.splitMethod,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            children: [
+              ChoiceChip(
+                label: Text(l.splitEqual),
+                selected: _splitType == 'equal',
+                selectedColor: AppTheme.moss,
+                showCheckmark: false,
+                labelStyle: TextStyle(
+                  color: _splitType == 'equal' ? Colors.white : AppTheme.ink,
+                ),
+                onSelected: (_) => setState(() => _splitType = 'equal'),
+              ),
+              ChoiceChip(
+                label: Text(l.splitCustom),
+                selected: _splitType == 'custom',
+                selectedColor: AppTheme.moss,
+                showCheckmark: false,
+                labelStyle: TextStyle(
+                  color: _splitType == 'custom' ? Colors.white : AppTheme.ink,
+                ),
+                onSelected: (_) => setState(() => _splitType = 'custom'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Participants
+          Text(l.participants,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
+          const SizedBox(height: 6),
+          ..._members.map((m) {
+            final uid = m['user_id'] as String;
+            final name = _getMemberName(uid);
+            final isChecked = _selectedParticipants.contains(uid);
+            return Row(
+              children: [
+                SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: Checkbox(
+                    value: isChecked,
+                    activeColor: AppTheme.orange,
+                    onChanged: (v) {
+                      setState(() {
+                        if (v == true) {
+                          _selectedParticipants.add(uid);
+                        } else {
+                          _selectedParticipants.remove(uid);
+                        }
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(name, style: const TextStyle(fontSize: 14))),
+                if (_splitType == 'custom' && isChecked)
+                  SizedBox(
+                    width: 100,
+                    child: TextField(
+                      controller: _customAmountControllers.putIfAbsent(
+                          uid, () => TextEditingController()),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        border: const OutlineInputBorder(),
+                        hintText: widget.trip.baseCurrency,
+                        hintStyle:
+                            const TextStyle(fontSize: 12, color: AppTheme.inkFaint),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
+
+          // Equal split preview
+          if (_splitType == 'equal' && _selectedParticipants.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Builder(builder: (_) {
+              final amountText = _amountController.text;
+              final amount = double.tryParse(amountText);
+              if (amount == null || amount <= 0) return const SizedBox.shrink();
+              final perPerson = amount / _selectedParticipants.length;
+              return Text(
+                '${l.perPerson}: ${perPerson.toStringAsFixed(1)} $_currency',
+                style: const TextStyle(
+                    fontSize: 13, color: AppTheme.moss, fontWeight: FontWeight.w500),
+              );
+            }),
+          ],
+        ],
+      ),
+    );
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -328,6 +566,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         exchangeRate: exchangeRate,
         category: _category,
         paymentMethod: _paymentMethod,
+        paidBy: _isSplitEnabled ? _paidBy : null,
+        splitType: _isSplitEnabled ? _splitType : null,
         note: _noteController.text.trim().isEmpty
             ? null
             : _noteController.text.trim(),
@@ -350,7 +590,45 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
           SnackBar(content: Text(AppLocalizations.of(context).networkRequiredError)),
         );
       } else {
-        Navigator.pop(context, true);
+        // Save splits if split is enabled and expense was saved to cloud
+        if (_isSplitEnabled && _selectedParticipants.isNotEmpty) {
+          try {
+            final savedExpense = provider.expenses.firstWhere(
+              (e) => e.title == expense.title && e.date == expense.date,
+            );
+            if (savedExpense.uuid != null) {
+              final splits = <SplitEntry>[];
+              if (_splitType == 'equal') {
+                final perPerson =
+                    convertedAmount / _selectedParticipants.length;
+                for (final uid in _selectedParticipants) {
+                  splits.add(SplitEntry(
+                    expenseId: savedExpense.uuid!,
+                    userId: uid,
+                    amount: double.parse(perPerson.toStringAsFixed(2)),
+                  ));
+                }
+              } else {
+                // Custom amounts
+                for (final uid in _selectedParticipants) {
+                  final ctrl = _customAmountControllers[uid];
+                  final customAmount = double.tryParse(ctrl?.text ?? '') ?? 0;
+                  if (customAmount > 0) {
+                    splits.add(SplitEntry(
+                      expenseId: savedExpense.uuid!,
+                      userId: uid,
+                      amount: customAmount,
+                    ));
+                  }
+                }
+              }
+              await _splitService.saveSplits(savedExpense.uuid!, splits);
+            }
+          } catch (e) {
+            debugPrint('Failed to save splits: $e');
+          }
+        }
+        if (mounted) Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {

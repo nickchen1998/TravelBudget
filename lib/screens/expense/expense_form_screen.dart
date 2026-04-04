@@ -217,32 +217,28 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             // Payment Method
             Text(l.paymentMethod, style: const TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: PaymentMethod.values.map((pm) {
-                  final isSelected = _paymentMethod == pm;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(pm.icon,
-                              size: 16,
-                              color: isSelected ? Colors.white : pm.color),
-                          const SizedBox(width: 4),
-                          Text(pm.localizedName(context)),
-                        ],
-                      ),
-                      selected: isSelected,
-                      selectedColor: pm.color,
-                      showCheckmark: false,
-                      onSelected: (_) => setState(() => _paymentMethod = pm),
-                    ),
-                  );
-                }).toList(),
-              ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: PaymentMethod.values.map((pm) {
+                final isSelected = _paymentMethod == pm;
+                return ChoiceChip(
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(pm.icon,
+                          size: 16,
+                          color: isSelected ? Colors.white : pm.color),
+                      const SizedBox(width: 4),
+                      Text(pm.localizedName(context)),
+                    ],
+                  ),
+                  selected: isSelected,
+                  selectedColor: pm.color,
+                  showCheckmark: false,
+                  onSelected: (_) => setState(() => _paymentMethod = pm),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 16),
 

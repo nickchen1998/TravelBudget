@@ -113,6 +113,7 @@ ASC_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_ZX525S46LM.p8 \
 
 ## 注意事項
 
+- **Supabase Migration 原則**：所有透過 MCP 或 Dashboard 直接執行的 schema 變更，都必須同步寫一份 `.sql` 檔到 `supabase/migrations/`，確保資料庫可重建、變更可追蹤
 - Bundle ID: `com.travelbudget.travelBudget`
 - Frankfurter API **不支援 TWD**，已改用 ExchangeRate API
 - Xcode 26 beta 有模擬器 destination specifier 相容性問題，建議用實機測試

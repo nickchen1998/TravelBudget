@@ -1,4 +1,4 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db/trip_dao.dart';
 import '../db/expense_dao.dart';
@@ -8,6 +8,9 @@ import '../services/image_storage_service.dart';
 class NetworkException implements Exception {
   const NetworkException();
 }
+
+bool _isNetworkError(Object e) =>
+    e is SocketException || e is TimeoutException;
 
 class TripLimitException implements Exception {
   const TripLimitException();
@@ -21,11 +24,6 @@ class TripRepository {
   bool get _isLoggedIn => _supabase.auth.currentUser != null;
   String? get _userId => _supabase.auth.currentUser?.id;
 
-  Future<bool> get _isOnline async {
-    final result = await Connectivity().checkConnectivity();
-    return result.any((r) => r != ConnectivityResult.none);
-  }
-
   // ── Read ──────────────────────────────────────────────────────────────────
 
   Future<List<Trip>> getAllTrips() async {
@@ -36,12 +34,6 @@ class TripRepository {
     if (!_isLoggedIn) {
       // Not logged in: local trips only (no cloud trips to fetch)
       return localOnly;
-    }
-
-    final online = await _isOnline;
-    if (!online) {
-      // Offline: local trips + cached cloud trips
-      return allLocal;
     }
 
     try {
@@ -104,8 +96,6 @@ class TripRepository {
       return;
     }
 
-    if (!await _isOnline) throw const NetworkException();
-
     String? coverImageUrl = trip.coverImageUrl;
     if (trip.coverImagePath != null &&
         trip.coverImageUrl == null &&
@@ -127,10 +117,15 @@ class TripRepository {
       updateMap.remove('cover_image_url');
     }
 
-    await _supabase
-        .from('trips')
-        .update(updateMap)
-        .eq('id', trip.uuid!);
+    try {
+      await _supabase
+          .from('trips')
+          .update(updateMap)
+          .eq('id', trip.uuid!);
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
 
     if (trip.id != null) {
       await _local.updateTrip(tripWithUrl);
@@ -147,14 +142,22 @@ class TripRepository {
       await _local.deleteTrip(id);
       return;
     }
-    if (!await _isOnline) throw const NetworkException();
-    await _supabase.from('trips').delete().eq('id', trip!.uuid!);
+    try {
+      await _supabase.from('trips').delete().eq('id', trip!.uuid!);
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
     await _local.deleteTrip(id);
   }
 
   Future<void> deleteTripByUuid(String uuid) async {
-    if (!await _isOnline) throw const NetworkException();
-    await _supabase.from('trips').delete().eq('id', uuid);
+    try {
+      await _supabase.from('trips').delete().eq('id', uuid);
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
     await _local.deleteTripByUuid(uuid);
   }
 
@@ -164,14 +167,18 @@ class TripRepository {
   Future<void> clearCloudSyncFields() => _local.clearCloudSyncFields();
 
   Future<void> leaveTrip(String tripUuid) async {
-    if (!await _isOnline) throw const NetworkException();
     final userId = _userId;
     if (userId == null) return;
-    await _supabase
-        .from('trip_members')
-        .delete()
-        .eq('trip_id', tripUuid)
-        .eq('user_id', userId);
+    try {
+      await _supabase
+          .from('trip_members')
+          .delete()
+          .eq('trip_id', tripUuid)
+          .eq('user_id', userId);
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
     await _local.deleteTripByUuid(tripUuid);
   }
 
@@ -181,7 +188,6 @@ class TripRepository {
   /// Updates the local SQLite record with the assigned uuid.
   /// Also uploads all expenses for this trip.
   Future<Trip> uploadLocalTripToCloud(Trip trip) async {
-    if (!await _isOnline) throw const NetworkException();
     final userId = _userId!;
 
     // Insert trip to Supabase
@@ -193,6 +199,9 @@ class TripRepository {
       if (e.details?.toString().contains('TRIP_LIMIT_EXCEEDED') == true) {
         throw const TripLimitException();
       }
+      rethrow;
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
       rethrow;
     }
     final cloudId = result['id'] as String;

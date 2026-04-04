@@ -92,11 +92,4 @@ class TripDao {
       whereArgs: keepUuids,
     );
   }
-
-  Future<Trip?> getTripByUuid(String uuid) async {
-    final db = await _dbHelper.database;
-    final maps = await db.query('trips', where: 'uuid = ?', whereArgs: [uuid]);
-    if (maps.isEmpty) return null;
-    return Trip.fromMap(maps.first);
-  }
 }

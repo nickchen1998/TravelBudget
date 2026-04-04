@@ -291,7 +291,3 @@ class TripRepository {
     }
   }
 }
-
-void unawaited(Future<void> future) {
-  future.catchError((_) {});
-}

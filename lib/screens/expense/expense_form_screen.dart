@@ -216,21 +216,20 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
 
             // Title
+            Text(l.itemName, style: const TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
             TextFormField(
               controller: _titleController,
               maxLength: 50,
               decoration: InputDecoration(
-                labelText: l.itemName,
                 hintText: l.itemNameHint,
                 border: const OutlineInputBorder(),
               ),
               validator: (v) =>
                   v == null || v.trim().isEmpty ? l.itemNameRequired : null,
             ),
-            const SizedBox(height: 16),
 
             // Amount + Currency
             Row(
@@ -238,41 +237,53 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
               children: [
                 Expanded(
                   flex: 2,
-                  child: TextFormField(
-                    controller: _amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: l.amount,
-                      border: const OutlineInputBorder(),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return l.amountRequired;
-                      if (double.tryParse(v) == null) return l.invalidAmount;
-                      return null;
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.amount, style: const TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _amountController,
+                        keyboardType:
+                            const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return l.amountRequired;
+                          if (double.tryParse(v) == null) return l.invalidAmount;
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _currency,
-                    decoration: InputDecoration(
-                      labelText: l.currency,
-                      border: const OutlineInputBorder(),
-                    ),
-                    items: {
-                      widget.trip.baseCurrency,
-                      widget.trip.targetCurrency,
-                    }.map((code) {
-                      return DropdownMenuItem(
-                        value: code,
-                        child: Text(code, style: const TextStyle(fontSize: 14)),
-                      );
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _currency = v);
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.currency, style: const TextStyle(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: _currency,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        items: {
+                          widget.trip.baseCurrency,
+                          widget.trip.targetCurrency,
+                        }.map((code) {
+                          return DropdownMenuItem(
+                            value: code,
+                            child: Text(code, style: const TextStyle(fontSize: 14)),
+                          );
+                        }).toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => _currency = v);
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -292,12 +303,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             ],
 
             // Date
+            Text(l.date, style: const TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
             DropdownButtonFormField<DateTime>(
               initialValue: _date,
-              decoration: InputDecoration(
-                labelText: l.date,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.calendar_today, size: 18),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.calendar_today, size: 18),
               ),
               items: _tripDates.map((d) {
                 final dayNum = d.difference(_tripDates.first).inDays + 1;
@@ -313,13 +325,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             const SizedBox(height: 16),
 
             // Note
+            Text(l.noteOptional, style: const TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
             TextFormField(
               controller: _noteController,
               maxLines: 2,
               maxLength: 200,
-              decoration: InputDecoration(
-                labelText: l.noteOptional,
-                border: const OutlineInputBorder(),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
@@ -426,9 +439,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   }
 
   Widget _buildSplitSection(AppLocalizations l) {
-    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
     final paidByName = _getMemberName(_paidBy ?? '');
-    final isPayerSelf = _paidBy == currentUserId;
 
     return Container(
       padding: const EdgeInsets.all(16),

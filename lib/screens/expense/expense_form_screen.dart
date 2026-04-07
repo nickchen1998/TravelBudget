@@ -282,29 +282,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             // Payment Method
             Text(l.paymentMethod, style: const TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: PaymentMethod.values.map((pm) {
-                final isSelected = _paymentMethod == pm;
-                return ChoiceChip(
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(pm.icon,
-                          size: 16,
-                          color: isSelected ? Colors.white : pm.color),
-                      const SizedBox(width: 4),
-                      Text(pm.localizedName(context)),
-                    ],
-                  ),
-                  selected: isSelected,
-                  selectedColor: pm.color,
-                  showCheckmark: false,
-                  onSelected: (_) => setState(() => _paymentMethod = pm),
-                );
-              }).toList(),
-            ),
+            _buildPaymentMethodGrid(),
             const SizedBox(height: 16),
 
             // Split Bill Section
@@ -378,159 +356,405 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     return '?';
   }
 
+  // 支付方式只顯示四個，不含 debitCard
+  static const _paymentOptions = [
+    PaymentMethod.cash,
+    PaymentMethod.creditCard,
+    PaymentMethod.mobilePay,
+    PaymentMethod.transitCard,
+  ];
+
+  Widget _buildPaymentMethodGrid() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _paymentChip(_paymentOptions[0])),
+            const SizedBox(width: 8),
+            Expanded(child: _paymentChip(_paymentOptions[1])),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: _paymentChip(_paymentOptions[2])),
+            const SizedBox(width: 8),
+            Expanded(child: _paymentChip(_paymentOptions[3])),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _paymentChip(PaymentMethod pm) {
+    final isSelected = _paymentMethod == pm;
+    return GestureDetector(
+      onTap: () => setState(() => _paymentMethod = pm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? pm.color.withValues(alpha: 0.12)
+              : AppTheme.warmWhite,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected
+                ? pm.color
+                : AppTheme.parchment.withValues(alpha: 0.6),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(pm.icon,
+                size: 16,
+                color: isSelected ? pm.color : AppTheme.inkFaint),
+            const SizedBox(width: 6),
+            Text(
+              pm.localizedName(context),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? pm.color : AppTheme.inkLight,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSplitSection(AppLocalizations l) {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final paidByName = _getMemberName(_paidBy ?? '');
+    final isPayerSelf = _paidBy == currentUserId;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.warmWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.parchment),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.parchment.withValues(alpha: 0.6)),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section title
+          // ── 付款人（一行顯示，點擊切換）──
+          GestureDetector(
+            onTap: () => _showPaidByPicker(l),
+            child: Row(
+              children: [
+                const Icon(Icons.person_outline,
+                    size: 18, color: AppTheme.orange),
+                const SizedBox(width: 8),
+                Text(l.paidBy,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.inkLight)),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        paidByName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.unfold_more,
+                          size: 14, color: AppTheme.orange),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: AppTheme.parchment),
+          ),
+
+          // ── 分帳方式（SegmentedButton）──
           Row(
             children: [
-              const Icon(Icons.group_outlined, size: 18, color: AppTheme.orange),
-              const SizedBox(width: 6),
-              Text(l.splitBill,
+              const Icon(Icons.call_split,
+                  size: 18, color: AppTheme.orange),
+              const SizedBox(width: 8),
+              Text(l.splitMethod,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: AppTheme.ink)),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.inkLight)),
+              const Spacer(),
+              _splitToggle(l),
             ],
           ),
+
           const SizedBox(height: 12),
 
-          // Paid by
-          Text(l.paidBy,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
-          const SizedBox(height: 6),
+          // ── 參與者（緊湊 chip 列表）──
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: _members.map((m) {
               final uid = m['user_id'] as String;
               final name = _getMemberName(uid);
-              final isSelected = _paidBy == uid;
-              return ChoiceChip(
-                label: Text(name),
-                selected: isSelected,
-                selectedColor: AppTheme.orange,
-                showCheckmark: false,
-                labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : AppTheme.ink,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              final isChecked = _selectedParticipants.contains(uid);
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (isChecked) {
+                      _selectedParticipants.remove(uid);
+                    } else {
+                      _selectedParticipants.add(uid);
+                    }
+                  });
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isChecked
+                        ? AppTheme.moss.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isChecked
+                          ? AppTheme.moss
+                          : AppTheme.parchment,
+                      width: isChecked ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isChecked
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        size: 16,
+                        color:
+                            isChecked ? AppTheme.moss : AppTheme.inkFaint,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight:
+                              isChecked ? FontWeight.w600 : FontWeight.w400,
+                          color: isChecked ? AppTheme.ink : AppTheme.inkFaint,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                onSelected: (_) => setState(() => _paidBy = uid),
               );
             }).toList(),
           ),
-          const SizedBox(height: 14),
 
-          // Split type
-          Text(l.splitMethod,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 8,
-            children: [
-              ChoiceChip(
-                label: Text(l.splitEqual),
-                selected: _splitType == 'equal',
-                selectedColor: AppTheme.moss,
-                showCheckmark: false,
-                labelStyle: TextStyle(
-                  color: _splitType == 'equal' ? Colors.white : AppTheme.ink,
-                ),
-                onSelected: (_) => setState(() => _splitType = 'equal'),
-              ),
-              ChoiceChip(
-                label: Text(l.splitCustom),
-                selected: _splitType == 'custom',
-                selectedColor: AppTheme.moss,
-                showCheckmark: false,
-                labelStyle: TextStyle(
-                  color: _splitType == 'custom' ? Colors.white : AppTheme.ink,
-                ),
-                onSelected: (_) => setState(() => _splitType = 'custom'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Participants
-          Text(l.participants,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.inkLight)),
-          const SizedBox(height: 6),
-          ..._members.map((m) {
-            final uid = m['user_id'] as String;
-            final name = _getMemberName(uid);
-            final isChecked = _selectedParticipants.contains(uid);
-            return Row(
-              children: [
-                SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: Checkbox(
-                    value: isChecked,
-                    activeColor: AppTheme.orange,
-                    onChanged: (v) {
-                      setState(() {
-                        if (v == true) {
-                          _selectedParticipants.add(uid);
-                        } else {
-                          _selectedParticipants.remove(uid);
-                        }
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(name, style: const TextStyle(fontSize: 14))),
-                if (_splitType == 'custom' && isChecked)
-                  SizedBox(
-                    width: 100,
-                    child: TextField(
-                      controller: _customAmountControllers.putIfAbsent(
-                          uid, () => TextEditingController()),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      textAlign: TextAlign.end,
-                      style: const TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        border: const OutlineInputBorder(),
-                        hintText: widget.trip.baseCurrency,
-                        hintStyle:
-                            const TextStyle(fontSize: 12, color: AppTheme.inkFaint),
+          // ── 自訂金額輸入 ──
+          if (_splitType == 'custom') ...[
+            const SizedBox(height: 12),
+            ..._members.where((m) {
+              final uid = m['user_id'] as String;
+              return _selectedParticipants.contains(uid);
+            }).map((m) {
+              final uid = m['user_id'] as String;
+              final name = _getMemberName(uid);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      child: Text(name,
+                          style: const TextStyle(
+                              fontSize: 13, color: AppTheme.ink)),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _customAmountControllers.putIfAbsent(
+                            uid, () => TextEditingController()),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          suffixText: _currency,
+                          suffixStyle: const TextStyle(
+                              fontSize: 12, color: AppTheme.inkFaint),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            );
-          }),
+                  ],
+                ),
+              );
+            }),
+          ],
 
-          // Equal split preview
+          // ── 均分預覽 ──
           if (_splitType == 'equal' && _selectedParticipants.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Builder(builder: (_) {
-              final amountText = _amountController.text;
-              final amount = double.tryParse(amountText);
+              final amount = double.tryParse(_amountController.text);
               if (amount == null || amount <= 0) return const SizedBox.shrink();
-              final perPerson = amount / _selectedParticipants.length;
-              return Text(
-                '${l.perPerson}: ${perPerson.toStringAsFixed(1)} $_currency',
-                style: const TextStyle(
-                    fontSize: 13, color: AppTheme.moss, fontWeight: FontWeight.w500),
+              final count = _selectedParticipants.length;
+              final perPerson = amount / count;
+              return Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.moss.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$count ${l.participants} · ${l.perPerson} ${perPerson.toStringAsFixed(1)} $_currency',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.moss,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               );
             }),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _splitToggle(AppLocalizations l) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.parchment.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _toggleOption(l.splitEqual, 'equal'),
+          _toggleOption(l.splitCustom, 'custom'),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleOption(String label, String value) {
+    final isSelected = _splitType == value;
+    return GestureDetector(
+      onTap: () => setState(() => _splitType = value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.moss : Colors.transparent,
+          borderRadius: BorderRadius.circular(7),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? Colors.white : AppTheme.inkLight,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPaidByPicker(AppLocalizations l) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        decoration: const BoxDecoration(
+          color: AppTheme.warmWhite,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.parchment,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(l.paidBy,
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.ink)),
+            const SizedBox(height: 12),
+            ..._members.map((m) {
+              final uid = m['user_id'] as String;
+              final name = _getMemberName(uid);
+              final isSelected = _paidBy == uid;
+              return ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppTheme.orange.withValues(alpha: 0.15)
+                        : AppTheme.parchment.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      name.characters.first,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected ? AppTheme.orange : AppTheme.inkLight,
+                      ),
+                    ),
+                  ),
+                ),
+                title: Text(name,
+                    style: TextStyle(
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? AppTheme.orange : AppTheme.ink,
+                    )),
+                trailing: isSelected
+                    ? const Icon(Icons.check_circle,
+                        color: AppTheme.orange, size: 20)
+                    : null,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                onTap: () {
+                  setState(() => _paidBy = uid);
+                  Navigator.pop(ctx);
+                },
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

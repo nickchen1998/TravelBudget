@@ -141,7 +141,7 @@ class SplitService {
     final balances = <String, double>{};
 
     for (final expense in expenses) {
-      final expenseId = expense['uuid'] as String?;
+      final expenseId = expense['id'] as String?;
       final paidBy = expense['paid_by'] as String?;
       final convertedAmount = expense['converted_amount'] as double?;
 

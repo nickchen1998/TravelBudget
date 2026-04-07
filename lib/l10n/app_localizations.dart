@@ -303,6 +303,12 @@ class AppLocalizations {
   String get settled => _t('settled');
   String get undoSettle => _t('undoSettle');
   String get owes => _t('owes');
+  String get shareReport => _t('shareReport');
+  String get settlementSummary => _t('settlementSummary');
+  String get allSettled => _t('allSettled');
+  String get removeAdsPromptTitle => _t('removeAdsPromptTitle');
+  String get removeAdsPromptBody => _t('removeAdsPromptBody');
+  String get maybeLater => _t('maybeLater');
 
   String _t(String key) {
     final map = _localizedValues[localeKey] ?? _localizedValues['zh_TW']!;
@@ -525,12 +531,18 @@ class AppLocalizations {
     'splitCustom': '自訂金額',
     'participants': '參與者',
     'perPerson': '每人',
-    'settlement': '分帳結算',
+    'settlement': '分帳',
     'settlementEmpty': '尚無需要結算的項目',
     'markSettled': '標記已結清',
     'settled': '已結清',
     'undoSettle': '取消結清',
     'owes': '→',
+    'shareReport': '分享報告',
+    'settlementSummary': '結算摘要',
+    'allSettled': '全部結清！',
+    'removeAdsPromptTitle': '享受無廣告體驗',
+    'removeAdsPromptBody': '移除廣告，讓旅行記帳更專注',
+    'maybeLater': '稍後再說',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '現金',
@@ -768,6 +780,12 @@ class AppLocalizations {
     'settled': 'Settled',
     'undoSettle': 'Undo settle',
     'owes': '→',
+    'shareReport': 'Share Report',
+    'settlementSummary': 'Settlement Summary',
+    'allSettled': 'All settled!',
+    'removeAdsPromptTitle': 'Go Ad-Free',
+    'removeAdsPromptBody': 'Remove ads for a cleaner travel budgeting experience',
+    'maybeLater': 'Maybe Later',
     // Payment Methods
     'paymentMethod': 'Payment',
     'payCash': 'Cash',
@@ -1003,6 +1021,12 @@ class AppLocalizations {
     'settled': '精算済み',
     'undoSettle': '精算を取消',
     'owes': '→',
+    'shareReport': 'レポートを共有',
+    'settlementSummary': '精算サマリー',
+    'allSettled': 'すべて精算済み！',
+    'removeAdsPromptTitle': '広告なしで快適に',
+    'removeAdsPromptBody': '広告を削除して、旅行の記録に集中しましょう',
+    'maybeLater': 'あとで',
     // Payment Methods
     'paymentMethod': '支払方法',
     'payCash': '現金',
@@ -1238,6 +1262,12 @@ class AppLocalizations {
     'settled': '정산됨',
     'undoSettle': '정산 취소',
     'owes': '→',
+    'shareReport': '보고서 공유',
+    'settlementSummary': '정산 요약',
+    'allSettled': '모두 정산 완료!',
+    'removeAdsPromptTitle': '광고 없이 사용하기',
+    'removeAdsPromptBody': '광고를 제거하고 여행 가계부에 집중하세요',
+    'maybeLater': '나중에',
     // Payment Methods
     'paymentMethod': '결제 수단',
     'payCash': '현금',
@@ -1473,6 +1503,12 @@ class AppLocalizations {
     'settled': '已结清',
     'undoSettle': '取消结清',
     'owes': '→',
+    'shareReport': '分享报告',
+    'settlementSummary': '结算摘要',
+    'allSettled': '全部结清！',
+    'removeAdsPromptTitle': '享受无广告体验',
+    'removeAdsPromptBody': '移除广告，让旅行记账更专注',
+    'maybeLater': '稍后再说',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '现金',

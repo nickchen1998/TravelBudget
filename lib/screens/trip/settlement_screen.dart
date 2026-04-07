@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../constants/app_theme.dart';
+import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../services/split_service.dart';
@@ -19,7 +20,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
   final _supabase = Supabase.instance.client;
 
   List<Debt> _debts = [];
-  List<Settlement> _settlements = [];
   Map<String, String> _memberNames = {};
   bool _isLoading = true;
 
@@ -35,7 +35,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
     try {
       final tripUuid = widget.trip.uuid!;
 
-      // Load members
       final members = await _splitService.getTripMembers(tripUuid);
       _memberNames = {};
       for (final m in members) {
@@ -46,7 +45,6 @@ class _SettlementScreenState extends State<SettlementScreen> {
         _memberNames[uid] = name ?? '?';
       }
 
-      // Load all expenses with split data
       final expenses = await _supabase
           .from('expenses')
           .select()
@@ -55,14 +53,10 @@ class _SettlementScreenState extends State<SettlementScreen> {
 
       final allSplits = await _splitService.getAllSplitsForTrip(tripUuid);
 
-      // Calculate debts
       final expenseMaps = (expenses as List)
           .map((e) => Map<String, dynamic>.from(e))
           .toList();
       _debts = _splitService.calculateDebts(expenseMaps, allSplits);
-
-      // Load existing settlement records
-      _settlements = await _splitService.getSettlements(tripUuid);
     } catch (e) {
       debugPrint('Failed to load settlement data: $e');
     }
@@ -70,200 +64,186 @@ class _SettlementScreenState extends State<SettlementScreen> {
     if (mounted) setState(() => _isLoading = false);
   }
 
-  bool _isDebtSettled(Debt debt) {
-    return _settlements.any((s) =>
-        s.fromUser == debt.fromUser &&
-        s.toUser == debt.toUser &&
-        s.isSettled);
-  }
-
-  Settlement? _getSettlement(Debt debt) {
-    try {
-      return _settlements.firstWhere((s) =>
-          s.fromUser == debt.fromUser &&
-          s.toUser == debt.toUser &&
-          s.isSettled);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> _toggleSettle(Debt debt) async {
-    final settled = _isDebtSettled(debt);
-
-    try {
-      if (settled) {
-        final settlement = _getSettlement(debt);
-        if (settlement?.id != null) {
-          await _splitService.unmarkSettled(settlement!.id!);
-        }
-      } else {
-        await _splitService.markSettled(
-          widget.trip.uuid!,
-          debt.fromUser,
-          debt.toUser,
-          debt.amount,
-          widget.trip.baseCurrency,
-        );
-      }
-      await _loadData();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
+  /// 取名字的第一個字當頭像
+  String _initial(String name) {
+    if (name.isEmpty || name == '?') return '?';
+    return name.characters.first;
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final symbol = getCurrencySymbol(widget.trip.baseCurrency);
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return _debts.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.check_circle_outline,
-                          size: 64, color: AppTheme.moss),
-                      const SizedBox(height: 16),
-                      Text(l.settlementEmpty,
-                          style: const TextStyle(
-                              fontSize: 16, color: AppTheme.inkLight)),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _debts.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final debt = _debts[index];
-                      final settled = _isDebtSettled(debt);
-                      final fromName =
-                          _memberNames[debt.fromUser] ?? '?';
-                      final toName =
-                          _memberNames[debt.toUser] ?? '?';
+    if (_debts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppTheme.moss.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.handshake_outlined,
+                  size: 36, color: AppTheme.moss),
+            ),
+            const SizedBox(height: 16),
+            Text(l.settlementEmpty,
+                style: const TextStyle(
+                    fontSize: 16, color: AppTheme.inkLight)),
+          ],
+        ),
+      );
+    }
 
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: settled
-                              ? AppTheme.moss.withValues(alpha: 0.08)
-                              : AppTheme.warmWhite,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: settled
-                                ? AppTheme.moss.withValues(alpha: 0.3)
-                                : AppTheme.parchment,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                // From user
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(fromName,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: settled
-                                                ? AppTheme.inkFaint
-                                                : AppTheme.ink,
-                                            decoration: settled
-                                                ? TextDecoration.lineThrough
-                                                : null,
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                                // Arrow + amount
-                                Column(
-                                  children: [
-                                    const Icon(Icons.arrow_forward,
-                                        color: AppTheme.orange, size: 20),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      '${debt.amount.toStringAsFixed(0)} ${widget.trip.baseCurrency}',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: settled
-                                            ? AppTheme.inkFaint
-                                            : AppTheme.orange,
-                                        decoration: settled
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                // To user
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
-                                    children: [
-                                      Text(toName,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: settled
-                                                ? AppTheme.inkFaint
-                                                : AppTheme.ink,
-                                            decoration: settled
-                                                ? TextDecoration.lineThrough
-                                                : null,
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                onPressed: () => _toggleSettle(debt),
-                                icon: Icon(
-                                  settled
-                                      ? Icons.undo
-                                      : Icons.check_circle_outline,
-                                  size: 18,
-                                ),
-                                label: Text(
-                                    settled ? l.undoSettle : l.markSettled),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      settled ? AppTheme.inkFaint : AppTheme.moss,
-                                  side: BorderSide(
-                                    color: settled
-                                        ? AppTheme.inkFaint
-                                        : AppTheme.moss,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+    // 計算總欠款
+    final totalOwed = _debts.fold<double>(0, (sum, d) => sum + d.amount);
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // 總覽卡片
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.warmWhite,
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: AppTheme.parchment.withValues(alpha: 0.5)),
+              boxShadow: AppTheme.cardShadow,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '$symbol${formatAmount(totalOwed)}',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.orange,
                   ),
-                );
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_debts.length} ${l.settlement}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.inkFaint,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // 債務列表
+          ...List.generate(_debts.length, (index) {
+            final debt = _debts[index];
+            final fromName = _memberNames[debt.fromUser] ?? '?';
+            final toName = _memberNames[debt.toUser] ?? '?';
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: index < _debts.length - 1 ? 12 : 0),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                decoration: BoxDecoration(
+                  color: AppTheme.warmWhite,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: AppTheme.parchment.withValues(alpha: 0.5)),
+                  boxShadow: AppTheme.cardShadow,
+                ),
+                child: Row(
+                  children: [
+                    // 付款人頭像
+                    _avatar(fromName, AppTheme.stampRed),
+                    const SizedBox(width: 10),
+                    // 付款人名字
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(fromName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.ink,
+                              )),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$symbol${formatAmount(debt.amount)}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 箭頭
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.orange.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_forward,
+                          color: AppTheme.orange, size: 16),
+                    ),
+                    // 收款人名字
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(toName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.ink,
+                              )),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // 收款人頭像
+                    _avatar(toName, AppTheme.moss),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _avatar(String name, Color color) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          _initial(name),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+      ),
+    );
   }
 }

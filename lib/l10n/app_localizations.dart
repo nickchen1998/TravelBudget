@@ -257,9 +257,12 @@ class AppLocalizations {
 
   // === Usage Limits ===
   String get tripLimitTitle => _t('tripLimitTitle');
-  String get tripLimitDesc => _t('tripLimitDesc');
-  String cloudTripLimitWarning(int count) =>
-      _t('cloudTripLimitWarning').replaceAll('{count}', '$count');
+  String tripLimitDesc(int limit) =>
+      _t('tripLimitDesc').replaceAll('{limit}', '$limit');
+  String cloudTripLimitWarning(int count, int limit) =>
+      _t('cloudTripLimitWarning')
+          .replaceAll('{count}', '$count')
+          .replaceAll('{limit}', '$limit');
   String get coverUploadFailed => _t('coverUploadFailed');
   String get usageLimits => _t('usageLimits');
   String get usageLimitsDesc => _t('usageLimitsDesc');
@@ -508,7 +511,7 @@ class AppLocalizations {
     'neverSynced': '尚未同步',
     'lastSyncedTime': '上次同步：{time}',
     'removeAds': '移除廣告',
-    'removeAdsDesc': '一次購買，永久移除所有廣告',
+    'removeAdsDesc': '移除廣告 + 雲端旅行上限提升至 20 筆',
     'restorePurchase': '恢復購買',
     'restorePurchaseDesc': '恢復先前在此帳號購買的項目',
     'noPurchaseFound': '找不到購買紀錄',
@@ -552,8 +555,8 @@ class AppLocalizations {
     'payTransit': '交通卡',
     // Usage Limits
     'tripLimitTitle': '無法上傳到雲端',
-    'tripLimitDesc': '您的雲端旅行已達上限（10 個）。請刪除不需要的雲端旅行，或繼續使用本地儲存。',
-    'cloudTripLimitWarning': '您已有 {count}/10 個雲端旅行，即將達到上限。',
+    'tripLimitDesc': '您的雲端旅行已達上限（{limit} 個）。請刪除不需要的雲端旅行，或繼續使用本地儲存。',
+    'cloudTripLimitWarning': '您已有 {count}/{limit} 個雲端旅行，即將達到上限。',
     'coverUploadFailed': '封面圖片上傳失敗，其他變更已儲存',
     'usageLimits': '額度限制',
     'usageLimitsDesc': '了解目前的使用額度',
@@ -751,7 +754,7 @@ class AppLocalizations {
     'neverSynced': 'Never synced',
     'lastSyncedTime': 'Last synced: {time}',
     'removeAds': 'Remove Ads',
-    'removeAdsDesc': 'One-time purchase to remove all ads',
+    'removeAdsDesc': 'Remove ads + cloud trips up to 20',
     'restorePurchase': 'Restore Purchase',
     'restorePurchaseDesc': 'Restore a previous purchase on this account',
     'noPurchaseFound': 'No purchase found',
@@ -795,8 +798,8 @@ class AppLocalizations {
     'payTransit': 'Transit',
     // Usage Limits
     'tripLimitTitle': 'Cannot upload to cloud',
-    'tripLimitDesc': 'You have reached the cloud trip limit (10). Please delete unused cloud trips or continue using local storage.',
-    'cloudTripLimitWarning': 'You have {count}/10 cloud trips, approaching the limit.',
+    'tripLimitDesc': 'You have reached the cloud trip limit ({limit}). Please delete unused cloud trips or continue using local storage.',
+    'cloudTripLimitWarning': 'You have {count}/{limit} cloud trips, approaching the limit.',
     'coverUploadFailed': 'Cover image upload failed, other changes saved',
     'usageLimits': 'Usage Limits',
     'usageLimitsDesc': 'View current usage limits',
@@ -992,7 +995,7 @@ class AppLocalizations {
     'neverSynced': '未同期',
     'lastSyncedTime': '最終同期：{time}',
     'removeAds': '広告を削除',
-    'removeAdsDesc': '一度の購入ですべての広告を削除',
+    'removeAdsDesc': '広告削除 + クラウド旅行上限20件に拡大',
     'restorePurchase': '購入を復元',
     'restorePurchaseDesc': 'このアカウントで以前購入した場合は復元できます',
     'noPurchaseFound': '購入履歴が見つかりません',
@@ -1036,8 +1039,8 @@ class AppLocalizations {
     'payTransit': '交通系IC',
     // Usage Limits
     'tripLimitTitle': 'クラウドにアップロードできません',
-    'tripLimitDesc': 'クラウド旅行の上限（10件）に達しました。不要なクラウド旅行を削除するか、ローカル保存をご利用ください。',
-    'cloudTripLimitWarning': 'クラウド旅行が {count}/10 件です。上限に近づいています。',
+    'tripLimitDesc': 'クラウド旅行の上限（{limit}件）に達しました。不要なクラウド旅行を削除するか、ローカル保存をご利用ください。',
+    'cloudTripLimitWarning': 'クラウド旅行が {count}/{limit} 件です。上限に近づいています。',
     'coverUploadFailed': 'カバー画像のアップロードに失敗しました。その他の変更は保存済みです',
     'usageLimits': '利用制限',
     'usageLimitsDesc': '現在の利用制限を確認',
@@ -1233,7 +1236,7 @@ class AppLocalizations {
     'neverSynced': '동기화 안 됨',
     'lastSyncedTime': '마지막 동기화: {time}',
     'removeAds': '광고 제거',
-    'removeAdsDesc': '한 번 구매로 모든 광고 제거',
+    'removeAdsDesc': '광고 제거 + 클라우드 여행 20개로 확대',
     'restorePurchase': '구매 복원',
     'restorePurchaseDesc': '이 계정에서 이전에 구매한 경우 복원할 수 있습니다',
     'noPurchaseFound': '구매 내역을 찾을 수 없습니다',
@@ -1277,8 +1280,8 @@ class AppLocalizations {
     'payTransit': '교통카드',
     // Usage Limits
     'tripLimitTitle': '클라우드에 업로드할 수 없습니다',
-    'tripLimitDesc': '클라우드 여행 한도(10개)에 도달했습니다. 불필요한 클라우드 여행을 삭제하거나 로컬 저장소를 사용하세요.',
-    'cloudTripLimitWarning': '클라우드 여행이 {count}/10개입니다. 한도에 가까워지고 있습니다.',
+    'tripLimitDesc': '클라우드 여행 한도({limit}개)에 도달했습니다. 불필요한 클라우드 여행을 삭제하거나 로컬 저장소를 사용하세요.',
+    'cloudTripLimitWarning': '클라우드 여행이 {count}/{limit}개입니다. 한도에 가까워지고 있습니다.',
     'coverUploadFailed': '커버 이미지 업로드 실패, 기타 변경사항은 저장됨',
     'usageLimits': '사용 한도',
     'usageLimitsDesc': '현재 사용 한도 확인',
@@ -1474,7 +1477,7 @@ class AppLocalizations {
     'neverSynced': '尚未同步',
     'lastSyncedTime': '上次同步：{time}',
     'removeAds': '移除广告',
-    'removeAdsDesc': '一次购买，永久移除所有广告',
+    'removeAdsDesc': '移除广告 + 云端旅行上限提升至 20 笔',
     'restorePurchase': '恢复购买',
     'restorePurchaseDesc': '恢复先前在此账号购买的项目',
     'noPurchaseFound': '未找到购买记录',
@@ -1518,8 +1521,8 @@ class AppLocalizations {
     'payTransit': '交通卡',
     // Usage Limits
     'tripLimitTitle': '无法上传到云端',
-    'tripLimitDesc': '您的云端旅行已达上限（10 个）。请删除不需要的云端旅行，或继续使用本地存储。',
-    'cloudTripLimitWarning': '您已有 {count}/10 个云端旅行，即将达到上限。',
+    'tripLimitDesc': '您的云端旅行已达上限（{limit} 个）。请删除不需要的云端旅行，或继续使用本地存储。',
+    'cloudTripLimitWarning': '您已有 {count}/{limit} 个云端旅行，即将达到上限。',
     'coverUploadFailed': '封面图片上传失败，其他更改已保存',
     'usageLimits': '额度限制',
     'usageLimitsDesc': '了解目前的使用额度',

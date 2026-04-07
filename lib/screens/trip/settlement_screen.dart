@@ -103,47 +103,11 @@ class _SettlementScreenState extends State<SettlementScreen> {
       );
     }
 
-    // 計算總欠款
-    final totalOwed = _debts.fold<double>(0, (sum, d) => sum + d.amount);
-
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // 總覽卡片
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppTheme.warmWhite,
-              borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: AppTheme.parchment.withValues(alpha: 0.5)),
-              boxShadow: AppTheme.cardShadow,
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '$symbol${formatAmount(totalOwed)}',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.orange,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_debts.length} ${l.settlement}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.inkFaint,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          // 債務列表
           ...List.generate(_debts.length, (index) {
             final debt = _debts[index];
             final fromName = _memberNames[debt.fromUser] ?? '?';

@@ -33,6 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
   AuthProvider? _authListenTarget;
   bool _wasLoggedIn = false;
 
+  int get _tripLimit =>
+      context.read<AdProvider>().adsRemoved ? 20 : 10;
+
+  bool _nearTripLimit(TripProvider provider) =>
+      provider.cloudTripCount >= (_tripLimit * 0.8).round();
+
   @override
   void initState() {
     super.initState();
@@ -190,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: () => tripProvider.loadTrips(),
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            itemCount: tripProvider.trips.length + (tripProvider.cloudTripCount >= 8 ? 1 : 0),
+            itemCount: tripProvider.trips.length + (_nearTripLimit(tripProvider) ? 1 : 0),
             itemBuilder: (context, index) {
               // 雲端旅行接近上限警告橫幅
-              if (tripProvider.cloudTripCount >= 8 && index == 0) {
+              if (_nearTripLimit(tripProvider) && index == 0) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Container(
@@ -209,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            l.cloudTripLimitWarning(tripProvider.cloudTripCount),
+                            l.cloudTripLimitWarning(tripProvider.cloudTripCount, _tripLimit),
                             style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
                           ),
                         ),
@@ -218,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               }
-              final tripIndex = tripProvider.cloudTripCount >= 8 ? index - 1 : index;
+              final tripIndex = _nearTripLimit(tripProvider) ? index - 1 : index;
               final trip = tripProvider.trips[tripIndex];
               final spent = trip.id != null
                   ? tripProvider.getSpentForTrip(trip.id!)
@@ -467,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (ctx) => AlertDialog(
           title: Text(l.tripLimitTitle,
               style: const TextStyle(fontWeight: FontWeight.w700)),
-          content: Text(l.tripLimitDesc),
+          content: Text(l.tripLimitDesc(_tripLimit)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),

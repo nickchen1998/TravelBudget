@@ -172,6 +172,10 @@ class AppLocalizations {
   String get uploadToCloud => _t('uploadToCloud');
   String get uploadToCloudDesc => _t('uploadToCloudDesc');
   String get uploadSuccess => _t('uploadSuccess');
+  String get downloadToLocal => _t('downloadToLocal');
+  String get downloadToLocalDesc => _t('downloadToLocalDesc');
+  String get downloadToLocalSuccess => _t('downloadToLocalSuccess');
+  String get downloadToLocalHasMembers => _t('downloadToLocalHasMembers');
   String get cloudSynced => _t('cloudSynced');
   String get shareAsEditor => _t('shareAsEditor');
   String get shareAsViewer => _t('shareAsViewer');
@@ -450,6 +454,10 @@ class AppLocalizations {
     'uploadToCloud': '上傳至雲端',
     'uploadToCloudDesc': '上傳後旅行改由雲端管理。無網路時僅可查閱，無法新增或編輯記帳。',
     'uploadSuccess': '已成功上傳至雲端',
+    'downloadToLocal': '轉為本地',
+    'downloadToLocalDesc': '將此旅行從雲端移回本地儲存，釋放雲端額度。分帳資料將會遺失，消費紀錄會保留。',
+    'downloadToLocalSuccess': '已成功轉為本地旅行',
+    'downloadToLocalHasMembers': '此旅行有其他協作者，請先移除所有協作者後再轉為本地',
     'cloudSynced': '雲端',
     'shareAsEditor': '可編輯',
     'shareAsViewer': '僅查看',
@@ -704,6 +712,10 @@ class AppLocalizations {
     'uploadToCloud': 'Upload to Cloud',
     'uploadToCloudDesc': 'After uploading, this trip will be managed in the cloud. Without internet, you can only view cached data.',
     'uploadSuccess': 'Successfully uploaded to cloud',
+    'downloadToLocal': 'Move to Local',
+    'downloadToLocalDesc': 'Move this trip from cloud to local storage, freeing up cloud quota. Split data will be lost, but expense records are kept.',
+    'downloadToLocalSuccess': 'Successfully moved to local',
+    'downloadToLocalHasMembers': 'This trip has other collaborators. Please remove all collaborators first.',
     'cloudSynced': 'Cloud',
     'shareAsEditor': 'Can Edit',
     'shareAsViewer': 'View Only',
@@ -958,6 +970,10 @@ class AppLocalizations {
     'uploadToCloud': 'クラウドにアップロード',
     'uploadToCloudDesc': 'アップロード後、旅行はクラウドで管理されます。オフライン時は閲覧のみ可能です。',
     'uploadSuccess': 'クラウドへのアップロード完了',
+    'downloadToLocal': 'ローカルに移動',
+    'downloadToLocalDesc': 'この旅行をクラウドからローカルに移動し、クラウド枠を解放します。割り勘データは失われますが、支出記録は保持されます。',
+    'downloadToLocalSuccess': 'ローカルへの移動が完了しました',
+    'downloadToLocalHasMembers': 'この旅行には他のメンバーがいます。先にメンバーを全員削除してください。',
     'cloudSynced': 'クラウド',
     'shareAsEditor': '編集可能',
     'shareAsViewer': '閲覧のみ',
@@ -1210,6 +1226,10 @@ class AppLocalizations {
     'uploadToCloud': '클라우드에 업로드',
     'uploadToCloudDesc': '업로드 후 여행은 클라우드로 관리됩니다. 오프라인 시 조회만 가능합니다.',
     'uploadSuccess': '클라우드 업로드 완료',
+    'downloadToLocal': '로컬로 이동',
+    'downloadToLocalDesc': '이 여행을 클라우드에서 로컬로 이동하여 클라우드 용량을 확보합니다. 더치페이 데이터는 삭제되지만 지출 기록은 유지됩니다.',
+    'downloadToLocalSuccess': '로컬로 이동 완료',
+    'downloadToLocalHasMembers': '이 여행에 다른 공동 작업자가 있습니다. 먼저 모든 공동 작업자를 제거해 주세요.',
     'cloudSynced': '클라우드',
     'shareAsEditor': '편집 가능',
     'shareAsViewer': '보기만',
@@ -1462,6 +1482,10 @@ class AppLocalizations {
     'uploadToCloud': '上传至云端',
     'uploadToCloudDesc': '上传后旅程改由云端管理。无网络时仅可查阅，无法新增或编辑记账。',
     'uploadSuccess': '已成功上传至云端',
+    'downloadToLocal': '转为本地',
+    'downloadToLocalDesc': '将此旅行从云端移回本地存储，释放云端额度。分账数据将会丢失，消费记录会保留。',
+    'downloadToLocalSuccess': '已成功转为本地旅行',
+    'downloadToLocalHasMembers': '此旅行有其他协作者，请先移除所有协作者后再转为本地',
     'cloudSynced': '云端',
     'shareAsEditor': '可编辑',
     'shareAsViewer': '仅查看',

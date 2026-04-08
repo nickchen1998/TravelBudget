@@ -20,6 +20,7 @@ class SyncService {
     final trips = await _tripDao.getAllTrips();
     for (final trip in trips) {
       if (trip.uuid != null) continue; // already synced before
+      if (trip.isLocalOnly) continue; // user chose to keep local
 
       try {
         final data = trip.toSupabaseMap(userId);

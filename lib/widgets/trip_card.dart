@@ -16,6 +16,9 @@ class TripCard extends StatelessWidget {
   /// Called when user taps "upload to cloud" on a local trip.
   final VoidCallback? onUploadToCloud;
 
+  /// Called when user taps "download to local" on a cloud trip (owner only).
+  final VoidCallback? onDownloadToLocal;
+
   const TripCard({
     super.key,
     required this.trip,
@@ -24,6 +27,7 @@ class TripCard extends StatelessWidget {
     this.onDelete,
     this.onLeave,
     this.onUploadToCloud,
+    this.onDownloadToLocal,
   });
 
   static Widget _buildCoverImage(Trip trip) {
@@ -182,18 +186,35 @@ class TripCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (trip.uuid != null) ...[
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                shape: BoxShape.circle,
+                            if (onDownloadToLocal != null)
+                              GestureDetector(
+                                onTap: onDownloadToLocal,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.cloud_download_outlined,
+                                    color: Colors.white70,
+                                    size: 18,
+                                  ),
+                                ),
+                              )
+                            else
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.cloud_done,
+                                  color: Colors.white70,
+                                  size: 18,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.cloud_done,
-                                color: Colors.white70,
-                                size: 18,
-                              ),
-                            ),
                             const SizedBox(width: 6),
                           ],
                           if (onDelete != null)

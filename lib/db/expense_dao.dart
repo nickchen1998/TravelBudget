@@ -71,6 +71,17 @@ class ExpenseDao {
     );
   }
 
+  /// Clear cloud sync fields for all expenses belonging to a trip.
+  Future<void> clearCloudSyncFieldsForTrip(int tripId) async {
+    final db = await _dbHelper.database;
+    await db.update('expenses', {
+      'uuid': null,
+      'created_by': null,
+      'synced_at': null,
+      'is_dirty': 0,
+    }, where: 'trip_id = ?', whereArgs: [tripId]);
+  }
+
   Future<double> getTotalSpentByTrip(int tripId) async {
     final db = await _dbHelper.database;
     final result = await db.rawQuery(

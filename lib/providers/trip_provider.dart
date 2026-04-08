@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/trip.dart';
-import '../repositories/trip_repository.dart' show TripRepository, NetworkException, TripLimitException;
+import '../repositories/trip_repository.dart' show TripRepository, NetworkException, TripLimitException, HasMembersException;
 
 class TripProvider extends ChangeNotifier {
   final TripRepository _repo = TripRepository();
@@ -109,6 +109,22 @@ class TripProvider extends ChangeNotifier {
     } on NetworkException {
       return 'network_required';
     } catch (_) {
+      return 'save_failed';
+    }
+  }
+
+  /// Download a cloud trip to local. Returns null on success, error key on failure.
+  Future<String?> downloadCloudTripToLocal(Trip trip) async {
+    try {
+      await _repo.downloadCloudTripToLocal(trip);
+      await loadTrips();
+      return null;
+    } on HasMembersException {
+      return 'has_members';
+    } on NetworkException {
+      return 'network_required';
+    } catch (e, stack) {
+      debugPrint('[downloadCloudTripToLocal] 失敗: $e\n$stack');
       return 'save_failed';
     }
   }

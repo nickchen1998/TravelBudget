@@ -44,6 +44,19 @@ class TripDao {
     await db.delete('trips', where: 'uuid = ?', whereArgs: [uuid]);
   }
 
+  /// Demote a cloud trip to local-only: clear sync fields, mark as local-only.
+  Future<void> demoteToLocal(int id) async {
+    final db = await _dbHelper.database;
+    await db.update('trips', {
+      'uuid': null,
+      'owner_id': null,
+      'synced_at': null,
+      'is_dirty': 0,
+      'split_enabled': 0,
+      'is_local_only': 1,
+    }, where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<void> clearCloudSyncFields() async {
     final db = await _dbHelper.database;
     await db.update('trips', {

@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onConfigure: (db) async {
@@ -45,6 +45,7 @@ class DatabaseHelper {
         cover_image_path TEXT,
         cover_image_url TEXT,
         split_enabled INTEGER NOT NULL DEFAULT 0,
+        is_local_only INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       )
     ''');
@@ -113,6 +114,10 @@ class DatabaseHelper {
           'ALTER TABLE expenses ADD COLUMN paid_by TEXT');
       await db.execute(
           'ALTER TABLE expenses ADD COLUMN split_type TEXT');
+    }
+    if (oldVersion < 5) {
+      await db.execute(
+          'ALTER TABLE trips ADD COLUMN is_local_only INTEGER NOT NULL DEFAULT 0');
     }
   }
 

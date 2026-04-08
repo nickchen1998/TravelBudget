@@ -17,6 +17,10 @@ class TripLimitException implements Exception {
   const TripLimitException();
 }
 
+class HasMembersException implements Exception {
+  const HasMembersException();
+}
+
 class TripRepository {
   final TripDao _local = TripDao();
   final ExpenseDao _expenseDao = ExpenseDao();
@@ -270,6 +274,55 @@ class TripRepository {
     }
 
     return promoted;
+  }
+
+  // ── Download cloud trip to local ──────────────────────────────────────────
+
+  /// Converts a cloud trip back to local-only.
+  /// Deletes all cloud data (trip, expenses, members, invitations, splits, settlements)
+  /// and clears sync fields in local SQLite.
+  /// Throws [HasMembersException] if the trip has other collaborators.
+  Future<void> downloadCloudTripToLocal(Trip trip) async {
+    final uuid = trip.uuid;
+    final localId = trip.id;
+    if (uuid == null || localId == null) return;
+
+    // 0. Check member count — block if others are in the trip
+    try {
+      final members = await _supabase
+          .from('trip_members')
+          .select('user_id')
+          .eq('trip_id', uuid);
+      if (members.length > 1) throw const HasMembersException();
+    } catch (e) {
+      if (e is HasMembersException) rethrow;
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
+
+    // 1. Delete cloud data (order matters for FK constraints)
+    try {
+      await _supabase.from('settlements').delete().eq('trip_id', uuid);
+      await _supabase.from('expense_splits').delete().inFilter(
+        'expense_id',
+        (await _supabase.from('expenses').select('id').eq('trip_id', uuid))
+            .map((e) => e['id'] as String)
+            .toList(),
+      );
+      await _supabase.from('expenses').delete().eq('trip_id', uuid);
+      await _supabase.from('trip_invitations').delete().eq('trip_id', uuid);
+      await _supabase.from('trip_members').delete().eq('trip_id', uuid);
+      await _supabase.from('trips').delete().eq('id', uuid);
+    } catch (e) {
+      if (_isNetworkError(e)) throw const NetworkException();
+      rethrow;
+    }
+
+    // 2. Demote local trip record
+    await _local.demoteToLocal(localId);
+
+    // 3. Clear sync fields on local expenses
+    await _expenseDao.clearCloudSyncFieldsForTrip(localId);
   }
 
   Future<void> _uploadExpensesForTrip(

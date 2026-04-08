@@ -15,6 +15,7 @@ class Trip {
   final DateTime createdAt;
 
   final bool splitEnabled;
+  final bool isLocalOnly;
 
   // Collaboration: set when loaded from Supabase/sync
   final String? memberRole; // 'owner' | 'editor' | 'viewer' | null (local)
@@ -35,6 +36,7 @@ class Trip {
     this.coverImagePath,
     this.coverImageUrl,
     this.splitEnabled = false,
+    this.isLocalOnly = false,
     DateTime? createdAt,
     this.memberRole,
     this.memberCount,
@@ -61,6 +63,7 @@ class Trip {
     String? coverImagePath,
     String? coverImageUrl,
     bool? splitEnabled,
+    bool? isLocalOnly,
     DateTime? createdAt,
     String? memberRole,
     int? memberCount,
@@ -80,6 +83,7 @@ class Trip {
       coverImagePath: coverImagePath ?? this.coverImagePath,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       splitEnabled: splitEnabled ?? this.splitEnabled,
+      isLocalOnly: isLocalOnly ?? this.isLocalOnly,
       createdAt: createdAt ?? this.createdAt,
       memberRole: memberRole ?? this.memberRole,
       memberCount: memberCount ?? this.memberCount,
@@ -102,6 +106,7 @@ class Trip {
       'cover_image_path': coverImagePath,
       'cover_image_url': coverImageUrl,
       'split_enabled': splitEnabled ? 1 : 0,
+      'is_local_only': isLocalOnly ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -122,6 +127,7 @@ class Trip {
       coverImagePath: map['cover_image_path'] as String?,
       coverImageUrl: map['cover_image_url'] as String?,
       splitEnabled: (map['split_enabled'] as int? ?? 0) == 1,
+      isLocalOnly: (map['is_local_only'] as int? ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }

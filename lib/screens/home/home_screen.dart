@@ -268,6 +268,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 onUploadToCloud: trip.uuid == null
                     ? () => _handleUploadToCloud(context, tripProvider, trip)
                     : null,
+                onDownloadToLocal: trip.uuid != null &&
+                        (trip.memberRole == null || trip.memberRole == 'owner')
+                    ? () => _handleDownloadToLocal(context, tripProvider, trip)
+                    : null,
               );
             },
           ),
@@ -519,6 +523,61 @@ class _HomeScreenState extends State<HomeScreen> {
       if (uploaded.uuid != null && context.mounted) {
         await showInviteCodeSheet(context, uploaded);
       }
+    }
+  }
+
+  Future<void> _handleDownloadToLocal(
+    BuildContext context,
+    TripProvider provider,
+    Trip trip,
+  ) async {
+    final l = AppLocalizations.of(context);
+
+    // Confirm dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          l.downloadToLocal,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(l.downloadToLocalDesc),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(color: AppTheme.inkLight),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.downloadToLocal),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !context.mounted) return;
+
+    final error = await provider.downloadCloudTripToLocal(trip);
+    if (!context.mounted) return;
+
+    if (error == 'has_members') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.downloadToLocalHasMembers)),
+      );
+    } else if (error == 'network_required') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.networkRequiredError)),
+      );
+    } else if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.saveFailed)),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.downloadToLocalSuccess)),
+      );
     }
   }
 

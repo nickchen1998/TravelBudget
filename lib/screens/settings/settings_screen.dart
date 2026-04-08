@@ -707,51 +707,43 @@ class SettingsScreen extends StatelessWidget {
                           color: AppTheme.ink)),
                 ),
                 const SizedBox(height: 20),
-                _limitItem(
+                // ── 本地儲存 ──
+                _limitSection(
+                  icon: Icons.phone_iphone,
+                  color: AppTheme.moss,
+                  title: l.localStorage,
+                  items: [
+                    _limitRow(l.tripCount, l.unlimited),
+                    _limitRow(l.splitBill, '❌'),
+                    _limitRow(l.collaboration, '❌'),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                // ── 免費雲端 ──
+                _limitSection(
                   icon: Icons.cloud_outlined,
                   color: AppTheme.tagBlue,
-                  title: l.cloudTripLimit,
-                  detail: l.cloudTripLimitDetail,
-                  badge: '10',
+                  title: l.freeCloud,
+                  items: [
+                    _limitRow(l.tripCount, '10'),
+                    _limitRow(l.splitBill, '✅'),
+                    _limitRow(l.collaboration, '✅'),
+                    _limitRow(l.ads, l.adsYes),
+                  ],
                 ),
                 const SizedBox(height: 14),
-                _limitItem(
-                  icon: Icons.group_outlined,
-                  color: AppTheme.plum,
-                  title: l.invitationLimit,
-                  detail: l.invitationLimitDetail,
-                  badge: '20',
-                ),
-                const SizedBox(height: 14),
-                _limitItem(
-                  icon: Icons.text_fields,
-                  color: AppTheme.moss,
-                  title: l.fieldLengthLimit,
-                  detail: l.fieldLengthLimitDetail,
-                  badge: '50',
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.cream,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline,
-                          size: 16, color: AppTheme.inkFaint),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          l.localTripNoLimit,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppTheme.inkLight),
-                        ),
-                      ),
-                    ],
-                  ),
+                // ── 付費雲端 ──
+                _limitSection(
+                  icon: Icons.workspace_premium_outlined,
+                  color: AppTheme.orange,
+                  title: l.premiumCloud,
+                  isPremium: true,
+                  items: [
+                    _limitRow(l.tripCount, '20'),
+                    _limitRow(l.splitBill, '✅'),
+                    _limitRow(l.collaboration, '✅'),
+                    _limitRow(l.ads, l.adsNo),
+                  ],
                 ),
                 const SizedBox(height: 8),
               ],
@@ -762,60 +754,66 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _limitItem({
+
+
+  Widget _limitSection({
     required IconData icon,
     required Color color,
     required String title,
-    required String detail,
-    required String badge,
+    required List<Widget> items,
+    bool isPremium = false,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: color, size: 20),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isPremium
+            ? AppTheme.orange.withValues(alpha: 0.05)
+            : AppTheme.warmWhite,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isPremium
+              ? AppTheme.orange.withValues(alpha: 0.3)
+              : AppTheme.parchment.withValues(alpha: 0.6),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.ink)),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(badge,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: color)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(detail,
-                  style: const TextStyle(
-                      fontSize: 13, color: AppTheme.inkLight)),
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 8),
+              Text(title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: isPremium ? AppTheme.orange : AppTheme.ink,
+                  )),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          ...items,
+        ],
+      ),
+    );
+  }
+
+  Widget _limitRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: const TextStyle(fontSize: 13, color: AppTheme.inkLight)),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.ink)),
+        ],
+      ),
     );
   }
 

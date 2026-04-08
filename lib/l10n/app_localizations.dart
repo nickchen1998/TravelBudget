@@ -273,6 +273,15 @@ class AppLocalizations {
   String get fieldLengthLimit => _t('fieldLengthLimit');
   String get fieldLengthLimitDetail => _t('fieldLengthLimitDetail');
   String get localTripNoLimit => _t('localTripNoLimit');
+  String get localStorage => _t('localStorage');
+  String get freeCloud => _t('freeCloud');
+  String get premiumCloud => _t('premiumCloud');
+  String get tripCount => _t('tripCount');
+  String get unlimited => _t('unlimited');
+  String get collaboration => _t('collaboration');
+  String get ads => _t('ads');
+  String get adsYes => _t('adsYes');
+  String get adsNo => _t('adsNo');
 
   // === Ads / Purchase ===
   String get removeAds => _t('removeAds');
@@ -451,7 +460,7 @@ class AppLocalizations {
     'joinWithCodeDesc': '輸入邀請碼即可加入他人的旅程',
     'inviteCode': '邀請碼',
     'inviteCodeDesc': '將此邀請碼分享給朋友，對方登入後輸入即可加入',
-    'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
+    'inviteCodeExpiry': '有效期 7 天 · 最多 20 人',
     'copyCode': '複製邀請碼',
     'codeCopied': '已複製',
     'regenerateCode': '重新產生邀請碼',
@@ -567,6 +576,15 @@ class AppLocalizations {
     'fieldLengthLimit': '文字長度',
     'fieldLengthLimitDetail': '旅行名稱最多 50 字，備註最多 200 字。',
     'localTripNoLimit': '本地旅行不受任何雲端額度限制。',
+    'localStorage': '本地儲存',
+    'freeCloud': '免費雲端',
+    'premiumCloud': '付費雲端',
+    'tripCount': '旅行數量',
+    'unlimited': '無上限',
+    'collaboration': '多人協作',
+    'ads': '廣告',
+    'adsYes': '有',
+    'adsNo': '無',
   };
 
   static const _en = {
@@ -694,7 +712,7 @@ class AppLocalizations {
     'joinWithCodeDesc': 'Enter an invite code to join someone\'s trip',
     'inviteCode': 'Invite Code',
     'inviteCodeDesc': 'Share this code with friends. They can join after signing in.',
-    'inviteCodeExpiry': 'Valid for 7 days · up to 50 uses',
+    'inviteCodeExpiry': 'Valid for 7 days · up to 20 uses',
     'copyCode': 'Copy Code',
     'codeCopied': 'Copied',
     'regenerateCode': 'Regenerate Code',
@@ -810,6 +828,15 @@ class AppLocalizations {
     'fieldLengthLimit': 'Text Length',
     'fieldLengthLimitDetail': 'Trip name max 50 characters, notes max 200 characters.',
     'localTripNoLimit': 'Local trips are not subject to any cloud limits.',
+    'localStorage': 'Local Storage',
+    'freeCloud': 'Free Cloud',
+    'premiumCloud': 'Premium Cloud',
+    'tripCount': 'Trips',
+    'unlimited': 'Unlimited',
+    'collaboration': 'Collaboration',
+    'ads': 'Ads',
+    'adsYes': 'Yes',
+    'adsNo': 'None',
   };
 
   static const _ja = {
@@ -937,7 +964,7 @@ class AppLocalizations {
     'joinWithCodeDesc': '招待コードを入力して旅行に参加できます',
     'inviteCode': '招待コード',
     'inviteCodeDesc': 'このコードを友達に共有してください。サインイン後に参加できます。',
-    'inviteCodeExpiry': '有効期間 7 日 · 最大 50 名',
+    'inviteCodeExpiry': '有効期間 7 日 · 最大 20 名',
     'copyCode': 'コードをコピー',
     'codeCopied': 'コピーしました',
     'regenerateCode': 'コードを再生成',
@@ -1051,6 +1078,15 @@ class AppLocalizations {
     'fieldLengthLimit': 'テキスト長',
     'fieldLengthLimitDetail': '旅行名は最大50文字、メモは最大200文字です。',
     'localTripNoLimit': 'ローカル旅行にはクラウド制限は適用されません。',
+    'localStorage': 'ローカル保存',
+    'freeCloud': '無料クラウド',
+    'premiumCloud': 'プレミアムクラウド',
+    'tripCount': '旅行数',
+    'unlimited': '無制限',
+    'collaboration': 'グループ共有',
+    'ads': '広告',
+    'adsYes': 'あり',
+    'adsNo': 'なし',
   };
 
   static const _ko = {
@@ -1178,7 +1214,7 @@ class AppLocalizations {
     'joinWithCodeDesc': '초대 코드를 입력하여 여행에 참가하세요',
     'inviteCode': '초대 코드',
     'inviteCodeDesc': '이 코드를 친구에게 공유하세요. 로그인 후 참가할 수 있습니다.',
-    'inviteCodeExpiry': '유효 기간 7일 · 최대 50명',
+    'inviteCodeExpiry': '유효 기간 7일 · 최대 20명',
     'copyCode': '코드 복사',
     'codeCopied': '복사됨',
     'regenerateCode': '코드 재생성',
@@ -1292,6 +1328,15 @@ class AppLocalizations {
     'fieldLengthLimit': '텍스트 길이',
     'fieldLengthLimitDetail': '여행 이름 최대 50자, 메모 최대 200자입니다.',
     'localTripNoLimit': '로컬 여행에는 클라우드 한도가 적용되지 않습니다.',
+    'localStorage': '로컬 저장소',
+    'freeCloud': '무료 클라우드',
+    'premiumCloud': '프리미엄 클라우드',
+    'tripCount': '여행 수',
+    'unlimited': '무제한',
+    'collaboration': '그룹 공유',
+    'ads': '광고',
+    'adsYes': '있음',
+    'adsNo': '없음',
   };
 
   static const _zhCN = {
@@ -1419,7 +1464,7 @@ class AppLocalizations {
     'joinWithCodeDesc': '输入邀请码即可加入他人的旅程',
     'inviteCode': '邀请码',
     'inviteCodeDesc': '将此邀请码分享给朋友，对方登录后输入即可加入',
-    'inviteCodeExpiry': '有效期 7 天 · 最多 50 人',
+    'inviteCodeExpiry': '有效期 7 天 · 最多 20 人',
     'copyCode': '复制邀请码',
     'codeCopied': '已复制',
     'regenerateCode': '重新生成邀请码',
@@ -1533,6 +1578,15 @@ class AppLocalizations {
     'fieldLengthLimit': '文字长度',
     'fieldLengthLimitDetail': '旅行名称最多 50 字，备注最多 200 字。',
     'localTripNoLimit': '本地旅行不受任何云端额度限制。',
+    'localStorage': '本地存储',
+    'freeCloud': '免费云端',
+    'premiumCloud': '付费云端',
+    'tripCount': '旅行数量',
+    'unlimited': '无上限',
+    'collaboration': '多人协作',
+    'ads': '广告',
+    'adsYes': '有',
+    'adsNo': '无',
   };
 }
 

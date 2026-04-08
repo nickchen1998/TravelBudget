@@ -259,6 +259,7 @@ class TripRepository {
       endDate: trip.endDate,
       coverImagePath: trip.coverImagePath,
       coverImageUrl: coverImageUrl ?? trip.coverImageUrl,
+      splitEnabled: trip.splitEnabled,
       createdAt: trip.createdAt,
     );
     await _local.updateTrip(promoted);

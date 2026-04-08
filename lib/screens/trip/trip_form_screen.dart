@@ -6,8 +6,11 @@ import 'package:provider/provider.dart';
 import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
+import '../../constants/app_theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../services/image_storage_service.dart';
+import 'trip_detail_screen.dart';
 
 class TripFormScreen extends StatefulWidget {
   final Trip? trip;
@@ -268,16 +271,14 @@ class _TripFormScreenState extends State<TripFormScreen> {
             const SizedBox(height: 8),
 
             // Split Bill Toggle
-            if (isEditing && widget.trip?.uuid != null) ...[
-              SwitchListTile(
-                title: Text(l.splitEnabled),
-                subtitle: Text(l.splitEnabledDesc,
-                    style: const TextStyle(fontSize: 12)),
-                value: _splitEnabled,
-                onChanged: (v) => setState(() => _splitEnabled = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ],
+            SwitchListTile(
+              title: Text(l.splitEnabled),
+              subtitle: Text(l.splitEnabledDesc,
+                  style: const TextStyle(fontSize: 12)),
+              value: _splitEnabled,
+              onChanged: (v) => _onSplitToggle(v, l),
+              contentPadding: EdgeInsets.zero,
+            ),
             const SizedBox(height: 24),
 
             // Save Button
@@ -298,6 +299,54 @@ class _TripFormScreenState extends State<TripFormScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _onSplitToggle(bool value, AppLocalizations l) {
+    // Turning off: always allow
+    if (!value) {
+      setState(() => _splitEnabled = false);
+      return;
+    }
+
+    // Turning on: if already a cloud trip, just enable
+    if (widget.trip?.uuid != null) {
+      setState(() => _splitEnabled = true);
+      return;
+    }
+
+    // Turning on a local/new trip: check login & confirm cloud upload
+    final auth = context.read<AuthProvider>();
+    if (!auth.isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.splitRequiresCloud)),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.splitCloudConfirmTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(l.splitCloudConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _splitEnabled = true);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.orange,
+            ),
+            child: Text(l.confirm),
+          ),
+        ],
       ),
     );
   }
@@ -365,6 +414,37 @@ class _TripFormScreenState extends State<TripFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(AppLocalizations.of(context).networkRequiredError),
         ));
+        return;
+      }
+
+      // If split enabled on a local trip, upload to cloud
+      if (_splitEnabled && trip.uuid == null) {
+        final savedTrip = provider.trips.firstWhere(
+          (t) => t.name == trip.name && t.uuid == null,
+          orElse: () => trip,
+        );
+        if (savedTrip.id != null) {
+          final uploadError =
+              await provider.uploadLocalTripToCloud(savedTrip);
+          if (uploadError != null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context).networkRequiredError),
+            ));
+          }
+        }
+      }
+
+      if (!mounted) return;
+
+      if (!isEditing) {
+        // New trip: navigate directly into the trip detail
+        final createdTrip = provider.trips.first;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TripDetailScreen(trip: createdTrip),
+          ),
+        );
       } else {
         Navigator.pop(context, true);
       }

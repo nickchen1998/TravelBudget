@@ -247,12 +247,13 @@ class _TripDetailScreenState extends State<TripDetailScreen>
 
   Widget _buildExpenseList() {
     return Consumer<ExpenseProvider>(
-      builder: (context, provider, _) {
+      builder: (consumerCtx, provider, _) {
+        final tripProvider = this.context.read<TripProvider>();
+        final tripId = _trip.id!;
+        final totalSpent = provider.totalSpent;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          context.read<TripProvider>().updateSpending(
-            _trip.id!,
-            provider.totalSpent,
-          );
+          if (!mounted) return;
+          tripProvider.updateSpending(tripId, totalSpent);
         });
 
         return Column(

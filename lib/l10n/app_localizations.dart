@@ -303,6 +303,8 @@ class AppLocalizations {
   String get splitEnabled => _t('splitEnabled');
   String get splitEnabledDesc => _t('splitEnabledDesc');
   String get splitRequiresCloud => _t('splitRequiresCloud');
+  String get splitCloudConfirmTitle => _t('splitCloudConfirmTitle');
+  String get splitCloudConfirmBody => _t('splitCloudConfirmBody');
   String get paidBy => _t('paidBy');
   String get splitMethod => _t('splitMethod');
   String get splitEqual => _t('splitEqual');
@@ -537,6 +539,8 @@ class AppLocalizations {
     'splitEnabled': '啟用分帳',
     'splitEnabledDesc': '記錄每筆消費的付款人與分攤，旅行結束後可查看結算',
     'splitRequiresCloud': '分帳功能需要將旅行推送至雲端',
+    'splitCloudConfirmTitle': '開啟協作',
+    'splitCloudConfirmBody': '開啟分帳需要將此旅行推送至雲端，推送後可與朋友一起記帳。是否要開啟？',
     'paidBy': '付款人',
     'splitMethod': '分帳方式',
     'splitEqual': '均分',
@@ -789,6 +793,8 @@ class AppLocalizations {
     'splitEnabled': 'Enable Split',
     'splitEnabledDesc': 'Track who paid and split amounts, view settlements after the trip',
     'splitRequiresCloud': 'Split bill requires the trip to be uploaded to cloud',
+    'splitCloudConfirmTitle': 'Enable Collaboration',
+    'splitCloudConfirmBody': 'Enabling split bill requires uploading this trip to the cloud. You can then share it with friends. Continue?',
     'paidBy': 'Paid by',
     'splitMethod': 'Split method',
     'splitEqual': 'Equal',
@@ -1039,6 +1045,8 @@ class AppLocalizations {
     'splitEnabled': '割り勘を有効にする',
     'splitEnabledDesc': '各支出の支払者と分担額を記録し、旅行後に精算を確認',
     'splitRequiresCloud': '割り勘機能にはクラウドへのアップロードが必要です',
+    'splitCloudConfirmTitle': 'コラボレーションを有効にする',
+    'splitCloudConfirmBody': '割り勘を有効にするには、この旅行をクラウドにアップロードする必要があります。友達と一緒に記録できます。続けますか？',
     'paidBy': '支払者',
     'splitMethod': '割り方',
     'splitEqual': '均等',
@@ -1289,6 +1297,8 @@ class AppLocalizations {
     'splitEnabled': '더치페이 활성화',
     'splitEnabledDesc': '각 지출의 결제자와 분담액을 기록하고 여행 후 정산 확인',
     'splitRequiresCloud': '더치페이 기능은 클라우드 업로드가 필요합니다',
+    'splitCloudConfirmTitle': '협업 활성화',
+    'splitCloudConfirmBody': '더치페이를 사용하려면 이 여행을 클라우드에 업로드해야 합니다. 친구와 함께 기록할 수 있습니다. 계속할까요?',
     'paidBy': '결제자',
     'splitMethod': '분담 방식',
     'splitEqual': '균등',
@@ -1539,6 +1549,8 @@ class AppLocalizations {
     'splitEnabled': '启用分账',
     'splitEnabledDesc': '记录每笔消费的付款人与分摊，旅行结束后可查看结算',
     'splitRequiresCloud': '分账功能需要将旅行推送至云端',
+    'splitCloudConfirmTitle': '开启协作',
+    'splitCloudConfirmBody': '开启分账需要将此旅行推送至云端，推送后可与朋友一起记账。是否要开启？',
     'paidBy': '付款人',
     'splitMethod': '分账方式',
     'splitEqual': '均分',

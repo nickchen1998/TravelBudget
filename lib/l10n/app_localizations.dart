@@ -557,7 +557,7 @@ class AppLocalizations {
     'settlementSummary': '結算摘要',
     'allSettled': '全部結清！',
     'removeAdsPromptTitle': '享受無廣告體驗',
-    'removeAdsPromptBody': '移除廣告，讓旅行記帳更專注',
+    'removeAdsPromptBody': '移除廣告、雲端旅行上限提升至 20 筆，讓記帳更專注',
     'maybeLater': '稍後再說',
     // Payment Methods
     'paymentMethod': '支付方式',
@@ -811,7 +811,7 @@ class AppLocalizations {
     'settlementSummary': 'Settlement Summary',
     'allSettled': 'All settled!',
     'removeAdsPromptTitle': 'Go Ad-Free',
-    'removeAdsPromptBody': 'Remove ads for a cleaner travel budgeting experience',
+    'removeAdsPromptBody': 'Remove ads and increase cloud trip limit to 20 for a better experience',
     'maybeLater': 'Maybe Later',
     // Payment Methods
     'paymentMethod': 'Payment',
@@ -1063,7 +1063,7 @@ class AppLocalizations {
     'settlementSummary': '精算サマリー',
     'allSettled': 'すべて精算済み！',
     'removeAdsPromptTitle': '広告なしで快適に',
-    'removeAdsPromptBody': '広告を削除して、旅行の記録に集中しましょう',
+    'removeAdsPromptBody': '広告を削除し、クラウド旅行の上限を 20 件に拡大。記録に集中しましょう',
     'maybeLater': 'あとで',
     // Payment Methods
     'paymentMethod': '支払方法',
@@ -1315,7 +1315,7 @@ class AppLocalizations {
     'settlementSummary': '정산 요약',
     'allSettled': '모두 정산 완료!',
     'removeAdsPromptTitle': '광고 없이 사용하기',
-    'removeAdsPromptBody': '광고를 제거하고 여행 가계부에 집중하세요',
+    'removeAdsPromptBody': '광고 제거 + 클라우드 여행 상한 20개로 확대. 더 집중하세요',
     'maybeLater': '나중에',
     // Payment Methods
     'paymentMethod': '결제 수단',
@@ -1567,7 +1567,7 @@ class AppLocalizations {
     'settlementSummary': '结算摘要',
     'allSettled': '全部结清！',
     'removeAdsPromptTitle': '享受无广告体验',
-    'removeAdsPromptBody': '移除广告，让旅行记账更专注',
+    'removeAdsPromptBody': '移除广告、云端旅行上限提升至 20 笔，让记账更专注',
     'maybeLater': '稍后再说',
     // Payment Methods
     'paymentMethod': '支付方式',

@@ -9,6 +9,7 @@ import '../../models/trip.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
+import '../../widgets/iap_prompt_dialog.dart';
 import '../../widgets/trip_card.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/invite_code_widget.dart';
@@ -28,6 +29,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentTab = 0;
   bool _attRequested = false;
+  bool _iapPromptChecked = false;
 
   // Auth state listener for auto-refresh on login
   AuthProvider? _authListenTarget;
@@ -143,6 +145,21 @@ class _HomeScreenState extends State<HomeScreen> {
     final l = AppLocalizations.of(context);
     return Consumer<TripProvider>(
       builder: (context, tripProvider, _) {
+        // IAP prompt check (once per app session)
+        if (!_iapPromptChecked && tripProvider.trips.isNotEmpty) {
+          _iapPromptChecked = true;
+          final adProvider = context.read<AdProvider>();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            IapPromptDialog.showIfNeeded(
+              context,
+              cloudTripCount: tripProvider.cloudTripCount,
+              cloudTripLimit: _tripLimit,
+              adsRemoved: adProvider.adsRemoved,
+            );
+          });
+        }
+
         if (tripProvider.trips.isEmpty) {
           return RefreshIndicator(
             onRefresh: () => tripProvider.loadTrips(),

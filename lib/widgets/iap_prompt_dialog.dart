@@ -5,37 +5,79 @@ import '../l10n/app_localizations.dart';
 import '../services/purchase_service.dart';
 
 class IapPromptDialog {
-  /// Returns true if the prompt was already shown for this trip.
-  static Future<bool> _wasShown(int tripId) async {
+  static const _keyLastShown = 'iap_prompt_last_shown';
+  static const _keyDismissedAt = 'iap_prompt_dismissed_at';
+  static const _keyAppOpenCount = 'iap_prompt_app_open_count';
+  static const _keyAppOpenTriggered = 'iap_prompt_app_open_triggered';
+
+  static const _cooldownDays = 7;
+  static const _dismissCooldownDays = 14;
+  static const _appOpenThreshold = 10;
+
+  /// Call on every app foreground / home screen build.
+  /// Checks two triggers:
+  ///   1. Cloud trips >= 80% of limit
+  ///   2. App opened N times (one-shot)
+  /// Respects cooldown & dismiss windows.
+  static Future<bool> showIfNeeded(
+    BuildContext context, {
+    required int cloudTripCount,
+    required int cloudTripLimit,
+    required bool adsRemoved,
+  }) async {
+    if (adsRemoved) return false;
+
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('iap_prompt_shown_trip_$tripId') ?? false;
-  }
+    final now = DateTime.now().millisecondsSinceEpoch;
 
-  static Future<void> _markShown(int tripId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('iap_prompt_shown_trip_$tripId', true);
-  }
+    // Check dismiss cooldown (user tapped "maybe later")
+    final dismissedAt = prefs.getInt(_keyDismissedAt) ?? 0;
+    if (dismissedAt > 0 &&
+        now - dismissedAt < _dismissCooldownDays * 86400000) {
+      return false;
+    }
 
-  /// Shows the IAP prompt if the user hasn't purchased ad removal
-  /// and hasn't seen the prompt for this trip yet.
-  /// Returns true if prompt was shown, false if skipped.
-  static Future<bool> showIfNeeded(BuildContext context, int tripId) async {
-    final purchaseService = PurchaseService();
-    final adRemoved = await purchaseService.isAdRemoved();
-    if (adRemoved) return false;
+    // Check general cooldown
+    final lastShown = prefs.getInt(_keyLastShown) ?? 0;
+    if (lastShown > 0 && now - lastShown < _cooldownDays * 86400000) {
+      return false;
+    }
 
-    final alreadyShown = await _wasShown(tripId);
-    if (alreadyShown) return false;
+    // Trigger 1: cloud trips near limit (>= 80%)
+    final nearLimit =
+        cloudTripCount >= (cloudTripLimit * 0.8).round() && cloudTripCount > 0;
 
-    await _markShown(tripId);
+    // Trigger 2: app opened N times (one-shot)
+    final appOpenTriggered = prefs.getBool(_keyAppOpenTriggered) ?? false;
+    bool appOpenReady = false;
+    if (!appOpenTriggered) {
+      final count = (prefs.getInt(_keyAppOpenCount) ?? 0) + 1;
+      await prefs.setInt(_keyAppOpenCount, count);
+      if (count >= _appOpenThreshold) {
+        appOpenReady = true;
+        await prefs.setBool(_keyAppOpenTriggered, true);
+      }
+    }
+
+    if (!nearLimit && !appOpenReady) return false;
+
+    // Record show time
+    await prefs.setInt(_keyLastShown, now);
 
     if (!context.mounted) return false;
 
-    await showModalBottomSheet(
+    final purchaseService = PurchaseService();
+    final dismissed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _IapPromptSheet(purchaseService: purchaseService),
     );
+
+    // User tapped "maybe later" or swiped down
+    if (dismissed == true) {
+      await prefs.setInt(_keyDismissedAt, now);
+    }
+
     return true;
   }
 }
@@ -117,7 +159,7 @@ class _IapPromptSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, true),
             child: Text(
               l.maybeLater,
               style: const TextStyle(

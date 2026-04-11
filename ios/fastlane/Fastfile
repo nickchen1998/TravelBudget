@@ -34,8 +34,13 @@ platform :ios do
       targets: ["Runner"],
     )
 
+    # Flutter clean before build — avoids stale simulator binaries from
+    # `flutter run` being picked up by archive. Specifically the Dart FFI
+    # `objective_c` framework: if the session ran the app on the iOS
+    # simulator, its cached arm64-simulator slice can end up in the archive
+    # and get rejected by altool ("references an unsupported platform").
     Bundler.with_unbundled_env do
-      sh("export LANG=en_US.UTF-8 && export LC_ALL=en_US.UTF-8 && export PATH=/opt/homebrew/lib/ruby/gems/4.0.0/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:$PATH && cd ../.. && /opt/homebrew/bin/flutter build ios --release --no-codesign")
+      sh("export LANG=en_US.UTF-8 && export LC_ALL=en_US.UTF-8 && export PATH=/opt/homebrew/lib/ruby/gems/4.0.0/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:$PATH && cd ../.. && /opt/homebrew/bin/flutter clean && /opt/homebrew/bin/flutter pub get && /opt/homebrew/bin/flutter build ios --release --no-codesign")
     end
 
     build_app(

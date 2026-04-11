@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/ad_service.dart';
 import '../services/purchase_service.dart';
 
 class AdProvider extends ChangeNotifier {
@@ -16,11 +17,17 @@ class AdProvider extends ChangeNotifier {
     _purchaseService.onPurchaseUpdated = _onPurchaseChanged;
     _adsRemoved = await _purchaseService.isAdRemoved();
     _loading = false;
+    if (!_adsRemoved) {
+      InterstitialAdManager.instance.preload();
+    }
     notifyListeners();
   }
 
   void _onPurchaseChanged() async {
     _adsRemoved = await _purchaseService.isAdRemoved();
+    if (_adsRemoved) {
+      InterstitialAdManager.instance.dispose();
+    }
     notifyListeners();
   }
 

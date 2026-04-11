@@ -7,8 +7,10 @@ import '../../constants/currencies.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/trip.dart';
 import '../../constants/app_theme.dart';
+import '../../providers/ad_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/trip_provider.dart';
+import '../../services/ad_service.dart';
 import '../../services/image_storage_service.dart';
 import 'trip_detail_screen.dart';
 
@@ -439,12 +441,16 @@ class _TripFormScreenState extends State<TripFormScreen> {
       if (!isEditing) {
         // New trip: navigate directly into the trip detail
         final createdTrip = provider.trips.first;
+        final adsRemoved = context.read<AdProvider>().adsRemoved;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => TripDetailScreen(trip: createdTrip),
           ),
         );
+        // Fire-and-forget interstitial on top of the new screen
+        InterstitialAdManager.instance
+            .maybeShowAfterTripCreate(adsRemoved: adsRemoved);
       } else {
         Navigator.pop(context, true);
       }

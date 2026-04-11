@@ -373,6 +373,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     if (_isSaving) return;
     setState(() => _isSaving = true);
 
+    final l = AppLocalizations.of(context);
     final budget = _noBudget ? 0.0 : double.parse(_budgetController.text);
 
     // 若有選新圖片，先壓縮為 WebP 並持久化到 App 文件目錄
@@ -414,7 +415,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       if (error != null && isEditing) {
         // Edit on cloud trip failed (network)
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context).networkRequiredError),
+          content: Text(l.networkRequiredError),
         ));
         return;
       }
@@ -428,10 +429,42 @@ class _TripFormScreenState extends State<TripFormScreen> {
         if (savedTrip.id != null) {
           final uploadError =
               await provider.uploadLocalTripToCloud(savedTrip);
-          if (uploadError != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(AppLocalizations.of(context).networkRequiredError),
-            ));
+          if (!mounted) return;
+          if (uploadError != null) {
+            // Upload failed — revert local splitEnabled so state stays
+            // consistent (splitEnabled=true with uuid=null would trick
+            // TripDetailScreen into hiding the settlement tab silently).
+            await provider.updateTrip(
+                savedTrip.copyWith(splitEnabled: false));
+            if (!mounted) return;
+            _splitEnabled = false;
+
+            if (uploadError == 'trip_limit_exceeded') {
+              final limit = context.read<AdProvider>().cloudTripLimit;
+              await showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l.tripLimitTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  content: Text(l.tripLimitDesc(limit)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(l.confirm),
+                    ),
+                  ],
+                ),
+              );
+              if (!mounted) return;
+            } else if (uploadError == 'network_required') {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(l.networkRequiredError),
+              ));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(l.saveFailed),
+              ));
+            }
           }
         }
       }

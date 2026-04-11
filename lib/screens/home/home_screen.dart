@@ -35,11 +35,15 @@ class _HomeScreenState extends State<HomeScreen> {
   AuthProvider? _authListenTarget;
   bool _wasLoggedIn = false;
 
-  int get _tripLimit =>
-      context.read<AdProvider>().adsRemoved ? 20 : 3;
+  int get _tripLimit => context.read<AdProvider>().cloudTripLimit;
 
-  bool _nearTripLimit(TripProvider provider) =>
-      provider.cloudTripCount >= (_tripLimit * 0.8).round();
+  bool _nearTripLimit(TripProvider provider) {
+    final limit = _tripLimit;
+    // 小限制（≤5）只在真正到上限時警告，避免從第 2 筆就叨念；
+    // 大限制用 80% 閾值提前提醒。
+    final threshold = limit <= 5 ? limit : (limit * 0.8).round();
+    return provider.cloudTripCount >= threshold;
+  }
 
   @override
   void initState() {

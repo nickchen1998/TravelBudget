@@ -3,6 +3,9 @@ import '../services/ad_service.dart';
 import '../services/purchase_service.dart';
 
 class AdProvider extends ChangeNotifier {
+  static const int freeCloudTripLimit = 3;
+  static const int premiumCloudTripLimit = 20;
+
   final PurchaseService _purchaseService = PurchaseService();
   bool _adsRemoved = false;
   bool _loading = true;
@@ -10,6 +13,8 @@ class AdProvider extends ChangeNotifier {
   bool get adsRemoved => _adsRemoved;
   bool get showAds => !_adsRemoved && !_loading;
   bool get loading => _loading;
+  int get cloudTripLimit =>
+      _adsRemoved ? premiumCloudTripLimit : freeCloudTripLimit;
   PurchaseService get purchaseService => _purchaseService;
 
   Future<void> initialize() async {
@@ -27,6 +32,9 @@ class AdProvider extends ChangeNotifier {
     _adsRemoved = await _purchaseService.isAdRemoved();
     if (_adsRemoved) {
       InterstitialAdManager.instance.dispose();
+    } else {
+      // Refund or purchase reverted — re-arm interstitials
+      InterstitialAdManager.instance.preload();
     }
     notifyListeners();
   }

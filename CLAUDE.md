@@ -68,7 +68,8 @@ lib/
 六張表：`trips`、`expenses`、`trip_members`、`trip_invitations`、`profiles`、`expense_splits`、`settlements`。
 - RLS (Row-Level Security) 保護所有表
 - `trip_members` 控制協作權限（owner / editor / viewer）
-- 旅行上限 10 筆（透過 `check_trip_limit` trigger 限制 `trips.owner_id` 數量）
+- 旅行上限：免費 3 筆 / 付費 20 筆（透過 `check_trip_limit` trigger 依 `profiles.is_premium` 決定）
+- 免費與付費在功能上完全相同（分帳、協作邀請都開放），唯一差別是雲端旅行數量上限
 - 邀請碼 6 碼，有效期 30 天
 
 ### Edge Functions
@@ -118,4 +119,5 @@ ASC_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_ZX525S46LM.p8 \
 - Frankfurter API **不支援 TWD**，已改用 ExchangeRate API
 - Xcode 26 beta 有模擬器 destination specifier 相容性問題，建議用實機測試
 - App Icon 使用 `flutter_launcher_icons` 從根目錄 `app-icon.png` 生成
-- 免費用戶雲端旅行上限 10 筆
+- 免費用戶雲端旅行上限 3 筆，付費升級後上限 20 筆（grandfathered：原本超過上限的舊用戶不會被刪除，只是無法再新增）
+- 免費與付費方案功能完全相同，差別只在雲端旅行數量與廣告

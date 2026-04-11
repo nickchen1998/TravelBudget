@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _wasLoggedIn = false;
 
   int get _tripLimit =>
-      context.read<AdProvider>().adsRemoved ? 20 : 10;
+      context.read<AdProvider>().adsRemoved ? 20 : 3;
 
   bool _nearTripLimit(TripProvider provider) =>
       provider.cloudTripCount >= (_tripLimit * 0.8).round();

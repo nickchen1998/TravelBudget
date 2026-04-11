@@ -725,7 +725,7 @@ class SettingsScreen extends StatelessWidget {
                   color: AppTheme.tagBlue,
                   title: l.freeCloud,
                   items: [
-                    _limitRow(l.tripCount, '10'),
+                    _limitRow(l.tripCount, '3'),
                     _limitRow(l.splitBill, '✅'),
                     _limitRow(l.collaboration, '✅'),
                     _limitRow(l.ads, l.adsYes),

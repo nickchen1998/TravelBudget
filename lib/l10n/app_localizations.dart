@@ -331,6 +331,8 @@ class AppLocalizations {
   String get removeAdsPromptTitle => _t('removeAdsPromptTitle');
   String get removeAdsPromptBody => _t('removeAdsPromptBody');
   String get maybeLater => _t('maybeLater');
+  String get restoreHintTitle => _t('restoreHintTitle');
+  String get restoreHintBody => _t('restoreHintBody');
 
   String _t(String key) {
     final map = _localizedValues[localeKey] ?? _localizedValues['zh_TW']!;
@@ -571,6 +573,8 @@ class AppLocalizations {
     'removeAdsPromptTitle': '升級付費方案',
     'removeAdsPromptBody': '雲端旅行上限從 3 提升至 20、移除廣告',
     'maybeLater': '稍後再說',
+    'restoreHintTitle': '偵測到您的付費權益',
+    'restoreHintBody': '您的帳號已是付費用戶，但這支裝置尚未恢復購買。點擊下方按鈕即可在這支裝置上移除廣告。',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '現金',
@@ -830,6 +834,8 @@ class AppLocalizations {
     'removeAdsPromptTitle': 'Upgrade to Premium',
     'removeAdsPromptBody': 'Raise the cloud trip limit from 3 to 20 and remove ads',
     'maybeLater': 'Maybe Later',
+    'restoreHintTitle': 'Premium benefits detected',
+    'restoreHintBody': 'Your account is a premium user, but this device hasn\'t restored the purchase yet. Tap the button below to remove ads on this device.',
     // Payment Methods
     'paymentMethod': 'Payment',
     'payCash': 'Cash',
@@ -1087,6 +1093,8 @@ class AppLocalizations {
     'removeAdsPromptTitle': 'プレミアムにアップグレード',
     'removeAdsPromptBody': 'クラウド旅行の上限を 3 件から 20 件に拡大、広告を削除',
     'maybeLater': 'あとで',
+    'restoreHintTitle': 'プレミアム特典を検出しました',
+    'restoreHintBody': 'お使いのアカウントはすでにプレミアムですが、この端末では購入が復元されていません。下のボタンをタップしてこの端末で広告を削除できます。',
     // Payment Methods
     'paymentMethod': '支払方法',
     'payCash': '現金',
@@ -1344,6 +1352,8 @@ class AppLocalizations {
     'removeAdsPromptTitle': '프리미엄으로 업그레이드',
     'removeAdsPromptBody': '클라우드 여행 한도 3개에서 20개로 확대, 광고 제거',
     'maybeLater': '나중에',
+    'restoreHintTitle': '프리미엄 혜택 감지됨',
+    'restoreHintBody': '귀하의 계정은 이미 프리미엄 사용자이지만, 이 기기에서는 구매가 복원되지 않았습니다. 아래 버튼을 탭하여 이 기기에서 광고를 제거하세요.',
     // Payment Methods
     'paymentMethod': '결제 수단',
     'payCash': '현금',
@@ -1601,6 +1611,8 @@ class AppLocalizations {
     'removeAdsPromptTitle': '升级付费方案',
     'removeAdsPromptBody': '云端旅行上限从 3 提升至 20、移除广告',
     'maybeLater': '稍后再说',
+    'restoreHintTitle': '检测到您的付费权益',
+    'restoreHintBody': '您的账号已是付费用户，但这支设备尚未恢复购买。点击下方按钮即可在这支设备上移除广告。',
     // Payment Methods
     'paymentMethod': '支付方式',
     'payCash': '现金',

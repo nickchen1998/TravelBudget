@@ -26,6 +26,10 @@ class AdProvider extends ChangeNotifier {
   bool get _isPremium => _adsRemoved || _serverPremium;
   int get cloudTripLimit =>
       _isPremium ? premiumCloudTripLimit : freeCloudTripLimit;
+  // True when the server says this account is premium but the local device
+  // has no IAP receipt (e.g. user bought on another device, hasn't tapped
+  // Restore Purchase here yet). Used to surface a guided restore prompt.
+  bool get needsRestoreHint => !_adsRemoved && _serverPremium && !_loading;
   PurchaseService get purchaseService => _purchaseService;
 
   Future<void> initialize() async {

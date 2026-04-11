@@ -10,6 +10,7 @@ import '../../providers/connectivity_provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../widgets/banner_ad_widget.dart';
 import '../../widgets/iap_prompt_dialog.dart';
+import '../../widgets/restore_purchase_hint_dialog.dart';
 import '../../widgets/trip_card.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/invite_code_widget.dart';
@@ -34,6 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   // Auth state listener for auto-refresh on login
   AuthProvider? _authListenTarget;
   bool _wasLoggedIn = false;
+
+  // AdProvider listener — fires when _serverPremium syncs in after startup
+  // or login, so we can surface the restore-purchase hint at the right time.
+  AdProvider? _adListenTarget;
 
   int get _tripLimit => context.read<AdProvider>().cloudTripLimit;
 
@@ -72,6 +77,26 @@ class _HomeScreenState extends State<HomeScreen> {
       _wasLoggedIn = auth.isLoggedIn;
       auth.addListener(_onAuthChanged);
     }
+
+    final adProvider = context.read<AdProvider>();
+    if (_adListenTarget != adProvider) {
+      _adListenTarget?.removeListener(_onAdProviderChanged);
+      _adListenTarget = adProvider;
+      adProvider.addListener(_onAdProviderChanged);
+      // Check immediately in case sync already completed before we mounted.
+      _onAdProviderChanged();
+    }
+  }
+
+  void _onAdProviderChanged() {
+    if (!mounted) return;
+    final adProvider = _adListenTarget;
+    if (adProvider == null || !adProvider.needsRestoreHint) return;
+    // Defer to next frame so dialog doesn't collide with build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      RestorePurchaseHintDialog.showIfNeeded(context);
+    });
   }
 
   void _onAuthChanged() {
@@ -92,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _authListenTarget?.removeListener(_onAuthChanged);
+    _adListenTarget?.removeListener(_onAdProviderChanged);
     super.dispose();
   }
 
@@ -159,15 +185,20 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!_iapPromptChecked && tripProvider.trips.isNotEmpty) {
           _iapPromptChecked = true;
           final adProvider = context.read<AdProvider>();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            IapPromptDialog.showIfNeeded(
-              context,
-              cloudTripCount: tripProvider.cloudTripCount,
-              cloudTripLimit: _tripLimit,
-              adsRemoved: adProvider.adsRemoved,
-            );
-          });
+          // Skip entirely if the user already paid on another device —
+          // pitching "upgrade" would be misleading; the restore hint
+          // dialog handles that flow instead.
+          if (!adProvider.needsRestoreHint) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              IapPromptDialog.showIfNeeded(
+                context,
+                cloudTripCount: tripProvider.cloudTripCount,
+                cloudTripLimit: _tripLimit,
+                adsRemoved: adProvider.adsRemoved,
+              );
+            });
+          }
         }
 
         if (tripProvider.trips.isEmpty) {

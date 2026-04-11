@@ -79,6 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final isLoggedIn = _authListenTarget?.isLoggedIn ?? false;
     if (isLoggedIn && !_wasLoggedIn) {
       context.read<TripProvider>().loadTrips();
+      // Refresh server-side premium flag so client limit display matches
+      // what the server trigger will enforce (e.g. cross-device purchase).
+      context.read<AdProvider>().syncPremiumFromServer();
+    } else if (!isLoggedIn && _wasLoggedIn) {
+      // Signed out — clear server premium state
+      context.read<AdProvider>().syncPremiumFromServer();
     }
     _wasLoggedIn = isLoggedIn;
   }
@@ -236,7 +242,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            l.cloudTripLimitWarning(tripProvider.cloudTripCount, _tripLimit),
+                            tripProvider.cloudTripCount >= _tripLimit
+                                ? l.cloudTripLimitReached(
+                                    tripProvider.cloudTripCount, _tripLimit)
+                                : l.cloudTripLimitWarning(
+                                    tripProvider.cloudTripCount, _tripLimit),
                             style: TextStyle(fontSize: 13, color: Colors.amber.shade900),
                           ),
                         ),

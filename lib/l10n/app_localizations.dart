@@ -267,6 +267,10 @@ class AppLocalizations {
       _t('cloudTripLimitWarning')
           .replaceAll('{count}', '$count')
           .replaceAll('{limit}', '$limit');
+  String cloudTripLimitReached(int count, int limit) =>
+      _t('cloudTripLimitReached')
+          .replaceAll('{count}', '$count')
+          .replaceAll('{limit}', '$limit');
   String get coverUploadFailed => _t('coverUploadFailed');
   String get usageLimits => _t('usageLimits');
   String get usageLimitsDesc => _t('usageLimitsDesc');
@@ -578,6 +582,7 @@ class AppLocalizations {
     'tripLimitTitle': '無法上傳到雲端',
     'tripLimitDesc': '您的雲端旅行已達上限（{limit} 個）。請刪除不需要的雲端旅行，或繼續使用本地儲存。',
     'cloudTripLimitWarning': '您已有 {count}/{limit} 個雲端旅行，即將達到上限。',
+    'cloudTripLimitReached': '您已有 {count}/{limit} 個雲端旅行，已達上限。',
     'coverUploadFailed': '封面圖片上傳失敗，其他變更已儲存',
     'usageLimits': '額度限制',
     'usageLimitsDesc': '了解目前的使用額度',
@@ -836,6 +841,7 @@ class AppLocalizations {
     'tripLimitTitle': 'Cannot upload to cloud',
     'tripLimitDesc': 'You have reached the cloud trip limit ({limit}). Please delete unused cloud trips or continue using local storage.',
     'cloudTripLimitWarning': 'You have {count}/{limit} cloud trips, approaching the limit.',
+    'cloudTripLimitReached': 'You have {count}/{limit} cloud trips — limit reached.',
     'coverUploadFailed': 'Cover image upload failed, other changes saved',
     'usageLimits': 'Usage Limits',
     'usageLimitsDesc': 'View current usage limits',
@@ -1092,6 +1098,7 @@ class AppLocalizations {
     'tripLimitTitle': 'クラウドにアップロードできません',
     'tripLimitDesc': 'クラウド旅行の上限（{limit}件）に達しました。不要なクラウド旅行を削除するか、ローカル保存をご利用ください。',
     'cloudTripLimitWarning': 'クラウド旅行が {count}/{limit} 件です。上限に近づいています。',
+    'cloudTripLimitReached': 'クラウド旅行が {count}/{limit} 件で、上限に達しています。',
     'coverUploadFailed': 'カバー画像のアップロードに失敗しました。その他の変更は保存済みです',
     'usageLimits': '利用制限',
     'usageLimitsDesc': '現在の利用制限を確認',
@@ -1348,6 +1355,7 @@ class AppLocalizations {
     'tripLimitTitle': '클라우드에 업로드할 수 없습니다',
     'tripLimitDesc': '클라우드 여행 한도({limit}개)에 도달했습니다. 불필요한 클라우드 여행을 삭제하거나 로컬 저장소를 사용하세요.',
     'cloudTripLimitWarning': '클라우드 여행이 {count}/{limit}개입니다. 한도에 가까워지고 있습니다.',
+    'cloudTripLimitReached': '클라우드 여행이 {count}/{limit}개로 한도에 도달했습니다.',
     'coverUploadFailed': '커버 이미지 업로드 실패, 기타 변경사항은 저장됨',
     'usageLimits': '사용 한도',
     'usageLimitsDesc': '현재 사용 한도 확인',
@@ -1604,6 +1612,7 @@ class AppLocalizations {
     'tripLimitTitle': '无法上传到云端',
     'tripLimitDesc': '您的云端旅行已达上限（{limit} 个）。请删除不需要的云端旅行，或继续使用本地存储。',
     'cloudTripLimitWarning': '您已有 {count}/{limit} 个云端旅行，即将达到上限。',
+    'cloudTripLimitReached': '您已有 {count}/{limit} 个云端旅行，已达上限。',
     'coverUploadFailed': '封面图片上传失败，其他更改已保存',
     'usageLimits': '额度限制',
     'usageLimitsDesc': '了解目前的使用额度',
